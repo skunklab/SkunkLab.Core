@@ -1,0 +1,41 @@
+{
+    "channels": {
+        "http": {
+            "maxConnections": 5000,
+            "maxUpgradedConnections": 5000,
+            "maxRequestSize": 30000000,
+            "minRequestDataRate": 240,
+            "minResponseDataRate": 240,
+            "maxRequestBufferSize": 1048576,
+            "maxResponseBufferSize": 1048576,
+            "listenPort": 8080,
+            "useEncryptedChannel": false,
+            "x509Filename": null,
+            "x509Password": null
+        },
+        "websocket": {
+            "maxIncomingMessageSize": 4194304,
+            "receiveLoopBufferSize": 8192,
+            "sendBufferSize": 8192,
+            "closeTimeoutMilliseconds": 250.0
+        },
+        "tcp": null,
+        "udp": null
+    },
+    "protocols": null,
+    "identity": null,
+    "security": {
+        "webApi": {
+            "issuer": "http://www.skunklab.io",
+            "audience": "http://www.skunklab.io/",
+            "tokenType": "JWT",
+            "symmetricKey": "YBbu0m32XKYl6L/JG/x2gi6MrINSC4RFee1sanXZF/E=",
+            "nameClaimType": "http://www.skunklab.io/name",
+            "roleClaimType": "http://www.skunklab.io/role",
+            "roleClaimValue": "manage",
+            "securityCodeValues": "12345678;87654321"            
+        },
+        "client": null,
+        "service": null
+    }
+}

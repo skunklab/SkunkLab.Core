@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RootNamespace>Piraeus.Adapters</RootNamespace>
+    <AssemblyName>Piraeus.Adapters</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Capl.Core\Capl.Core.csproj" />
+    <ProjectReference Include="..\Piraeus.Auditing\Piraeus.Auditing.csproj" />
+    <ProjectReference Include="..\Piraeus.Configuration.Core\Piraeus.Configuration.csproj" />
+    <ProjectReference Include="..\Piraeus.Core\Piraeus.Core.csproj" />
+    <ProjectReference Include="..\Piraeus.Grains\Piraeus.Grains.csproj" />
+    <ProjectReference Include="..\SkunkLab.Channels.Core\SkunkLab.Channels.Core\SkunkLab.Channels.csproj" />
+    <ProjectReference Include="..\SkunkLab.Storage.Core\SkunkLab.Storage.csproj" />
+  </ItemGroup>
+
+</Project>

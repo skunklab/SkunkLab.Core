@@ -1,0 +1,25 @@
+﻿using SkunkLab.Storage;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Piraeus.Auditing
+{
+    public class FileAuditor : IAuditor
+    {
+        public FileAuditor(string path)
+        {
+            storage = LocalFileStorage.Create();
+            this.path = path;
+        }
+
+        private LocalFileStorage storage;
+        private string path;
+
+        public async Task WriteAuditRecordAsync(AuditRecord record)
+        {
+            byte[] source = Encoding.UTF8.GetBytes(record.ConvertToCsv());
+            storage.AppendFileAsync(path, source).IgnoreException();
+            await Task.CompletedTask;
+        }
+    }
+}
