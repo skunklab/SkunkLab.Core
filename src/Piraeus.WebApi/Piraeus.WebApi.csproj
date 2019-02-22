@@ -22,13 +22,13 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Orleans.OrleansTelemetryConsumers.AI" Version="2.2.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Capl.Core\Capl.Core.csproj" />
     <ProjectReference Include="..\Orleans.Clustering.Redis\Orleans.Clustering.Redis.csproj" />
-    <ProjectReference Include="..\Piraeus.Configuration.Core\Piraeus.Configuration.csproj" />
+    <ProjectReference Include="..\Piraeus.Configuration\Piraeus.Configuration.csproj" />
     <ProjectReference Include="..\Piraeus.Core\Piraeus.Core.csproj" />
     <ProjectReference Include="..\Piraeus.Extensions\Piraeus.Extensions.csproj" />
     <ProjectReference Include="..\Piraeus.GrainInterfaces\Piraeus.GrainInterfaces.csproj" />

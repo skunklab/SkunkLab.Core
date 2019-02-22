@@ -13,7 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Capl.Core\Capl.Core.csproj" />
     <ProjectReference Include="..\Piraeus.Auditing\Piraeus.Auditing.csproj" />
-    <ProjectReference Include="..\Piraeus.Configuration.Core\Piraeus.Configuration.csproj" />
+    <ProjectReference Include="..\Piraeus.Configuration\Piraeus.Configuration.csproj" />
     <ProjectReference Include="..\Piraeus.Core\Piraeus.Core.csproj" />
     <ProjectReference Include="..\Piraeus.Grains\Piraeus.Grains.csproj" />
     <ProjectReference Include="..\SkunkLab.Channels.Core\SkunkLab.Channels.Core\SkunkLab.Channels.csproj" />

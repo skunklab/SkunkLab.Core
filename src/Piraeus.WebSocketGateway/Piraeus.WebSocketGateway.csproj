@@ -38,7 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Capl.Core\Capl.Core.csproj" />
     <ProjectReference Include="..\Piraeus.Adapters\Piraeus.Adapters.csproj" />
-    <ProjectReference Include="..\Piraeus.Configuration.Core\Piraeus.Configuration.csproj" />
+    <ProjectReference Include="..\Piraeus.Configuration\Piraeus.Configuration.csproj" />
     <ProjectReference Include="..\Piraeus.Core\Piraeus.Core.csproj" />
     <ProjectReference Include="..\SkunkLab.Channels.Core\SkunkLab.Channels.Core\SkunkLab.Channels.csproj" />
     <ProjectReference Include="..\SkunkLab.Clients.Core\SkunkLab.Clients.csproj" />

@@ -1,4 +1,6 @@
 ﻿using StackExchange.Redis;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace SkunkLab.Storage
@@ -19,10 +21,12 @@ namespace SkunkLab.Storage
         private static RedisPskStorage instance;
         private ConnectionMultiplexer connection;
         private IDatabase database;
+        private int? id;
 
         protected RedisPskStorage(string connectionString)
         {
             ConfigurationOptions configOptions = ConfigurationOptions.Parse(connectionString);
+            id = configOptions.DefaultDatabase;
             connection = ConnectionMultiplexer.ConnectAsync(configOptions).GetAwaiter().GetResult();
             database = connection.GetDatabase();
         }
@@ -40,6 +44,26 @@ namespace SkunkLab.Storage
         public override async Task RemoveSecretAsync(string key)
         {
             await database.KeyDeleteAsync(key);
+        }
+
+        public override async Task<string[]> GetKeys()
+        {
+            EndPoint[] endpoints = connection.GetEndPoints();
+            if(endpoints != null && endpoints.Length > 0)
+            {
+                var server = connection.GetServer(endpoints[0]);
+                int dbNum = id.HasValue ? id.Value : 0;
+                var keys = server.Keys(dbNum);
+                List<string> list = new List<string>();
+                foreach (var key in keys)
+                {
+                    list.Add(key.ToString());
+                }
+
+                return await Task.FromResult<string[]>(list.ToArray());
+            }
+
+            return null;
         }
 
 

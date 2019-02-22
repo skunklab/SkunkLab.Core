@@ -67,6 +67,11 @@ namespace SkunkLab.Storage
             await client.DeleteKeyAsync(String.Format("https://{0}.vault.azure.net:443/", Authority), key);
         }
 
+        public override async Task<string[]> GetKeys()
+        {
+            return await Task.FromResult<string[]>(null);
+        }
+
 
         internal static async Task<string> GetAccessToken(string authority, string resource, string scope)
         {

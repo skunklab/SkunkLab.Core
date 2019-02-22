@@ -75,6 +75,16 @@ namespace SkunkLab.Storage
             await Task.CompletedTask;
         }
 
+        
+
+        public override async Task<string[]> GetKeys()
+        {
+            Dictionary<string, string>.KeyCollection coll = container.Keys;
+            string[] keys = new string[container.Count];
+            coll.CopyTo(keys, 0);
+            return await Task.FromResult<string[]>(keys);
+        }
+
         private T DeepClone<T>(T obj)
         {
             if (obj == null)

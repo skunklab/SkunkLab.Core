@@ -25,6 +25,7 @@ using Piraeus.WebApi.Security;
 using SkunkLab.Security.Authentication;
 //using Orleans.Clustering.Redis;
 using Piraeus.Extensions.Configuration;
+using SkunkLab.Storage;
 
 namespace Piraeus.WebApi
 {
@@ -68,6 +69,14 @@ namespace Piraeus.WebApi
                         IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(pconfig.ManagmentApiSymmetricKey))
                     };
                 });
+
+            PskStorageAdapter pskAdpater = GetPskAdapter();
+
+           
+            if(pskAdpater != null)
+            {
+                services.AddSingleton<PskStorageAdapter>(pskAdpater);
+            }
 
             services.AddSingleton<PiraeusConfig>(pconfig);
             services.AddSingleton<IClusterClient>(CreateClusterClient);
@@ -130,6 +139,26 @@ namespace Piraeus.WebApi
             ConfigurationBinder.Bind(root, pc);
 
             return pc;
+        }
+
+        private PskStorageAdapter GetPskAdapter()
+        {
+            if(!string.IsNullOrEmpty(pconfig.PskRedisConnectionString))
+            {
+                return PskStorageAdapterFactory.Create(pconfig.PskRedisConnectionString);
+            }
+
+            if(!string.IsNullOrEmpty(pconfig.PskKeyVaultClientSecret) && !string.IsNullOrEmpty(pconfig.PskKeyVaultClientId) && !string.IsNullOrEmpty(pconfig.PskKeyVaultAuthority))
+            {
+                return PskStorageAdapterFactory.Create(pconfig.PskKeyVaultAuthority, pconfig.PskKeyVaultClientId, pconfig.PskKeyVaultClientSecret);
+            }
+
+            if(!string.IsNullOrEmpty(pconfig.PskKeys))
+            {
+                return PskStorageAdapterFactory.Create(pconfig.PskIdentities, pconfig.PskKeys);
+            }
+
+            return null;
         }
 
         private IClusterClient CreateClusterClient(IServiceProvider serviceProvider)

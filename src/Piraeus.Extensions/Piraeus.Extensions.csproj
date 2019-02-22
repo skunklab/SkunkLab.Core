@@ -21,7 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Orleans.Clustering.Redis\Orleans.Clustering.Redis.csproj" />
     <ProjectReference Include="..\Orleans.Storage.Redis\Orleans.Storage.Redis.csproj" />
-    <ProjectReference Include="..\Piraeus.Configuration.Core\Piraeus.Configuration.csproj" />
+    <ProjectReference Include="..\Piraeus.Configuration\Piraeus.Configuration.csproj" />
     <ProjectReference Include="..\Piraeus.GrainInterfaces\Piraeus.GrainInterfaces.csproj" />
     <ProjectReference Include="..\Piraeus.Grains\Piraeus.Grains.csproj" />
   </ItemGroup>
