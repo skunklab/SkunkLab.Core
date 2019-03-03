@@ -8,9 +8,9 @@ using Piraeus.Core.Metadata;
 namespace Piraeus.GrainInterfaces
 {
     [Serializable]
-    public class ResourceState
+    public class PiSystemState
     {
-        public ResourceState()
+        public PiSystemState()
         {
         }
 
@@ -22,7 +22,7 @@ namespace Piraeus.GrainInterfaces
         public DateTime? LastMessageTimestamp { get; set; }
         #endregion
 
-        public ResourceMetadata Metadata { get; set; }
+        public EventMetadata Metadata { get; set; }
 
         public Dictionary<string, ISubscription> Subscriptions;
 

@@ -41,7 +41,7 @@ namespace Piraeus.UdpGateway
             if (!orleansConfig.Dockerized)
             {
                 var client = new ClientBuilder();
-                client.ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IResource).Assembly));
+                client.ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly));
                 client.UseLocalhostClustering();
                 clusterClient = client.Build();
             }
@@ -122,7 +122,7 @@ namespace Piraeus.UdpGateway
             if (!config.Dockerized)
             {
                 var client = new ClientBuilder()
-                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IResource).Assembly))
+                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly))
                     .UseLocalhostClustering()
                     .Build();
 
@@ -137,7 +137,7 @@ namespace Piraeus.UdpGateway
                         options.ServiceId = config.ServiceId;
                     })
                     .UseAzureStorageClustering(options => options.ConnectionString = config.DataConnectionString)
-                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IResource).Assembly))
+                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly))
                     .ConfigureLogging(builder => builder.SetMinimumLevel(LogLevel.Warning))
                     .Build();
 

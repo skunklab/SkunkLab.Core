@@ -352,7 +352,7 @@ namespace Piraeus.Grains
             Uri uri = new Uri(uriString);
 
             string resourceUriString = uriString.Replace("/" + uri.Segments[uri.Segments.Length - 1], "");
-            IResource resource = GrainFactory.GetGrain<IResource>(resourceUriString);
+            IPiSystem resource = GrainFactory.GetGrain<IPiSystem>(resourceUriString);
 
             if (State.Metadata != null && !string.IsNullOrEmpty(State.Metadata.SubscriptionUriString))
             {

@@ -5,9 +5,9 @@ namespace Piraeus.Core.Metadata
 {
     [Serializable]
     [JsonObject]
-    public class ResourceMetadata
+    public class EventMetadata
     {
-        public ResourceMetadata()
+        public EventMetadata()
         {
         }
 

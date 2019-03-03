@@ -6,6 +6,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq;
+using Piraeus.Configuration.Core;
 
 namespace Piraeus.Configuration.Settings
 {
@@ -161,11 +162,17 @@ namespace Piraeus.Configuration.Settings
         [JsonProperty("tlsCertficateAuthentication")]
         public bool TlsCertficateAuthentication = false;
 
+        ///// <summary>
+        ///// Optional Azure storage connection string used for audit logs and user login logs.
+        ///// </summary>
+        //[JsonProperty("azureStorageConnectionString")]
+        //public string AzureStorageConnectionString { get; set; }
+
         /// <summary>
-        /// Optional Azure storage connection string used for audit logs and user login logs.
+        /// Either a path to a folder or an Azure Storage connection string.
         /// </summary>
-        [JsonProperty("azureStorageConnectionString")]
-        public string AzureStorageConnectionString { get; set; }
+        [JsonProperty("auditConnectionString")]
+        public string AuditConnectionString { get; set; }
 
         #endregion
 
@@ -358,6 +365,17 @@ namespace Piraeus.Configuration.Settings
             return ManagementApiSecurityCodes.Split(";", StringSplitOptions.RemoveEmptyEntries);
         }
 
+        public LoggerType GetLoggerTypes()
+        {
+            if (string.IsNullOrEmpty(LoggerTypes))
+            {
+                return default(LoggerType);
+            }
+
+            string loggerTypes = LoggerTypes.Replace(";", ",");
+            return Enum.Parse<LoggerType>(loggerTypes, true);
+        }
+
         /// <summary>
         /// Gets a clone of PSK identities and keys
         /// </summary>
@@ -385,7 +403,7 @@ namespace Piraeus.Configuration.Settings
         //        }
         //    }
 
-            
+
         //    return DeepClone<Dictionary<string, byte[]>>(psks);
         //}
 

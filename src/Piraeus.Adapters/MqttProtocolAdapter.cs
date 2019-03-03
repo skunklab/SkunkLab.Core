@@ -35,8 +35,7 @@ namespace Piraeus.Adapters
 
             this.context = context;
             session = new MqttSession(mqttConfig);
-            userAuditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.User);
-            messageAuditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.Message);
+            InitializeAuditor(config);
 
 
             Channel = channel;
@@ -53,14 +52,15 @@ namespace Piraeus.Adapters
 
         private ILogger logger;
         private HttpContext context;
-        private IAuditor messageAuditor;
         private MqttSession session;
         private bool disposed;
         private OrleansAdapter adapter;
         private readonly PiraeusConfig config;
         private bool forcePerReceiveAuthn;
-        private IAuditor userAuditor;
         private bool closing;
+        private IAuditFactory auditFactory;
+        private IAuditor messageAuditor;
+        private IAuditor userAuditor;
 
 
         public override IChannel Channel { get; set; }
@@ -70,6 +70,7 @@ namespace Piraeus.Adapters
             Trace.TraceInformation("{0} - MQTT Protocol Adapter intialization on Channel '{1}'.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), Channel.Id);
 
             messageAuditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.Message);
+            userAuditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.User);
 
             forcePerReceiveAuthn = Channel as UdpChannel != null;
             session.OnPublish += Session_OnPublish;
@@ -270,12 +271,12 @@ namespace Piraeus.Adapters
         private async Task PublishAsync(PublishMessage message)
         {
             MessageAuditRecord record = null;
-            ResourceMetadata metadata = null;
+            EventMetadata metadata = null;
 
             try
             {
                 MqttUri mqttUri = new MqttUri(message.Topic);
-                metadata = await GraphManager.GetResourceMetadataAsync(mqttUri.Resource);
+                metadata = await GraphManager.GetPiSystemMetadataAsync(mqttUri.Resource);
                 if (await adapter.CanPublishAsync(metadata, Channel.IsEncrypted))
                 {
                     EventMessage msg = new EventMessage(mqttUri.ContentType, mqttUri.Resource, ProtocolType.MQTT, message.Encode(), DateTime.UtcNow, metadata.Audit);
@@ -493,6 +494,26 @@ namespace Piraeus.Adapters
         }
 
         #endregion
+
+        private void InitializeAuditor(PiraeusConfig config)
+        {
+            if (!string.IsNullOrEmpty(config.AuditConnectionString) && AuditFactory.CreateSingleton().GetAuditor(AuditType.User) == null)
+            {
+                auditFactory = AuditFactory.CreateSingleton();
+
+                if (config.AuditConnectionString.ToLowerInvariant().Contains("AccountName="))
+                {
+                    auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "messageaudit"), AuditType.Message);
+                    auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "useraudit"), AuditType.User);
+                }
+                else
+                {
+                    string pathString = config.AuditConnectionString.LastIndexOf("/") == config.AuditConnectionString.Length - 1 ? config.AuditConnectionString : config.AuditConnectionString + "/";
+                    auditFactory.Add(new FileAuditor(String.Format($"{pathString}messageaudit.txt")), AuditType.Message);
+                    auditFactory.Add(new FileAuditor(String.Format($"{pathString}useraudit.txt")), AuditType.User);
+                }
+            }
+        }
 
     }
 }

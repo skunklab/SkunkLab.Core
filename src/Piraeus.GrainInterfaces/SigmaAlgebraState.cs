@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Piraeus.GrainInterfaces
 {
     [Serializable]
-    public class ResourceListState
+    public class SigmaAlgebraState
     {
         public List<string> Container { get; set; }
     }

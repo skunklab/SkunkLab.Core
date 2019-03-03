@@ -37,7 +37,7 @@ namespace Piraeus.TcpGateway
         private ILogger logger;
 
 
-        public void Init()
+        public void Init(bool dockerized)
         {
             listeners = new Dictionary<int, TcpServerListener>();
             sources = new Dictionary<int, CancellationTokenSource>();
@@ -49,7 +49,8 @@ namespace Piraeus.TcpGateway
                 sources.Add(port, new CancellationTokenSource());
             }
 
-            string hostname = config.Hostname == null ? "localhost" : config.Hostname;
+            string hostname = !dockerized ? "localhost" : Dns.GetHostName();
+            //string hostname = config.Hostname == null ? "localhost" : config.Hostname;
 
             int index = 0;
             while (index < ports.Length)

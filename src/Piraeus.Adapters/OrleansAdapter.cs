@@ -102,7 +102,7 @@ namespace Piraeus.Adapters
             return list.Count == 0 ? null : list;
         }
 
-        public async Task<bool> CanPublishAsync(ResourceMetadata metadata, bool channelEncrypted)
+        public async Task<bool> CanPublishAsync(EventMetadata metadata, bool channelEncrypted)
         {
             if (metadata == null)
             {
@@ -150,7 +150,7 @@ namespace Piraeus.Adapters
 
         public async Task<bool> CanSubscribeAsync(string resourceUriString, bool channelEncrypted)
         {
-            ResourceMetadata metadata = await GraphManager.GetResourceMetadataAsync(resourceUriString);
+            EventMetadata metadata = await GraphManager.GetPiSystemMetadataAsync(resourceUriString);
 
             if (metadata == null)
             {

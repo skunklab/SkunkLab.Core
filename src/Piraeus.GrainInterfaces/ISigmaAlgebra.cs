@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace Piraeus.GrainInterfaces
 {
 
-    public interface IResourceList : IGrainWithStringKey
+    public interface ISigmaAlgebra : IGrainWithStringKey
     {
         Task AddAsync(string resourceUriString);
 

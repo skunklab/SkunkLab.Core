@@ -101,7 +101,7 @@ namespace Piraeus.Adapters
                 byte[] buffer = request.Content.ReadAsByteArrayAsync().Result;
                 Task t = Task.Factory.StartNew(async () =>
                 {
-                    ResourceMetadata metadata = await GraphManager.GetResourceMetadataAsync(uri.Resource);
+                    EventMetadata metadata = await GraphManager.GetPiSystemMetadataAsync(uri.Resource);
                     EventMessage message = new EventMessage(uri.ContentType, uri.Resource, ProtocolType.REST, buffer, DateTime.UtcNow, metadata.Audit);
 
                     if (!string.IsNullOrEmpty(uri.CacheKey))
@@ -203,7 +203,7 @@ namespace Piraeus.Adapters
 
         private async Task PublishAsync(string identity, EventMessage message, List<KeyValuePair<string, string>> indexes = null)
         {
-            ResourceMetadata metadata = await GraphManager.GetResourceMetadataAsync(message.ResourceUri);
+            EventMetadata metadata = await GraphManager.GetPiSystemMetadataAsync(message.ResourceUri);
 
             if (await adapter.CanPublishAsync(metadata, Channel.IsEncrypted))
             {

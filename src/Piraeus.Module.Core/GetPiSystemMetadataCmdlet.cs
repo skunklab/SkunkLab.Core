@@ -4,8 +4,8 @@ using Piraeus.Core.Metadata;
 
 namespace Piraeus.Module
 {
-    [Cmdlet(VerbsCommon.Get, "PiraeusResourceMetadata")]
-    public class GetResourceMetadataCmdlet : Cmdlet
+    [Cmdlet(VerbsCommon.Get, "PiraeusEventMetadata")]
+    public class GetPiSystemMetadataCmdlet : Cmdlet
     {
         [Parameter(HelpMessage = "Url of the service.", Mandatory = true)]
         public string ServiceUrl;
@@ -18,12 +18,12 @@ namespace Piraeus.Module
 
         protected override void ProcessRecord()
         {
-            string url = String.Format("{0}/api/resource/GetResourceMetadata?ResourceUriString={1}", ServiceUrl, ResourceUriString);
+            string url = String.Format("{0}/api/resource/GetPISystemMetadata?ResourceUriString={1}", ServiceUrl, ResourceUriString);
             RestRequestBuilder builder = new RestRequestBuilder("GET", url, RestConstants.ContentType.Json, true, SecurityToken);
             RestRequest request = new RestRequest(builder);
                        
 
-            ResourceMetadata metadata = request.Get<ResourceMetadata>();
+            EventMetadata metadata = request.Get<EventMetadata>();
 
             WriteObject(metadata);
         }

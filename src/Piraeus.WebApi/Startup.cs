@@ -167,14 +167,15 @@ namespace Piraeus.WebApi
             if (config.Dockerized)
             {
                 var clientBuilder = new ClientBuilder()
-                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IResource).Assembly))
+                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly))
                     .Configure<ClusterOptions>(options =>
                     {
                         options.ClusterId = config.ClusterId;
                         options.ServiceId = config.ServiceId;
                     });
-                
+
                 //client.UseRedisGatewayListProvider(options => options.ConnectionString = config.DataConnectionString);
+                //clientBuilder.UseRedisGatewayListProvider(options => options.ConnectionString = config.DataConnectionString);
                 
                 clientBuilder.UseAzureStorageClustering(options => options.ConnectionString = config.DataConnectionString);
                 //.UseRedisGatewayListProvider(logger, options =>
@@ -192,7 +193,7 @@ namespace Piraeus.WebApi
             else
             {
                 var localClient = new ClientBuilder()
-                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IResource).Assembly))
+                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly))
                 .UseLocalhostClustering()
                 .Build();
 

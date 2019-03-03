@@ -14,14 +14,14 @@ namespace Piraeus.WebApi.Controllers
     public class ResourceController : ControllerBase
     {   
 
-        [HttpGet("GetResourceMetadata")]
+        [HttpGet("GetPiSystemMetadata")]
         [Authorize]
         [Produces("application/json")]
-        public async Task<ActionResult<ResourceMetadata>> GetResourceMetadata(string resourceUriString)
+        public async Task<ActionResult<EventMetadata>> GetPiSystemMetadata(string resourceUriString)
         {
             try
             {
-                ResourceMetadata metadata = await GraphManager.GetResourceMetadataAsync(resourceUriString);
+                EventMetadata metadata = await GraphManager.GetPiSystemMetadataAsync(resourceUriString);
                 return StatusCode(200, metadata);
             }
             catch(Exception ex)
@@ -30,14 +30,14 @@ namespace Piraeus.WebApi.Controllers
             }
         }
 
-        [HttpGet("GetResourceList")]
+        [HttpGet("GetSigmaAlgebra")]
         [Authorize]
         [Produces("application/json")]
-        public async Task<ActionResult<IEnumerable<string>>> GetResourceList()
+        public async Task<ActionResult<IEnumerable<string>>> GetSigmaAlgebra()
         {
             try
             {
-                List<string> list = await GraphManager.GetResourceListAsync();
+                List<string> list = await GraphManager.GetSigmaAlgebraAsync();
                 return StatusCode(200, list.ToArray());
             }
             catch (Exception ex)
@@ -46,14 +46,14 @@ namespace Piraeus.WebApi.Controllers
             }
         }
 
-        [HttpGet("GetResourceMetrics")]
+        [HttpGet("GetPiSystemMetrics")]
         [Authorize]
         [Produces("application/json")]
-        public async Task<ActionResult<CommunicationMetrics>> GetResourceMetrics(string resourceUriString)
+        public async Task<ActionResult<CommunicationMetrics>> GetPiSystemMetrics(string resourceUriString)
         {
             try
             {
-                CommunicationMetrics metrics = await GraphManager.GetResourceMetricsAsync(resourceUriString);
+                CommunicationMetrics metrics = await GraphManager.GetPiSystemMetricsAsync(resourceUriString);
                 return StatusCode(200, metrics);
             }
             catch (Exception ex)
@@ -62,13 +62,13 @@ namespace Piraeus.WebApi.Controllers
             }
         }
 
-        [HttpPut("UpsertResourceMetadata")]
+        [HttpPut("UpsertPiSystemMetadata")]
         [Authorize]
-        public async Task<IActionResult> UpsertResourceMetadata(ResourceMetadata metadata)
+        public async Task<IActionResult> UpsertPiSystemMetadata(EventMetadata metadata)
         {
             try
             {
-                await GraphManager.UpsertResourceMetadataAsync(metadata);
+                await GraphManager.UpsertPiSystemMetadataAsync(metadata);
                 return StatusCode(200);
             }
             catch (Exception ex)
@@ -94,14 +94,14 @@ namespace Piraeus.WebApi.Controllers
             }
         }
 
-        [HttpGet("GetResourceSubscriptionList")]
+        [HttpGet("GetPiSystemSubscriptionList")]
         [Authorize]
         [Produces("application/json")]
-        public async Task<ActionResult<IEnumerable<string>>> GetResourceSubscriptionList(string resourceUriString)
+        public async Task<ActionResult<IEnumerable<string>>> GetPiSystemSubscriptionList(string resourceUriString)
         {
             try
             {
-                IEnumerable<string> list = await GraphManager.GetResourceSubscriptionListAsync(resourceUriString);
+                IEnumerable<string> list = await GraphManager.GetPiSystemSubscriptionListAsync(resourceUriString);
                 return StatusCode(200, list);
             }
             catch (Exception ex)
@@ -125,13 +125,13 @@ namespace Piraeus.WebApi.Controllers
             }
         }
 
-        [HttpDelete("DeleteResource")]
+        [HttpDelete("DeletePiSystem")]
         [Authorize]
-        public async Task<IActionResult> DeleteResource(string resourceUriString)
+        public async Task<IActionResult> DeletePiSystem(string resourceUriString)
         {
             try
             {
-                await GraphManager.ClearResourceAsync(resourceUriString);
+                await GraphManager.ClearPiSystemAsync(resourceUriString);
                 return StatusCode(200);
             }
             catch (Exception ex)

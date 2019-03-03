@@ -40,11 +40,11 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="resourceUriString">Unique URI that identifies the resource.</param>
         /// <returns>Resource interface for grain.</returns>
-        public static IResource GetResource(string resourceUriString)
+        public static IPiSystem GetPiSystem(string resourceUriString)
         {            
             Uri uri = new Uri(resourceUriString);
             string uriString = uri.ToCanonicalString(false);            
-            return client.GetGrain<IResource>(uriString);
+            return client.GetGrain<IPiSystem>(uriString);
         }
 
         /// <summary>
@@ -52,11 +52,11 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="metadata">Metadata that describes the resource.</param>
         /// <returns></returns>
-        public static async Task UpsertResourceMetadataAsync(ResourceMetadata metadata)
+        public static async Task UpsertPiSystemMetadataAsync(EventMetadata metadata)
         {
             Uri uri = new Uri(metadata.ResourceUriString);
             metadata.ResourceUriString = uri.ToCanonicalString(false);
-            IResource resource = GetResource(metadata.ResourceUriString);
+            IPiSystem resource = GetPiSystem(metadata.ResourceUriString);
             await resource.UpsertMetadataAsync(metadata);
         }
 
@@ -65,18 +65,18 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="resourceUriString">Unique URI that identifies the resource.</param>
         /// <returns>Resource's metadata.</returns>
-        public static async Task<ResourceMetadata> GetResourceMetadataAsync(string resourceUriString)
+        public static async Task<EventMetadata> GetPiSystemMetadataAsync(string resourceUriString)
         {
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
             return await resource.GetMetadataAsync();
         }
 
         
 
 
-        public static async Task<CommunicationMetrics> GetResourceMetricsAsync(string resourceUriString)
+        public static async Task<CommunicationMetrics> GetPiSystemMetricsAsync(string resourceUriString)
         {
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
             return await resource.GetMetricsAsync();
         }
         /// <summary>
@@ -98,7 +98,7 @@ namespace Piraeus.Grains
             await subscription.UpsertMetadataAsync(metadata);
 
             //Add the subscription to the resource
-            IResource resource = GetResource(uri.ToCanonicalString(false));
+            IPiSystem resource = GetPiSystem(uri.ToCanonicalString(false));
             await resource.SubscribeAsync(subscription);            
 
             return subscriptionUriString;
@@ -114,7 +114,7 @@ namespace Piraeus.Grains
             //get the resource to unsubscribe
             Uri uri = new Uri(subscriptionUriString);
             string resourceUriString = uri.ToCanonicalString(false, true);
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
 
             //unsubscribe from the resource
             await resource.UnsubscribeAsync(subscriptionUriString);
@@ -124,7 +124,7 @@ namespace Piraeus.Grains
         {
             Uri uri = new Uri(subscriptionUriString);
             string resourceUriString = uri.ToCanonicalString(false, true);
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
 
             //unsubscribe from the resource
             await resource.UnsubscribeAsync(subscriptionUriString, identity);
@@ -138,7 +138,7 @@ namespace Piraeus.Grains
         /// <returns></returns>
         public static async Task PublishAsync(string resourceUriString, EventMessage message)
         {
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
             await resource.PublishAsync(message);
         }
 
@@ -151,7 +151,7 @@ namespace Piraeus.Grains
         /// <returns></returns>
         public static async Task PublishAsync(string resourceUriString, EventMessage message, List<KeyValuePair<string, string>> indexes)
         {
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
             await resource.PublishAsync(message, indexes);
         }
 
@@ -160,9 +160,9 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="resourceUriString">Unique URI that identifies the resource.</param>
         /// <returns>Array of subscription URIs subscribed to the resource.</returns>
-        public static async Task<IEnumerable<string>> GetResourceSubscriptionListAsync(string resourceUriString)
+        public static async Task<IEnumerable<string>> GetPiSystemSubscriptionListAsync(string resourceUriString)
         {
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
             return await resource.GetSubscriptionListAsync();
         }
 
@@ -176,7 +176,7 @@ namespace Piraeus.Grains
         public static async Task<string> AddResourceObserverAsync(string resourceUriString, TimeSpan lifetime, MetricObserver observer)
         {
             IMetricObserver objRef = await client.CreateObjectReference<IMetricObserver>(observer);
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
             return await resource.AddObserverAsync(lifetime, objRef);
         }
 
@@ -190,7 +190,7 @@ namespace Piraeus.Grains
         public static async Task<string> AddResourceObserverAsync(string resourceUriString, TimeSpan lifetime, ErrorObserver observer)
         {
             IErrorObserver objRef = await client.CreateObjectReference<IErrorObserver>(observer);
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
             return await resource.AddObserverAsync(lifetime, objRef);
         }
 
@@ -203,7 +203,7 @@ namespace Piraeus.Grains
         /// <returns></returns>
         public static async Task<bool> RenewResourceObserverLeaseAsync(string resourceUriString, string leaseKey, TimeSpan lifetime)
         {
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
             return await resource.RenewObserverLeaseAsync(leaseKey, lifetime);
         }
 
@@ -215,7 +215,7 @@ namespace Piraeus.Grains
         /// <returns></returns>
         public static async Task RemoveResourceObserverAsync(string resourceUriString, string leaseKey)
         {
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
             await resource.RemoveObserverAsync(leaseKey);
         }
 
@@ -224,9 +224,9 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="resourceUriString">Unique URI that identifies the resource.</param>
         /// <returns></returns>
-        public static async Task ClearResourceAsync(string resourceUriString)
+        public static async Task ClearPiSystemAsync(string resourceUriString)
         {
-            IResource resource = GetResource(resourceUriString);
+            IPiSystem resource = GetPiSystem(resourceUriString);
             await resource.ClearAsync();
         }
 
@@ -444,9 +444,9 @@ namespace Piraeus.Grains
         /// Returns of list of resources in Orleans.
         /// </summary>
         /// <returns>Array of resource URIs.</returns>
-        public static async Task<List<string>> GetResourceListAsync()
+        public static async Task<List<string>> GetSigmaAlgebraAsync()
         {
-            IResourceList resourceList = client.GetGrain<IResourceList>("resourcelist");
+            ISigmaAlgebra resourceList = client.GetGrain<ISigmaAlgebra>("resourcelist");
             return await resourceList.GetListAsync();
         }
 

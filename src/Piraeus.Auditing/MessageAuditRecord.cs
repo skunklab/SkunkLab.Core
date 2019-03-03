@@ -75,12 +75,12 @@ namespace Piraeus.Auditing
 
         public override string ConvertToCsv()
         {
-            throw new NotImplementedException();
+            return String.Format($"{Key},{MessageId},{Identity},{Direction},{Channel},{Protocol},{Length},{Error},{Success},{Error},{MessageTime}");
         }
 
         public override string ConvertToJson()
         {
-            throw new NotImplementedException();
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

@@ -3,8 +3,8 @@ using System.Management.Automation;
 
 namespace Piraeus.Module
 {
-    [Cmdlet(VerbsCommon.Remove, "PiraeusResource")]
-    public class RemoveResourceCmdlet : Cmdlet
+    [Cmdlet(VerbsCommon.Remove, "PiraeusEvent")]
+    public class RemovePiSystemCmdlet : Cmdlet
     {
         [Parameter(HelpMessage = "Url of the service.", Mandatory = true)]
         public string ServiceUrl;
@@ -17,7 +17,7 @@ namespace Piraeus.Module
 
         protected override void ProcessRecord()
         {
-            string url = String.Format("{0}/api/resource/deleteresource?resourceuristring={1}", ServiceUrl, ResourceUriString);
+            string url = String.Format("{0}/api/resource/DeletePiSystem?resourceuristring={1}", ServiceUrl, ResourceUriString);
             RestRequestBuilder builder = new RestRequestBuilder("DELETE", url, RestConstants.ContentType.Json, true, SecurityToken);
             RestRequest request = new RestRequest(builder);
 

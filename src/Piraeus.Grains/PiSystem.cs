@@ -15,7 +15,7 @@ namespace Piraeus.Grains
     [Reentrant]
     [StorageProvider(ProviderName = "store")]
     [Serializable]
-    public class Resource : Grain<ResourceState>, IResource
+    public class PiSystem : Grain<PiSystemState>, IPiSystem
     {
         [NonSerialized]
         IDisposable leaseTimer;
@@ -58,7 +58,7 @@ namespace Piraeus.Grains
         #endregion
 
         #region Resource Metadata
-        public async Task UpsertMetadataAsync(ResourceMetadata metadata)
+        public async Task UpsertMetadataAsync(EventMetadata metadata)
         {
             if(metadata == null)
             {
@@ -75,7 +75,7 @@ namespace Piraeus.Grains
 
             State.Metadata = metadata;
 
-            IResourceList resourceList = GrainFactory.GetGrain<IResourceList>("resourcelist");
+            ISigmaAlgebra resourceList = GrainFactory.GetGrain<ISigmaAlgebra>("resourcelist");
             await resourceList.AddAsync(metadata.ResourceUriString);
 
             await WriteStateAsync();
@@ -87,9 +87,9 @@ namespace Piraeus.Grains
             return await Task.FromResult<CommunicationMetrics>(metrics);
         }
 
-        public async Task<ResourceMetadata> GetMetadataAsync()
+        public async Task<EventMetadata> GetMetadataAsync()
         {
-            return await Task.FromResult<ResourceMetadata>(State.Metadata);
+            return await Task.FromResult<EventMetadata>(State.Metadata);
         }
         #endregion
 
@@ -294,7 +294,7 @@ namespace Piraeus.Grains
 
             if (State.Metadata != null)
             {
-                IResourceList resourceList = GrainFactory.GetGrain<IResourceList>("resourcelist");
+                ISigmaAlgebra resourceList = GrainFactory.GetGrain<ISigmaAlgebra>("resourcelist");
                 await resourceList.RemoveAsync(State.Metadata.ResourceUriString);
             }
 

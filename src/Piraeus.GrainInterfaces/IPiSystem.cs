@@ -8,18 +8,18 @@ using Piraeus.Core.Metadata;
 
 namespace Piraeus.GrainInterfaces
 {
-    public interface IResource : IGrainWithStringKey
+    public interface IPiSystem : IGrainWithStringKey
     {
         [AlwaysInterleave]
 
-        Task UpsertMetadataAsync(ResourceMetadata metadata);
+        Task UpsertMetadataAsync(EventMetadata metadata);
 
         [AlwaysInterleave]
 
         Task<CommunicationMetrics> GetMetricsAsync();
         [AlwaysInterleave]
 
-        Task<ResourceMetadata> GetMetadataAsync();
+        Task<EventMetadata> GetMetadataAsync();
 
         [AlwaysInterleave]
 

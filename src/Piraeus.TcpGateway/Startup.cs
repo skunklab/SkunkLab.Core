@@ -38,11 +38,26 @@ namespace Piraeus.TcpGateway
             //services.AddOrleansConfiguration();
             //services.AddPiraeusConfiguration();
             //services.AddOrleansClusterClient(loggerFactory, options => options.IsLocal = false);
-           
+            
             IServiceProvider sp = services.BuildServiceProvider();
+            LoggerType loggerType = oconfig.GetLoggerTypes();
+            if(!loggerType.HasFlag(LoggerType.None))
+            {
+                services.AddLogging(builder =>
+                {
+                    if (loggerType.HasFlag(LoggerType.Console))
+                        builder.AddConsole();
+                    if (loggerType.HasFlag(LoggerType.Debug))
+                        builder.AddDebug();
+                    if (loggerType.HasFlag(LoggerType.AppInsights) && !string.IsNullOrEmpty(oconfig.AppInsightsKey))
+                        builder.AddApplicationInsights(oconfig.AppInsightsKey);
+                       
+                    builder.SetMinimumLevel(LogLevel.Warning);
+                });
+            }
             
             TcpGatewayService tgs = sp.GetRequiredService<TcpGatewayService>();
-            tgs.Init();
+            tgs.Init(oconfig.Dockerized);
 
             //services.AddSingleton<TcpGatewayService>((f) => f.GetRequiredService<TcpGatewayService>());
 

@@ -47,7 +47,7 @@ namespace Piraeus.Extensions.Gateways
             if (!options.Dockerized)
             {
                 var localClient = new ClientBuilder()
-                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IResource).Assembly))
+                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly))
                 .UseLocalhostClustering()
                 .AddLoggers(options)
                 .Build();
@@ -59,7 +59,7 @@ namespace Piraeus.Extensions.Gateways
             else
             {
                 var client = new ClientBuilder()
-                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IResource).Assembly))
+                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly))
                     .Configure<OrleansConfiguration.ClusterOptions>(op =>
                     {
                         op.ClusterId = options.ClusterId;

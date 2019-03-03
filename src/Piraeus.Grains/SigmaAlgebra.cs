@@ -9,7 +9,7 @@ namespace Piraeus.Grains
 {
     [StorageProvider(ProviderName ="store")]
     [Serializable]
-    public class ResourceList : Grain<ResourceListState>, IResourceList
+    public class SigmaAlgebra : Grain<SigmaAlgebraState>, ISigmaAlgebra
     {
         public override Task OnActivateAsync()
         {            

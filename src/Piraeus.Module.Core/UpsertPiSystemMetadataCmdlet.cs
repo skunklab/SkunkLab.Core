@@ -5,8 +5,8 @@ using Piraeus.Core.Metadata;
 
 namespace Piraeus.Module
 {
-    [Cmdlet(VerbsCommon.Add, "PiraeusResourceMetadata")]
-    public class UpsertResourceMetadataCmdlet : Cmdlet
+    [Cmdlet(VerbsCommon.Add, "PiraeusEventMetadata")]
+    public class UpsertPiSystemMetadataCmdlet : Cmdlet
     {
         [Parameter(HelpMessage = "Url of the service.", Mandatory = true)]
         public string ServiceUrl;
@@ -46,11 +46,11 @@ namespace Piraeus.Module
 
         protected override void ProcessRecord()
         {
-            string url = String.Format("{0}/api/resource/upsertresourcemetadata", this.ServiceUrl);
+            string url = String.Format("{0}/api/resource/UpsertPiSystemMetadata", this.ServiceUrl);
             RestRequestBuilder builder = new RestRequestBuilder("PUT", url, RestConstants.ContentType.Json, false, this.SecurityToken);
             RestRequest request = new RestRequest(builder);
 
-            ResourceMetadata metadata = new ResourceMetadata()
+            EventMetadata metadata = new EventMetadata()
             {
                 Audit = this.Audit,
                 Description = this.Description,
@@ -64,7 +64,7 @@ namespace Piraeus.Module
                 SubscribePolicyUriString = this.SubscribePolicyUriString
             };
 
-            request.Put<ResourceMetadata>(metadata);
+            request.Put<EventMetadata>(metadata);
         }
     }
 }

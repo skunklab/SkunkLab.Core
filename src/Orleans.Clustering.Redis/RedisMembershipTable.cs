@@ -64,7 +64,7 @@ namespace Orleans.Clustering.Redis
 
             serializer = new BinarySerializer();
 
-            logger.LogInformation("It worked !!! :-)");
+            logger?.LogInformation("It worked !!! :-)");
         }
         public async Task DeleteMembershipTableEntries(string clusterId)
         {
@@ -74,7 +74,7 @@ namespace Orleans.Clustering.Redis
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, "Redis membership table key '{0}' failed delete table entries.", clusterId);
+                logger?.LogError(ex, "Redis membership table key '{0}' failed delete table entries.", clusterId);
                 throw ex;
             }
         }
@@ -110,14 +110,14 @@ namespace Orleans.Clustering.Redis
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, "Redis membership table key '{0}' failed insert row.", clusterId);
+                logger?.LogError(ex, "Redis membership table key '{0}' failed insert row.", clusterId);
                 throw ex;
             }
         }
 
         public async Task<MembershipTableData> ReadAll()
         {
-            logger.LogInformation("It worked !!! :-)");
+            logger?.LogInformation("It worked !!! :-)");
             try
             {
                 MembershipTableData data = null;
@@ -136,7 +136,7 @@ namespace Orleans.Clustering.Redis
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, "Redis membership table key '{0}' failed read all.", clusterId);
+                logger?.LogError(ex, "Redis membership table key '{0}' failed read all.", clusterId);
                 throw ex;
             }
         }
@@ -162,7 +162,7 @@ namespace Orleans.Clustering.Redis
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, "Redis membership table key '{0}' failed read row.", clusterId);
+                logger?.LogError(ex, "Redis membership table key '{0}' failed read row.", clusterId);
                 throw ex;
             }
         }
@@ -185,7 +185,7 @@ namespace Orleans.Clustering.Redis
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, "Redis membership table key '{0}' failed update i-am-alive.", clusterId);
+                logger?.LogError(ex, "Redis membership table key '{0}' failed update i-am-alive.", clusterId);
                 throw ex;
             }
 
@@ -224,7 +224,7 @@ namespace Orleans.Clustering.Redis
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, "Redis membership table key '{0}' failed update row.", clusterId);
+                logger?.LogError(ex, "Redis membership table key '{0}' failed update row.", clusterId);
                 throw ex;
             }
         }

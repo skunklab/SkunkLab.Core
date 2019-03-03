@@ -173,7 +173,7 @@ namespace Piraeus.Adapters
             {
                 CoapUri uri = new CoapUri(message.ResourceUri.ToString());
                 ResponseMessageType rmt = message.MessageType == CoapMessageType.Confirmable ? ResponseMessageType.Acknowledgement : ResponseMessageType.NonConfirmable;
-                ResourceMetadata metadata = await GraphManager.GetResourceMetadataAsync(uri.Resource);
+                EventMetadata metadata = await GraphManager.GetPiSystemMetadataAsync(uri.Resource);
 
                 if (!await adapter.CanPublishAsync(metadata, channel.IsEncrypted))
                 {

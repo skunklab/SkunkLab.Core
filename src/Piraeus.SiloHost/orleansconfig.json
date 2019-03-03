@@ -1,5 +1,5 @@
 {
-    "dockerized": true,
+    "dockerized": false,
     "clusterId": "myclusterid",
     "serviceId": "myserviceid",
     "dataConnectionString": "DefaultEndpointsProtocol=https;AccountName=loggingmodulestore;AccountKey=PEY5ADgPE4Fg57f17jJyVRQJvbNU9CCrc2cf0x/8JfoNVDbuqZkkDr0A9Os2X27FNFfzv3dAirSra5pOBkzjEw==;EndpointSuffix=core.windows.net",

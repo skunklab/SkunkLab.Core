@@ -133,7 +133,7 @@ namespace Piraeus.HttpGateway
             if (!config.Dockerized)
             {
                 var localClient = new ClientBuilder()
-                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IResource).Assembly))
+                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly))
                 .UseLocalhostClustering()
                 .Build();
 
@@ -143,7 +143,7 @@ namespace Piraeus.HttpGateway
             else
             {
                 var client = new ClientBuilder()
-                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IResource).Assembly))
+                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly))
                     .Configure<ClusterOptions>(options =>
                     {
                         options.ClusterId = config.ClusterId;

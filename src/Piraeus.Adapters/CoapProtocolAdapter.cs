@@ -29,7 +29,7 @@ namespace Piraeus.Adapters
             coapConfig.IdentityClaimType = config.ClientIdentityNameClaimType;
             coapConfig.Indexes = config.GetClientIndexes();
 
-            userAuditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.User);
+            InitializeAuditor(config);
 
             Channel = channel;
             Channel.OnClose += Channel_OnClose;
@@ -64,6 +64,8 @@ namespace Piraeus.Adapters
         private bool forcePerReceiveAuthn;
         private IAuditor userAuditor;
         private bool closing;
+        private IAuditFactory auditFactory;
+            
 
         #endregion
 
@@ -255,5 +257,25 @@ namespace Piraeus.Adapters
         }
 
         #endregion
+
+        private void InitializeAuditor(PiraeusConfig config)
+        {
+            if (!string.IsNullOrEmpty(config.AuditConnectionString) && AuditFactory.CreateSingleton().GetAuditor(AuditType.User) == null)
+            {
+                auditFactory = AuditFactory.CreateSingleton();
+
+                if (config.AuditConnectionString.ToLowerInvariant().Contains("AccountName="))
+                {
+                    auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "messageaudit"), AuditType.Message);
+                    auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "useraudit"), AuditType.User);
+                }
+                else
+                {
+                    string pathString = config.AuditConnectionString.LastIndexOf("/") == config.AuditConnectionString.Length - 1 ? config.AuditConnectionString : config.AuditConnectionString + "/";
+                    auditFactory.Add(new FileAuditor(String.Format($"{pathString}messageaudit.txt")), AuditType.Message);
+                    auditFactory.Add(new FileAuditor(String.Format($"{pathString}useraudit.txt")), AuditType.User);
+                }
+            }
+        }
     }
 }
