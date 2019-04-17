@@ -209,13 +209,17 @@ namespace Piraeus.Grains
                 State.LastMessageTimestamp = DateTime.UtcNow;
 
                 List<Task> taskList = new List<Task>();
-                
-                foreach (var item in State.Subscriptions.Values)
-                {
-                    taskList.Add(item.NotifyAsync(message));
-                }
 
-                await Task.WhenAll(taskList);
+                if (State.Subscriptions.Count > 0)
+                {
+                    ISubscription[] subscriptions = State.Subscriptions.Values.ToArray();
+                    foreach (var item in subscriptions)
+                    {
+                        taskList.Add(item.NotifyAsync(message));                        
+                    }
+
+                    await Task.WhenAll(taskList);
+                }
 
                 await NotifyMetricsAsync();
             }
@@ -253,6 +257,21 @@ namespace Piraeus.Grains
                 if (indexes == null)
                 {
                     await PublishAsync(message);
+                }
+                else
+                {
+                    if (State.Subscriptions.Count > 0)
+                    {
+                        List<Task> taskList = new List<Task>();
+
+                        ISubscription[] subscriptions = State.Subscriptions.Values.ToArray();
+                        foreach (var item in subscriptions)
+                        {
+                            taskList.Add(item.NotifyAsync(message, indexes));
+                        }
+
+                        await Task.WhenAll(taskList);
+                    }
                 }
             }
             catch(AggregateException ae)
