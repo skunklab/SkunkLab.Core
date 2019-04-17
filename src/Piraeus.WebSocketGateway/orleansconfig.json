@@ -1,7 +1,5 @@
 {
-  "dockerized": false,
-  "orleansClusterId": "myclusterid",
-  "orleansServiceId": "myserviceid",
-  "orleansMaxMemoryStorageGrains": 1000,
-  "pirauesServicePointFactor": 24
+    "dockerized": false,
+    "clusterId": "myclusterid",
+    "serviceId": "myserviceid"
 }

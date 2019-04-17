@@ -2,13 +2,12 @@
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Piraeus.Auditing;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.Core;
 using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
 using Piraeus.Core.Utilities;
 using Piraeus.Grains;
-using Piraeus.Grains.Notifications;
 using SkunkLab.Channels;
 using SkunkLab.Security.Identity;
 using System;
@@ -27,8 +26,20 @@ namespace Piraeus.Adapters
             Channel = channel;
             this.context = context;
 
-            messageAuditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.Message);
-            userAuditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.User);
+            auditFactory = AuditFactory.CreateSingleton();
+            if (config.AuditConnectionString != null && config.AuditConnectionString.Contains("DefaultEndpointsProtocol"))
+            {
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.Message);
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.User);
+            }
+            else if (config.AuditConnectionString != null)
+            {
+                auditFactory.Add(new FileAuditor(config.AuditConnectionString), AuditType.Message);
+                auditFactory.Add(new FileAuditor(config.AuditConnectionString), AuditType.User);
+            }
+
+            messageAuditor = auditFactory.GetAuditor(AuditType.Message);
+            userAuditor = auditFactory.GetAuditor(AuditType.User);
         }
 
         public override IChannel Channel { get; set; }
@@ -45,6 +56,7 @@ namespace Piraeus.Adapters
         private string identity;
         private IAuditor userAuditor;
         private bool closing;
+        private IAuditFactory auditFactory;
 
 
         public override void Init()

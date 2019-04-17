@@ -17,20 +17,19 @@ namespace Orleans.Clustering.Redis
     public class RedisGatewayListProvider : IGatewayListProvider
     {
 
-        public RedisGatewayListProvider(ILoggerFactory loggingFactory, IOptions<RedisClusteringOptions> membershipTableOptions, IOptions<ClusterOptions> clusterOptions)
-        {
-            this.logger = loggingFactory.CreateLogger<RedisGatewayListProvider>();
-            //this.logger = logger;
-            this.options = membershipTableOptions.Value;
-            ConfigurationOptions configOptions = GetRedisConfiguration();
+        //public RedisGatewayListProvider(ILogger<RedisGatewayListProvider> logger, IOptions<RedisClusteringOptions> membershipTableOptions, IOptions<ClusterOptions> clusterOptions)
+        //{
+        //    this.logger = logger;
+        //    this.options = membershipTableOptions.Value;
+        //    ConfigurationOptions configOptions = GetRedisConfiguration();
 
 
 
-            clusterId = clusterOptions.Value.ClusterId;
-            connection = ConnectionMultiplexer.Connect(configOptions);
-            database = connection.GetDatabase();
-            serializer = new BinarySerializer();
-        }
+        //    clusterId = clusterOptions.Value.ClusterId;
+        //    connection = ConnectionMultiplexer.Connect(configOptions);
+        //    database = connection.GetDatabase();
+        //    serializer = new BinarySerializer();
+        //}
 
         public RedisGatewayListProvider(ILogger<RedisGatewayListProvider> logger, IOptions<RedisClusteringOptions> membershipTableOptions, IOptions<ClusterOptions> clusterOptions)
         {
@@ -47,8 +46,8 @@ namespace Orleans.Clustering.Redis
         }
 
 
-        private ILogger<RedisGatewayListProvider> logger;
-        private TimeSpan maxStaleness = TimeSpan.FromMinutes(1.0);
+        private readonly ILogger<RedisGatewayListProvider> logger;
+        private readonly TimeSpan maxStaleness = TimeSpan.FromMinutes(1.0);
         private readonly ConnectionMultiplexer connection;
         private readonly IDatabase database;
         private readonly BinarySerializer serializer;
@@ -83,6 +82,7 @@ namespace Orleans.Clustering.Redis
                 }
                 catch(Exception ex)
                 {
+                    
                     return Task.FromResult<IList<Uri>>(null);
                 }
             }

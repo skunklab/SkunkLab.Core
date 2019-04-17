@@ -5,8 +5,7 @@ using Orleans;
 using Orleans.Clustering.Redis;
 using Orleans.Hosting;
 using Orleans.Runtime;
-using Piraeus.Configuration.Core;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.Extensions.Logging;
 using Piraeus.GrainInterfaces;
 using System;
@@ -49,20 +48,20 @@ namespace Piraeus.TcpGateway
             return services;
         }
 
-        public static IServiceCollection AddOrleansClusterClient(this IServiceCollection services, ILoggerFactory loggerFactory,
-            Action<TcpGatewayOptions> configureOptions)
-        {
-            return services.AddOrleansClusterClient(loggerFactory, ob => ob.Configure(configureOptions));
-        }
+        //public static IServiceCollection AddOrleansClusterClient(this IServiceCollection services, ILoggerFactory loggerFactory,
+        //    Action<TcpGatewayOptions> configureOptions)
+        //{
+        //    return services.AddOrleansClusterClient(loggerFactory, ob => ob.Configure(configureOptions));
+        //}
 
-        public static IServiceCollection AddOrleansClusterClient(this IServiceCollection services, ILoggerFactory loggerFactory,
-            Action<Microsoft.Extensions.Options.OptionsBuilder<TcpGatewayOptions>> configureOptions)
-        {
-            configureOptions?.Invoke(services.AddOptions<TcpGatewayOptions>());
-            services.AddSingleton<ILoggerFactory>(CreateLoggerFactory);
-            services.AddSingleton<IClusterClient>(CreateClusterClient);
-            return services.AddSingleton<TcpGatewayService>();
-        }
+        //public static IServiceCollection AddOrleansClusterClient(this IServiceCollection services, ILoggerFactory loggerFactory,
+        //    Action<Microsoft.Extensions.Options.OptionsBuilder<TcpGatewayOptions>> configureOptions)
+        //{
+        //    configureOptions?.Invoke(services.AddOptions<TcpGatewayOptions>());
+        //    //services.AddSingleton<ILoggerFactory>(CreateLoggerFactory);
+        //    services.AddSingleton<IClusterClient>(CreateClusterClient);
+        //    return services.AddSingleton<TcpGatewayService>();
+        //}
 
         private static bool HasLoggerType(OrleansConfig config, string typeName)
         {
@@ -76,38 +75,38 @@ namespace Piraeus.TcpGateway
         }
 
 
-        private static ILoggerFactory CreateLoggerFactory(IServiceProvider serviceProvider)
-        {
+        //private static ILoggerFactory CreateLoggerFactory(IServiceProvider serviceProvider)
+        //{
             
-            OrleansConfig config = serviceProvider.GetService<OrleansConfig>();
-            ILoggerFactory loggerFactory = new LoggerFactory();
-            LogLevel logLevel = Enum.Parse<LogLevel>(config.LogLevel, true);
-            string[] loggerTypes = config.LoggerTypes?.Split(";", StringSplitOptions.RemoveEmptyEntries);
+        //    OrleansConfig config = serviceProvider.GetService<OrleansConfig>();
+        //    ILoggerFactory loggerFactory = new LoggerFactory();
+        //    LogLevel logLevel = Enum.Parse<LogLevel>(config.LogLevel, true);
+        //    string[] loggerTypes = config.LoggerTypes?.Split(";", StringSplitOptions.RemoveEmptyEntries);
             
-            if(HasLoggerType(config, "console"))
-            {
-                loggerFactory.AddConsole(logLevel);
-            }
+        //    if(HasLoggerType(config, "console"))
+        //    {
+        //        loggerFactory.AddConsole(logLevel);
+        //    }
 
-            if (HasLoggerType(config, "debug"))
-            {
-                loggerFactory.AddDebug(logLevel);
-            }
+        //    if (HasLoggerType(config, "debug"))
+        //    {
+        //        loggerFactory.AddDebug(logLevel);
+        //    }
 
-            if(HasLoggerType(config, "appinsights"))
-            {
-                AppInsightsOptions appOptions = new AppInsightsOptions()
-                {
-                    DeveloperMode = false,
-                    InstrumentationKey = config.AppInsightsKey
+        //    if(HasLoggerType(config, "appinsights"))
+        //    {
+        //        AppInsightsOptions appOptions = new AppInsightsOptions()
+        //        {
+        //            DeveloperMode = false,
+        //            InstrumentationKey = config.AppInsightsKey
                     
-                };
+        //        };
 
-                loggerFactory.AddAppInsights(appOptions);
-            }        
+        //        loggerFactory.AddAppInsights(appOptions);
+        //    }        
 
-            return loggerFactory;            
-        }
+        //    return loggerFactory;            
+        //}
 
         private static IClusterClient CreateClusterClient(IServiceProvider serviceProvider)
         {

@@ -9,6 +9,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="dockerfile" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -21,7 +31,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Orleans.OrleansTelemetryConsumers.AI" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Orleans.OrleansAzureUtils" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Orleans.OrleansTelemetryConsumers.AI" Version="2.3.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.1" />
   </ItemGroup>
 
@@ -33,10 +44,8 @@
     <ProjectReference Include="..\Piraeus.Extensions\Piraeus.Extensions.csproj" />
     <ProjectReference Include="..\Piraeus.GrainInterfaces\Piraeus.GrainInterfaces.csproj" />
     <ProjectReference Include="..\Piraeus.Grains\Piraeus.Grains.csproj" />
-    <ProjectReference Include="..\SkunkLab.Channels.Core\SkunkLab.Channels.Core\SkunkLab.Channels.csproj" />
-    <ProjectReference Include="..\SkunkLab.Protocols.Core\SkunkLab.Protocols.csproj" />
-    <ProjectReference Include="..\SkunkLab.Security.Core\SkunkLab.Security.csproj" />
-    <ProjectReference Include="..\SkunkLab.Storage.Core\SkunkLab.Storage.csproj" />
+    <ProjectReference Include="..\SkunkLab.Channels\SkunkLab.Channels.csproj" />
+    <ProjectReference Include="..\SkunkLab.Storage\SkunkLab.Storage.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,15 +55,6 @@
     <Content Update="piraeusconfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="piraeusconfig2.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="localhost.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

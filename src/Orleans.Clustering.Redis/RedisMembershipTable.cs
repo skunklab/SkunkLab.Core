@@ -260,5 +260,11 @@ namespace Orleans.Clustering.Redis
 
             return null;
         }
+
+        public async Task CleanupDefunctSiloEntries(DateTimeOffset beforeDate)
+        {
+            await Task.CompletedTask;
+            //throw new NotImplementedException();
+        }
     }
 }

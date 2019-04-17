@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Piraeus.Configuration.Core
+namespace Piraeus.Configuration
 {
 
     [Serializable]
@@ -14,7 +14,7 @@ namespace Piraeus.Configuration.Core
         }
 
         [JsonProperty("dockerized")]
-        public bool Dockerized { get; set; }
+        public bool Dockerized { get; set; }  //true for docker deployments; otherwise local deployment
 
         [JsonProperty("clusterId")]
         public string ClusterId { get; set; } //orleans cluster id
@@ -23,19 +23,19 @@ namespace Piraeus.Configuration.Core
         public string ServiceId { get; set; } //orleans service id
 
         [JsonProperty("dataConnectionString")]
-        public string DataConnectionString { get; set; } 
+        public string DataConnectionString { get; set; } //either azure storage connection string or redis connection string
 
         [JsonProperty("servicePointFactor")]
         public int ServicePointFactor { get; set; } = 24; //service point factor, e.g., 24 associated with Azure storage
 
         [JsonProperty("loggerTypes")]
-        public string LoggerTypes { get; set; } = "Console;Debug";
+        public string LoggerTypes { get; set; } = "Console;Debug"; //any of console, debug, file, appinsights, or none.
 
         [JsonProperty("logLevel")]
-        public string LogLevel { get; set; } = "Warning";
+        public string LogLevel { get; set; } = "Warning";  //one of warning, error, information, critical, verbose
 
         [JsonProperty("appInsightsKey")]
-        public string AppInsightsKey { get; set; }                      
+        public string AppInsightsKey { get; set; }         //required when loggertypes as appinsights; otherwise omit             
 
         public LoggerType GetLoggerTypes()
         {

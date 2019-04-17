@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using Piraeus.Configuration.Core;
+using Piraeus.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;

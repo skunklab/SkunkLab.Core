@@ -18,14 +18,14 @@ using Microsoft.IdentityModel.Tokens;
 using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
-using Piraeus.Configuration.Core;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.GrainInterfaces;
 using Piraeus.WebApi.Security;
 using SkunkLab.Security.Authentication;
 //using Orleans.Clustering.Redis;
 using Piraeus.Extensions.Configuration;
 using SkunkLab.Storage;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Piraeus.WebApi
 {
@@ -52,7 +52,7 @@ namespace Piraeus.WebApi
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest)
                 .AddXmlSerializerFormatters();
                 
-
+           
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -96,10 +96,15 @@ namespace Piraeus.WebApi
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
+            //else
+            //{
+            //    app.UseHsts();
+            //}
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
-                app.UseHsts();
-            }
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             app.UseAuthentication();
             app.UseHttpsRedirection();
@@ -118,7 +123,7 @@ namespace Piraeus.WebApi
         private OrleansConfig GetOrleansConfig()
         {
             var builder = new ConfigurationBuilder()
-                .AddJsonFile(Environment.CurrentDirectory + "\\orleansconfig.json")
+                .AddJsonFile("./orleansconfig.json")
                 .AddEnvironmentVariables("OR_");
 
             IConfigurationRoot root = builder.Build();
@@ -131,7 +136,7 @@ namespace Piraeus.WebApi
         private PiraeusConfig GetPiraeusConfig()
         {
             var builder = new ConfigurationBuilder()
-                .AddJsonFile(Environment.CurrentDirectory + "\\piraeusconfig.json")
+                .AddJsonFile("./piraeusconfig.json")
                 .AddEnvironmentVariables("PI_");
 
             IConfigurationRoot root = builder.Build();

@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: kube-system
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - INGRESSDNS.LOCATION.cloudapp.azure.com
+    secretName: tls-secret
+  rules:
+  - host: INGRESSDNS.LOCATION.cloudapp.azure.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: mgmt
+          servicePort: 8080
+      - path: /ws
+        backend:
+          serviceName: websocket
+          servicePort: 8081

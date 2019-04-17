@@ -1,12 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Piraeus.Configuration.Core;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.Extensions.Configuration;
-using Piraeus.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Piraeus.SiloHost
 {
@@ -29,7 +25,6 @@ namespace Piraeus.SiloHost
             configBuilder.AddOrleansConfiguration(out oconfig);
             ServiceDescriptor sd = new ServiceDescriptor(typeof(Host), new Host());
             services.Add(sd);
-            //services.AddTransient(typeof(Host));
             
             IServiceProvider sp = services.BuildServiceProvider();
 

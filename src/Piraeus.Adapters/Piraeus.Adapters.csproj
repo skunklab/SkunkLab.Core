@@ -16,8 +16,8 @@
     <ProjectReference Include="..\Piraeus.Configuration\Piraeus.Configuration.csproj" />
     <ProjectReference Include="..\Piraeus.Core\Piraeus.Core.csproj" />
     <ProjectReference Include="..\Piraeus.Grains\Piraeus.Grains.csproj" />
-    <ProjectReference Include="..\SkunkLab.Channels.Core\SkunkLab.Channels.Core\SkunkLab.Channels.csproj" />
-    <ProjectReference Include="..\SkunkLab.Storage.Core\SkunkLab.Storage.csproj" />
+    <ProjectReference Include="..\SkunkLab.Channels\SkunkLab.Channels.csproj" />
+    <ProjectReference Include="..\SkunkLab.Storage\SkunkLab.Storage.csproj" />
   </ItemGroup>
 
 </Project>

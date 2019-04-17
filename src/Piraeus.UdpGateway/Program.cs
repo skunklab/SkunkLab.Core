@@ -27,6 +27,7 @@ namespace Piraeus.UdpGateway
         private static IClusterClient clusterClient;
         private static int attempt;
         private static readonly int initializeAttemptsBeforeFailing = 8;
+        private static string hostname;
 
 
         static void Main(string[] args)
@@ -44,10 +45,12 @@ namespace Piraeus.UdpGateway
                 client.ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly));
                 client.UseLocalhostClustering();
                 clusterClient = client.Build();
+                hostname = "localhost";  
             }
             else
             {
                 clusterClient = GetClient(orleansConfig);
+                hostname = Dns.GetHostName();
             }
 
             Task connectTask = ConnectAsync();
@@ -60,7 +63,7 @@ namespace Piraeus.UdpGateway
                 sources.Add(port, new CancellationTokenSource());
             }
 
-            string hostname = config.Hostname == null ? "localhost" : config.Hostname;
+            //string hostname = config.Hostname == null ? "localhost" : config.Hostname;
 
             int index = 0;
             while (index < ports.Length)
@@ -211,7 +214,7 @@ namespace Piraeus.UdpGateway
                     //restart the server
                     sources.Add(e.Port, new CancellationTokenSource());
 
-                    string hostname = config.Hostname == null ? "localhost" : config.Hostname;
+                    //string hostname = config.Hostname == null ? "localhost" : config.Hostname;
                     listeners.Add(e.Port, new UdpServerListener(config, new IPEndPoint(GetIPAddress(hostname), e.Port), sources[e.Port].Token));
                 }
             }

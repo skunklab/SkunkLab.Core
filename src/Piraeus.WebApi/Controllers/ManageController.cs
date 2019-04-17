@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Orleans;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.Grains;
 using SkunkLab.Security.Tokens;
 using System;

@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Piraeus.Configuration.Settings;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Piraeus.Configuration.Core
+namespace Piraeus.Configuration
 {
     [Serializable]
     [JsonObject]

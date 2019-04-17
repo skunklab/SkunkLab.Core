@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using System;
 using System.Security.Cryptography.X509Certificates;
 

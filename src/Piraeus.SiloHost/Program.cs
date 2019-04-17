@@ -1,31 +1,11 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Orleans;
-using Orleans.Configuration;
-using Orleans.Hosting;
-using Orleans.Runtime;
-using Piraeus.Configuration.Core;
-using Piraeus.Configuration.Settings;
-using Piraeus.GrainInterfaces;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
-using Orleans.Clustering.Redis;
-using Piraeus.Grains;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Piraeus.SiloHost.Core
 {
-    class Program
+    public class Program
     {
-        private static OrleansConfig orleansConfig;
-        private static PiraeusConfig piraeusConfig;
-        private static readonly string hostname;
-        private static readonly IPAddress address;
-        private static ISiloHost host;
         private static ManualResetEventSlim done;
 
         static void Main(string[] args)
@@ -34,16 +14,7 @@ namespace Piraeus.SiloHost.Core
             Startup startup = new Startup(null);
             startup.ConfigureServices(services);
 
-
-            //orleansConfig = GetOrleansConfiguration();
-
-            //CreateSiloHost();
-
-            //Task task = host.StartAsync();
-            //Task.WhenAll(task);
-
             done = new ManualResetEventSlim(false);
-
 
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
@@ -51,7 +22,7 @@ namespace Piraeus.SiloHost.Core
                 done.Set();
                 eventArgs.Cancel = true;
             };
-
+            
             Console.WriteLine("Orleans silo is running...");
             done.Wait();
 

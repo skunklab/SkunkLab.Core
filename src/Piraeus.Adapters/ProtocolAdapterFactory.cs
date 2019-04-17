@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Crypto.Tls;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using SkunkLab.Channels;
 using SkunkLab.Channels.Psk;
 using SkunkLab.Channels.WebSocket;
@@ -46,7 +46,7 @@ namespace Piraeus.Adapters
         /// <param name="token"></param>
         /// <param name="authenticator"></param>
         /// <returns></returns>
-        public static ProtocolAdapter Create(PiraeusConfig config, HttpContext context, ILoggerFactory factory = null, IAuthenticator authenticator = null, CancellationToken token = default(CancellationToken))
+        public static ProtocolAdapter Create(PiraeusConfig config, HttpContext context, ILogger logger = null, IAuthenticator authenticator = null, CancellationToken token = default(CancellationToken))
         {
             IChannel channel = null;
             //HttpContext context = HttpContext.Current;
@@ -64,13 +64,11 @@ namespace Piraeus.Adapters
                 //if (context.WebSocketRequestedProtocols.Contains("mqtt"))
                 if(context.WebSockets.WebSocketRequestedProtocols.Contains("mqtt"))
                 {
-                    ILogger<MqttProtocolAdapter> mqttLogger = factory.CreateLogger<MqttProtocolAdapter>();
-                    return new MqttProtocolAdapter(config, authenticator, channel, mqttLogger);
+                    return new MqttProtocolAdapter(config, authenticator, channel, logger);
                 }
                 else if (context.WebSockets.WebSocketRequestedProtocols.Contains("coapv1"))  //(context.WebSocketRequestedProtocols.Contains("coapv1"))
                 {
-                    ILogger<CoapProtocolAdapter> coapLogger = factory.CreateLogger<CoapProtocolAdapter>();
-                    return new CoapProtocolAdapter(config, authenticator, channel, coapLogger);
+                    return new CoapProtocolAdapter(config, authenticator, channel, logger);
                 }
                 //else if (context.WebSocketRequestedProtocols.Count == 0)
                 //{
@@ -92,8 +90,7 @@ namespace Piraeus.Adapters
             {
                 //channel = ChannelFactory.Create(request);
                 channel = ChannelFactory.Create(context);
-                ILogger<RestProtocolAdapter> restLogger = factory.CreateLogger<RestProtocolAdapter>();
-                return new RestProtocolAdapter(config, channel, context, restLogger);
+                return new RestProtocolAdapter(config, channel, context, logger);
             }
         }
 
@@ -103,7 +100,7 @@ namespace Piraeus.Adapters
         /// <param name="client">TCP client initialized by TCP Listener on server.</param>
         /// <param name="token">Cancellation token</param>
         /// <returns></returns>
-        public static ProtocolAdapter Create(PiraeusConfig config, IAuthenticator authenticator, TcpClient client, ILoggerFactory factory = null, CancellationToken token = default(CancellationToken))
+        public static ProtocolAdapter Create(PiraeusConfig config, IAuthenticator authenticator, TcpClient client, ILogger logger = null, CancellationToken token = default(CancellationToken))
         {
             IChannel channel = null;
             TlsPskIdentityManager pskManager = null;
@@ -141,14 +138,12 @@ namespace Piraeus.Adapters
 
             if (port == 5684) //CoAP over TCP
             {
-                ILogger<CoapProtocolAdapter> coapLogger = factory.CreateLogger<CoapProtocolAdapter>();
-                return new CoapProtocolAdapter(config, authenticator, channel, coapLogger);
+                return new CoapProtocolAdapter(config, authenticator, channel, logger);
             }
             else if (port == 1883 || port == 8883) //MQTT over TCP
             {
-                ILogger<MqttProtocolAdapter> mqttLogger = factory.CreateLogger<MqttProtocolAdapter>();
                 //MQTT
-                return new MqttProtocolAdapter(config, authenticator, channel, mqttLogger);
+                return new MqttProtocolAdapter(config, authenticator, channel, logger);
             }
             else
             {

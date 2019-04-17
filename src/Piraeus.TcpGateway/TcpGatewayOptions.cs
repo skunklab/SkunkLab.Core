@@ -1,5 +1,4 @@
-﻿using Piraeus.Configuration.Core;
-using Piraeus.Configuration.Settings;
+﻿using Piraeus.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Net;

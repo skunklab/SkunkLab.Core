@@ -1,0 +1,67 @@
+FROM microsoft/dotnet:2.2-sdk AS base
+WORKDIR /app
+EXPOSE 11111
+EXPOSE 30000
+
+FROM microsoft/dotnet:2.2-sdk AS build
+WORKDIR /src
+COPY Piraeus.SiloHost.sln ./
+COPY Capl.Core/*.csproj ./Capl.Core/
+COPY Orleans.Clustering.Redis/*.csproj ./Orleans.Clustering.Redis/
+COPY Orleans.Storage.Redis/*.csproj ./Orleans.Storage.Redis/
+COPY Piraeus.Auditing/*.csproj ./Piraeus.Auditing/
+COPY Piraeus.Core/*.csproj ./Piraeus.Core/
+COPY SkunkLab.Security/*.csproj ./Piraeus.Security/
+COPY SkunkLab.Storage/*.csproj ./Piraeus.Storage/
+COPY SkunkLab.Protocols/*.csproj ./SkunkLab.Protocols/
+COPY Piraeus.GrainInterfaces/*.csproj ./Piraeus.GrainInterfaces/
+COPY Piraeus.Grains/*.csproj ./Piraeus.Grains/
+COPY Piraeus.Extensions/*.csproj ./Piraeus.Extensions/
+COPY Piraeus.SiloHost/*.csproj ./Piraeus.SiloHost/
+
+RUN dotnet restore
+COPY . .
+WORKDIR /src/Capl
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/Orleans.Clustering.Redis
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/Orleans.Storage.Redis
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/Piraeus.Auditing
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/Piraeus.Core
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/SkunkLab.Security
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/SkunkLab.Storage
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/SkunkLab.Protocols
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/Piraeus.GrainInterfaces
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/Piraeus.Grains
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/Piraeus.Extensions
+RUN dotnet build -c Release -o /app
+
+WORKDIR /src/Piraeus.SiloHost
+RUN dotnet build -c Release -o /app
+
+FROM build AS publish
+RUN dotnet publish -c Release -o /app
+
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app .
+ENTRYPOINT ["dotnet", "Piraeus.SiloHost.dll"]

@@ -10,9 +10,10 @@
     <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
     <AssemblyName>Piraeus.SiloHost</AssemblyName>
   </PropertyGroup>
-  
   <ItemGroup>
-    <PackageReference Include="Microsoft.Orleans.Core" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Orleans.Core" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Orleans.OrleansAzureUtils" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Orleans.OrleansRuntime" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,7 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="orleansconfig.json">
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="orleansconfig.json" CopyToPublishDirectory="Always">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

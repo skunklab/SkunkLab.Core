@@ -1,8 +1,12 @@
-﻿using Piraeus.Configuration.Settings;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Orleans;
+using Piraeus.Auditing;
+using Piraeus.Configuration;
+using Piraeus.Core;
 using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
 using Piraeus.Grains;
-using Piraeus.Grains.Notifications;
 using SkunkLab.Channels;
 using SkunkLab.Channels.Udp;
 using SkunkLab.Protocols.Mqtt;
@@ -14,12 +18,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security;
 using System.Threading.Tasks;
-using Piraeus.Core;
-using Orleans;
-using SkunkLab.Channels.WebSocket;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Piraeus.Auditing;
 
 namespace Piraeus.Adapters
 {
@@ -69,8 +67,20 @@ namespace Piraeus.Adapters
         {
             Trace.TraceInformation("{0} - MQTT Protocol Adapter intialization on Channel '{1}'.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), Channel.Id);
 
-            messageAuditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.Message);
-            userAuditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.User);
+            auditFactory = AuditFactory.CreateSingleton();
+            if (config.AuditConnectionString != null && config.AuditConnectionString.Contains("DefaultEndpointsProtocol"))
+            {
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.Message);
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.User);
+            }
+            else if(config.AuditConnectionString != null)
+            {
+                auditFactory.Add(new FileAuditor(config.AuditConnectionString), AuditType.Message);
+                auditFactory.Add(new FileAuditor(config.AuditConnectionString), AuditType.User);
+            }
+
+            messageAuditor = auditFactory.GetAuditor(AuditType.Message);
+            userAuditor = auditFactory.GetAuditor(AuditType.User);
 
             forcePerReceiveAuthn = Channel as UdpChannel != null;
             session.OnPublish += Session_OnPublish;
@@ -425,7 +435,7 @@ namespace Piraeus.Adapters
                 {
                     closing = true;
                     UserAuditRecord record = new UserAuditRecord(Channel.Id, DateTime.UtcNow);
-                    userAuditor?.WriteAuditRecordAsync(record).Ignore();
+                    userAuditor?.WriteAuditRecordAsync(record).IgnoreException();
                 }
 
                 OnClose?.Invoke(this, new ProtocolAdapterCloseEventArgs(e.ChannelId));

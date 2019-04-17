@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Orleans;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.Core;
 using Piraeus.Grains;
 using System;
@@ -14,27 +14,24 @@ namespace Piraeus.TcpGateway
 {
     public class TcpGatewayService
     {
-        public TcpGatewayService(PiraeusConfig piraeusConfig, IClusterClient clusterClient, ILoggerFactory loggerFactory = null)
+        public TcpGatewayService(PiraeusConfig piraeusConfig, IClusterClient clusterClient, ILogger<TcpGatewayService> logger = null)
         {
             this.config = piraeusConfig;
             this.clusterClient = clusterClient;
-            this.loggerFactory = loggerFactory;
-            logger = loggerFactory?.CreateLogger<TcpGatewayService>();
+            this.logger = logger;
 
             if(!GraphManager.IsInitialized)
             {
                 GraphManager.Initialize(this.clusterClient);
             }
-
-            Init();
         }
 
         private PiraeusConfig config;
         private IClusterClient clusterClient;
         private Dictionary<int, TcpServerListener> listeners;
         private Dictionary<int, CancellationTokenSource> sources;
-        private readonly ILoggerFactory loggerFactory;
-        private ILogger logger;
+        private ILogger<TcpGatewayService> logger;
+        private string hostname;
 
 
         public void Init(bool dockerized)
@@ -49,13 +46,13 @@ namespace Piraeus.TcpGateway
                 sources.Add(port, new CancellationTokenSource());
             }
 
-            string hostname = !dockerized ? "localhost" : Dns.GetHostName();
+            hostname = !dockerized ? "localhost" : Dns.GetHostName();
             //string hostname = config.Hostname == null ? "localhost" : config.Hostname;
 
             int index = 0;
             while (index < ports.Length)
             {
-                listeners.Add(ports[index], new TcpServerListener(new IPEndPoint(GetIPAddress(hostname), ports[index]), config, loggerFactory, sources[ports[index]].Token));
+                listeners.Add(ports[index], new TcpServerListener(new IPEndPoint(GetIPAddress(hostname), ports[index]), config, this.logger, sources[ports[index]].Token));
                 index++;
             }
 
@@ -116,8 +113,8 @@ namespace Piraeus.TcpGateway
                     //restart the server
                     sources.Add(e.Port, new CancellationTokenSource());
 
-                    string hostname = config.Hostname == null ? "localhost" : config.Hostname;
-                    listeners.Add(e.Port, new TcpServerListener(new IPEndPoint(GetIPAddress(hostname), e.Port), config, loggerFactory, sources[e.Port].Token));
+                    //string hostname = config.Hostname == null ? "localhost" : config.Hostname;
+                    listeners.Add(e.Port, new TcpServerListener(new IPEndPoint(GetIPAddress(hostname), e.Port), config, logger, sources[e.Port].Token));
                 }
             }
             catch (Exception ex)

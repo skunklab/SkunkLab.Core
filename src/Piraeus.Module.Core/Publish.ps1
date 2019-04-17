@@ -1,23 +1,24 @@
 ﻿
-$Path = '.\PiraeusCore'
-$ModuleName = 'PiraeusCore'
+$Path = '.\PiraeusModuleCore'
+$ModuleName = 'PiraeusModuleCore'
 $Author = 'SkunkLab'
 $Description = 'PowerShell Core module for Piraeus Management API.'
 
 $manifestSplat = @{
-        Path              = ".\PiraeusCore\PiraeusCore.psd1"
+        Path              = ".\PiraeusCore.psd1"
         Author            = 'SkunkLab'
-        ModuleVersion     = "0.9.1"
-        NestedModules     = @('.bin\Release\netcoreapp2.1\Piraeus.Module.Core.dll')
-        RootModule        = "PiraeusCore.psm1"
+        ModuleVersion     = "1.1.11"
+        NestedModules     = @('.bin\Release\netcoreapp2.2\Piraeus.Module.Core.dll')
+        RootModule        = "PiraeusModuleCore"
     }
     New-ModuleManifest @manifestSplat
 
-Set-Content -Value '' -Path ".\PiraeusCore\PiraeusCore.psm1"
+#Set-Content -Value '' -Path ".\PiraeusModuleCore\PiraeusModuleCore.psm1"
 
+Write-Host $Path
+Write-Host $ModuleName.ps1
 
-
-New-ModuleManifest -Path $Path\$ModuleName.psd1 -RootModule $ModuleName.psm1 -Description $Description -Author $Author -ModuleVersion "1.1.0"
+New-ModuleManifest -Path $Path\$ModuleName.psd1 -RootModule $ModuleName.psm1 -Description $Description -Author $Author -ModuleVersion "1.1.11"
 
 
 $PublishParams = @{
@@ -28,7 +29,7 @@ $PublishParams = @{
 
     ProjectUri = 'https://github.com/skunklab'
 
-    Tags = @('PiraeusCore', 'Piraeus', 'REST', 'API' )
+    Tags = @('PiraeusCore', 'PiraeusModuleCore', 'Piraeus', 'Management','REST', 'API' )
 
 }
 

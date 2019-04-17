@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SkunkLab.Storage.Core\SkunkLab.Storage.csproj" />
+    <ProjectReference Include="..\SkunkLab.Storage\SkunkLab.Storage.csproj" />
   </ItemGroup>
 
 </Project>

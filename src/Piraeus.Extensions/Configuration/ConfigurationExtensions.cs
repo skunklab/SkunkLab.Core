@@ -4,9 +4,7 @@ using Microsoft.Extensions.Options;
 using Orleans;
 using Orleans.Clustering.Redis;
 using Orleans.Messaging;
-using Piraeus.Configuration.Core;
-using Piraeus.Configuration.Settings;
-using Piraeus.Extensions.Options;
+using Piraeus.Configuration;
 using System;
 
 namespace Piraeus.Extensions.Configuration
@@ -15,7 +13,8 @@ namespace Piraeus.Extensions.Configuration
     {
         public static IConfigurationBuilder AddOrleansConfiguration(this IConfigurationBuilder configure, out OrleansConfig orleansConfig)
         {
-            configure.AddJsonFile(Environment.CurrentDirectory + "\\orleansconfig.json")
+
+            configure.AddJsonFile("./orleansconfig.json")
                 .AddEnvironmentVariables("OR_");
             IConfigurationRoot root = configure.Build();
             orleansConfig = new OrleansConfig();
@@ -26,7 +25,7 @@ namespace Piraeus.Extensions.Configuration
 
         public static IConfigurationBuilder AddPiraeusConfiguration(this IConfigurationBuilder configure, out PiraeusConfig piraeusConfig)
         {
-            configure.AddJsonFile(Environment.CurrentDirectory + "\\piraeusconfig.json")
+            configure.AddJsonFile("./piraeusconfig.json")
                 .AddEnvironmentVariables("PI_");
             IConfigurationRoot root = configure.Build();
             piraeusConfig = new PiraeusConfig();

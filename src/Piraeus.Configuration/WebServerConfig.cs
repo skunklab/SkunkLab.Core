@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Piraeus.Configuration.Core
+namespace Piraeus.Configuration
 {
     public class WebServerConfig : WebConfig 
     {

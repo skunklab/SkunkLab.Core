@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Orleans.Core" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Orleans.OrleansRuntime" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Orleans.Core" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Orleans.OrleansRuntime" Version="2.3.0" />
     <PackageReference Include="StackExchange.Redis.Extensions.Binary" Version="4.0.5" />
   </ItemGroup>
 

@@ -23,6 +23,26 @@ QuickBuild.log
 # MSBuild's log file
 msbuild.log
 
+
+#Build Output
+/build/BuildOutput/*.log
+/build/BuildOutput/*.log_errors
+/build/BuildOutput/*.log_warnings
+/build/Piraeus.SiloHost/*.*
+/build/Piraeus.SiloHost-Out/*.*
+/build/Piraeus.WebApi/*.*
+/build/Piraeus.WebApi-Out/*.*
+/build/Piraeus.WebSocketGateway/*.*
+/build/Piraeus.WebSocketGateway-Out/*.*
+/build/dockerbuild.cmd
+
+# PiraeusModuleCore
+/src/Piraeus.Module.Core/*.ps1
+/src/Piraeus.Module.Core/*.psd1
+/src/Piraeus.Module.Core/*.psm1
+
+
+
 # VSMSBuild generated files in CoreXT
 *.projhash*
 *.slnhash*

@@ -1,0 +1,85 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: websocket
+  labels:
+    app: websocket
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    component: websocket
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: websocket
+      component: websocket
+  template:
+    metadata:
+      labels:
+        app: websocket
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+        component: websocket
+    spec:
+      containers: 
+        - name: websocket       
+          image: {{ .Values.image2.repository }}:{{ .Values.image2.tag }}
+          imagePullPolicy: {{ .Values.image1.pullPolicy }}
+          env:
+          - name: OR_Dockerized
+            value: {{ .Values.dockerized | quote }}
+          - name: PI_LogLevel
+            value: {{ .Values.loglevel | quote }}
+          - name: PI_LoggerTypes
+            value: {{ .Values.loggerTypes | quote }}
+          - name: OR_ClusterId
+            value: {{ .Values.clusterId | quote }}
+          - name: OR_ServiceId
+            value: {{ .Values.serviceId | quote }}
+          - name: OR_DataConnectionString
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: dataConnectionString  
+          - name: PI_ManagementApiIssuer
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: managementApiIssuer 
+          - name: PI_ManagementApiAudience
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: managementApiAudience  
+          - name: PI_ManagmentApiSymmetricKey
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: managmentApiSymmetricKey   
+          - name: PI_ManagementApiSecurityCodes
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: managementApiSecurityCodes                
+          ports:
+          - containerPort: 8081
+          readinessProbe:
+            tcpSocket:
+              port: 8081
+            failureThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          livenessProbe:
+            tcpSocket:
+              port: 8081
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+      nodeSelector:
+        pool: nodepool1

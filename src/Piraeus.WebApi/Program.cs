@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Piraeus.WebApi
@@ -40,7 +42,10 @@ namespace Piraeus.WebApi
                         }
                         else
                         {
-                            options.ListenAnyIP(port);
+                            IPAddress address = GetIPAddress(Dns.GetHostName());
+                            options.Listen(address, port);
+                            //options.Listen(IPAddress.Loopback, port);
+                            //options.ListenAnyIP(port);
                         }
                     }
 
@@ -63,7 +68,7 @@ namespace Piraeus.WebApi
         private static PiraeusConfig GetPiraeusConfig()
         {
             var builder = new ConfigurationBuilder()
-                .AddJsonFile(Environment.CurrentDirectory + "\\piraeusconfig.json")
+                .AddJsonFile("./piraeusconfig.json")
                 .AddEnvironmentVariables("PI_");
 
             IConfigurationRoot root = builder.Build();
@@ -71,6 +76,20 @@ namespace Piraeus.WebApi
             ConfigurationBinder.Bind(root, config);
 
             return config;
+        }
+
+        private static IPAddress GetIPAddress(string hostname)
+        {
+            IPHostEntry hostInfo = Dns.GetHostEntry(hostname);
+            for (int index = 0; index < hostInfo.AddressList.Length; index++)
+            {
+                if (hostInfo.AddressList[index].AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return hostInfo.AddressList[index];
+                }
+            }
+
+            return null;
         }
 
         //public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

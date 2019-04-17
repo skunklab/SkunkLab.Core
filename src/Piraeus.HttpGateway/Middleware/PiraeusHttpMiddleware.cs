@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Orleans;
 using Piraeus.Adapters;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.Grains;
 using System;
 using System.Collections.Generic;

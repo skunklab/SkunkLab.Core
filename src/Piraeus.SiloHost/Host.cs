@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Orleans;
+using Orleans.Clustering.Redis;
 using Orleans.Configuration;
 using Orleans.Hosting;
-using Piraeus.Configuration.Core;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Orleans.Clustering.Redis;
 using Orleans.Storage.Redis;
-using Orleans;
+using Piraeus.Configuration;
 using Piraeus.Grains;
-using Microsoft.Extensions.Logging;
+using System;
 using System.Net;
 
 namespace Piraeus.SiloHost
@@ -135,7 +133,7 @@ namespace Piraeus.SiloHost
         private OrleansConfig GetOrleansConfiguration()
         {
             var builder = new ConfigurationBuilder()
-                .AddJsonFile("orleansconfig.json")
+                .AddJsonFile("./orleansconfig.json") 
                 .AddEnvironmentVariables("OR_");
             IConfigurationRoot root = builder.Build();
             OrleansConfig config = new OrleansConfig();

@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Orleans;
 using Piraeus.Auditing;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.Core;
 using SkunkLab.Channels;
 using SkunkLab.Channels.Udp;
@@ -73,6 +73,8 @@ namespace Piraeus.Adapters
         public override void Init()
         {
             Trace.TraceInformation("{0} - CoAP Protocol Adapter intialization on Channel '{1}'.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), Channel.Id);
+
+
             
             forcePerReceiveAuthn = Channel as UdpChannel != null;
 
@@ -260,22 +262,19 @@ namespace Piraeus.Adapters
 
         private void InitializeAuditor(PiraeusConfig config)
         {
-            if (!string.IsNullOrEmpty(config.AuditConnectionString) && AuditFactory.CreateSingleton().GetAuditor(AuditType.User) == null)
+            auditFactory = AuditFactory.CreateSingleton();
+            if (config.AuditConnectionString != null && config.AuditConnectionString.Contains("DefaultEndpointsProtocol"))
             {
-                auditFactory = AuditFactory.CreateSingleton();
-
-                if (config.AuditConnectionString.ToLowerInvariant().Contains("AccountName="))
-                {
-                    auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "messageaudit"), AuditType.Message);
-                    auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "useraudit"), AuditType.User);
-                }
-                else
-                {
-                    string pathString = config.AuditConnectionString.LastIndexOf("/") == config.AuditConnectionString.Length - 1 ? config.AuditConnectionString : config.AuditConnectionString + "/";
-                    auditFactory.Add(new FileAuditor(String.Format($"{pathString}messageaudit.txt")), AuditType.Message);
-                    auditFactory.Add(new FileAuditor(String.Format($"{pathString}useraudit.txt")), AuditType.User);
-                }
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.Message);
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.User);
             }
+            else if (config.AuditConnectionString != null)
+            {
+                auditFactory.Add(new FileAuditor(config.AuditConnectionString), AuditType.Message);
+                auditFactory.Add(new FileAuditor(config.AuditConnectionString), AuditType.User);
+            }
+
+            userAuditor = auditFactory.GetAuditor(AuditType.User);
         }
     }
 }

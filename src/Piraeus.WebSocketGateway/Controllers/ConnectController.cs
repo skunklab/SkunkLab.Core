@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Orleans;
 using Piraeus.Adapters;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.Grains;
 using SkunkLab.Security.Authentication;
 using System;

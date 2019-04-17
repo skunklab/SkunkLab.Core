@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -10,13 +9,10 @@ using Microsoft.IdentityModel.Tokens;
 using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
-using Piraeus.Configuration.Core;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.GrainInterfaces;
 using Piraeus.WebSocketGateway.Middleware;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Piraeus.WebSocketGateway
@@ -36,6 +32,12 @@ namespace Piraeus.WebSocketGateway
             //{
             //    app.UseHsts();
             //}
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
+
 
             app.UseAuthentication();
             app.UseWebSockets();
@@ -69,7 +71,7 @@ namespace Piraeus.WebSocketGateway
         {
             pconfig = GetPiraeusConfig();
             config = GetOrleansConfig();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -93,13 +95,14 @@ namespace Piraeus.WebSocketGateway
             //services.AddPiraeusWebSocket();
             
             services.AddRouting();
-            
+            services.AddMvcCore();
+
         }
 
         private OrleansConfig GetOrleansConfig()
         {
             var builder = new ConfigurationBuilder()
-                .AddJsonFile(Environment.CurrentDirectory + "\\orleansconfig.json")
+                .AddJsonFile("./orleansconfig.json")
                 .AddEnvironmentVariables("OR_");
 
             IConfigurationRoot root = builder.Build();
@@ -114,7 +117,7 @@ namespace Piraeus.WebSocketGateway
         private PiraeusConfig GetPiraeusConfig()
         {
             var builder = new ConfigurationBuilder()
-                .AddJsonFile(Environment.CurrentDirectory + "\\piraeusconfig.json")
+                .AddJsonFile("./piraeusconfig.json")
                 .AddEnvironmentVariables("PI_");
 
             IConfigurationRoot root = builder.Build();
@@ -150,12 +153,13 @@ namespace Piraeus.WebSocketGateway
                     .Build();
 
                 client.Connect(RetryFilter).GetAwaiter().GetResult();
+                log?.LogWarning("Web Socket Gateway client connected.");
                 return client;
             }
             async Task<bool> RetryFilter(Exception exception)
             {
                 log?.LogWarning("Exception while attempting to connect to Orleans cluster: {Exception}", exception);
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await Task.Delay(TimeSpan.FromSeconds(10));
                 return true;
             }
         }

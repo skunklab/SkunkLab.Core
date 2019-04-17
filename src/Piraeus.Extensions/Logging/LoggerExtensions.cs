@@ -3,10 +3,10 @@ using Microsoft.Extensions.Logging;
 using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
-using Piraeus.Configuration.Core;
+using Piraeus.Configuration;
 using Piraeus.Extensions.Options;
 using System;
-using LoggerType = Piraeus.Configuration.Core.LoggerType;
+using LoggerType = Piraeus.Configuration.LoggerType;
 
 namespace Piraeus.Extensions.Logging
 {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using System;
 using System.Security.Cryptography.X509Certificates;
 
@@ -20,7 +20,7 @@ namespace Piraeus.WebSocketGateway
         private static PiraeusConfig GetPiraeusConfig()
         {
             var builder = new ConfigurationBuilder()
-                .AddJsonFile(Environment.CurrentDirectory + "\\piraeusconfig.json")
+                .AddJsonFile("./piraeusconfig.json")
                 .AddEnvironmentVariables("PI_");
 
             IConfigurationRoot root = builder.Build();
@@ -32,8 +32,9 @@ namespace Piraeus.WebSocketGateway
 
         private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()                
-                .UseKestrel(options =>
+                .UseStartup<Startup>()
+                .UseKestrel()
+                .ConfigureKestrel((context, options) =>
                 {
                     PiraeusConfig config = GetPiraeusConfig();
                     options.Limits.MaxConcurrentConnections = config.MaxConnections;
@@ -45,16 +46,20 @@ namespace Piraeus.WebSocketGateway
                         new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
                     if (!string.IsNullOrEmpty(config.ServerCertificateFilename))
                     {
+                        Console.WriteLine("Port for cert with filename");
                         options.ListenAnyIP(config.GetPorts()[0], (a) => a.UseHttps(config.ServerCertificateFilename, config.ServerCertificatePassword));
                     }
-                    else if(!string.IsNullOrEmpty(config.ServerCertificateStore))
+                    else if (!string.IsNullOrEmpty(config.ServerCertificateStore))
                     {
+                        Console.WriteLine("Port for cert with store");
                         X509Certificate2 cert = config.GetServerCerticate();
                         options.ListenAnyIP(config.GetPorts()[0], (a) => a.UseHttps(cert));
                     }
                     else
                     {
-                        options.ListenAnyIP(config.GetPorts()[0]);
+                        Console.WriteLine("Hard coded port 8081");
+                        options.ListenAnyIP(8081);
+                        //options.ListenAnyIP(config.GetPorts()[0]);
                     }
                 });
     }

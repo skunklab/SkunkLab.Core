@@ -5,8 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Piraeus.Extensions.Configuration;
-using Piraeus.Configuration.Core;
-using Piraeus.Configuration.Settings;
+using Piraeus.Configuration;
 using Piraeus.Extensions.Gateways;
 using Piraeus.Extensions.Options;
 

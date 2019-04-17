@@ -83,7 +83,7 @@ namespace Piraeus.UdpGateway
                     }
                 }
                 catch (Exception ex)
-                {
+                {                   
                     OnError?.Invoke(this, new ServerFailedEventArgs("UDP", localEP.Port));
                     //await Log.LogErrorAsync("UDP server channel error {0}", ex.Message);
 

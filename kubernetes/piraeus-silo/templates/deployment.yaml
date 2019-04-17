@@ -1,0 +1,47 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      containers:
+        - name: piraeus-silo
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: OR_Dockerized
+            value: {{ .Values.dockerized | quote }}
+          - name: OR_LogLevel
+            value: {{ .Values.loglevel | quote }}
+          - name: OR_LoggerTypes
+            value: {{ .Values.loggerTypes | quote }}
+          - name: OR_ClusterId
+            value: {{ .Values.clusterId | quote }}
+          - name: OR_ServiceId
+            value: {{ .Values.serviceId | quote }}
+          - name: OR_DataConnectionString            
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: dataConnectionString          
+          ports:
+          - containerPort: 11111
+          - containerPort: 30000   
+      nodeSelector:
+        pool: nodepool2       
