@@ -10,7 +10,7 @@ build/
 /src/**/gen/**/*
 /src/**/*.nuspec
 /src/**/StyleCop.Cache
-/src/**/PiraeusModuleCore/
+
 
 # QuickBuild and Build Exe
 /src/**/build*.dbb
@@ -25,15 +25,8 @@ QuickBuild.log
 # MSBuild's log file
 msbuild.log
 
-
-#Build Output
-**/build/**
-
 # PiraeusModuleCore
-**/src/Piraeus.Module.Core/*.ps1
-**/src/Piraeus.Module.Core/*.psd1
-**/src/Piraeus.Module.Core/*.psm1
-**/src/Piraeus.Module.Core/PiraeusModuleCore
+/src/Piraeus.Module.Core/PiraeusModuleCore/
 
 $ SRC
 **/src/OrleansTest.sln
