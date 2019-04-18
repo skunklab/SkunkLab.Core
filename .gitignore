@@ -4,7 +4,8 @@ OneBranch Specific
 
 
 #omit folder
-build
+/build/**/*.cmd
+/build/**/*.ps1
 
 # Build generated files in src
 /src/**/objd/**/*
