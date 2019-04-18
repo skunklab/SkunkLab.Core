@@ -80,7 +80,7 @@ namespace Orleans.Clustering.Redis
                             return gatewayAddress.ToGatewayUri();
                         }).ToList());
                 }
-                catch(Exception ex)
+                catch
                 {
                     
                     return Task.FromResult<IList<Uri>>(null);

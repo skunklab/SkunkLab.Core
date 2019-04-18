@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:  
+  name: mgmt
+  labels:
+    app: mgmt
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: mgmt
+spec:
+  type: ClusterIP
+  ports:
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
+  
+  selector:
+    app: mgmt
+    release: {{ .Release.Name }}
+    component: mgmt
+status:
+  loadBalancer: {}

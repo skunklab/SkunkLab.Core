@@ -17,8 +17,20 @@ function New-PiraeusDeploy()
             $cleanup = Read-Host "Clean up previous deployment (Y/N) ? "
             if($cleanup.ToLowerInvariant() -eq "y")
             {
-                $clusterName = Read-Host "Enter previous cluster name "
-                $resourceGroup = Read-Host "Enter previous resource group name "
+				
+                $clusterName = Read-Host "Enter previous cluster name [Enter blank == piraeuscluster] "
+                $resourceGroup = Read-Host "Enter previous resource group name [Enter blank == myResourceGroup] "
+                
+                if($clusterName.Length -eq 0)
+                {
+					$clusterName = "piraeuscluster"
+                }
+                
+                if($resourceGroup.Length -eq 0)
+                {
+					$resourceGroup = "myResourceGroup"
+                }
+                
                 $condition1 = "users.clusterUser_" + $resourceGroup + "_" + $clusterName
                 $condition2 = "clusters." + $clusterName
                 kubectl config unset $condition1
@@ -157,10 +169,19 @@ function New-PiraeusDeploy()
             $step++
 
             #appy the front end helm chart
-            Write-Host "-- Step $step - Deploying helm chart for piraeus front end" -ForegroundColor Green
-            helm install ./piraeus-frontend --namespace kube-system --set dataConnectionString="$dataConnectionString" --set auditConnectionString="$auditConnectionString" --set clientIdentityNameClaimType="$IdentityClaimType" --set clientIssuer="$Issuer" --set clientAudience="$Audience" --set clientTokenType="$TokenType" --set clientSymmetricKey="$SymmetricKey" --set coapAuthority="$CoapAuthority" --set managementApiIssuer="$ApiIssuer" --set managementApiAudience="$ApiAudience" --set managmentApiSymmetricKey="$ApiSymmetricKey" --set managementApiSecurityCodes="$ApiSecurityCodes"
-            $step++
-
+            #Write-Host "-- Step $step - Deploying helm chart for piraeus front end" -ForegroundColor Green
+            #helm install ./piraeus-frontend --namespace kube-system --set dataConnectionString="$dataConnectionString" --set auditConnectionString="$auditConnectionString" --set clientIdentityNameClaimType="$IdentityClaimType" --set clientIssuer="$Issuer" --set clientAudience="$Audience" --set clientTokenType="$TokenType" --set clientSymmetricKey="$SymmetricKey" --set coapAuthority="$CoapAuthority" --set managementApiIssuer="$ApiIssuer" --set managementApiAudience="$ApiAudience" --set managmentApiSymmetricKey="$ApiSymmetricKey" --set managementApiSecurityCodes="$ApiSecurityCodes"
+            #$step++
+            
+            Write-Host "-- Step $step - Deploying helm chart for piraeus management api" -ForegroundColor Green
+            helm install ./piraeus-mgmt-api --namespace kube-system --set dataConnectionString="$dataConnectionString"  --set managementApiIssuer="$ApiIssuer" --set managementApiAudience="$ApiAudience" --set managmentApiSymmetricKey="$ApiSymmetricKey" --set managementApiSecurityCodes="$ApiSecurityCodes"
+			$step++
+			
+			
+			Write-Host "-- Step $step - Deploying helm chart for piraeus front end" -ForegroundColor Green
+            helm install ./piraeus-websocket --namespace kube-system --set dataConnectionString="$dataConnectionString" --set auditConnectionString="$auditConnectionString" --set clientIdentityNameClaimType="$IdentityClaimType" --set clientIssuer="$Issuer" --set clientAudience="$Audience" --set clientTokenType="$TokenType" --set clientSymmetricKey="$SymmetricKey" --set coapAuthority="$CoapAuthority" 
+			$step++
+			
             #update the ingress controller with the routing data and dns
             Write-Host "-- Step $step - Apply update to NGINX ingress controller" -ForegroundColor Green
             Copy-Item -Path "./ingress.yaml" -Destination "./ingress-copy.yaml"

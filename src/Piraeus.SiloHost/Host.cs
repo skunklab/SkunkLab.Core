@@ -67,8 +67,8 @@ namespace Piraeus.SiloHost
                 {
                     options.ClusterId = orleansConfig.ClusterId;
                     options.ServiceId = orleansConfig.ServiceId;
-                })
-                .EnableDirectClient();
+                });
+                //.EnableDirectClient();
 
             string storageType = GetStorageType(orleansConfig.DataConnectionString);
             if (storageType.ToLowerInvariant() == "redis")

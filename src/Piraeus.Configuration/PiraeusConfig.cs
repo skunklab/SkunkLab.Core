@@ -14,7 +14,7 @@ namespace Piraeus.Configuration
     public class PiraeusConfig
     {
 
-        private Dictionary<string, byte[]> psks;
+        //private Dictionary<string, byte[]> psks;
         private List<KeyValuePair<string, string>> clientIndexes;
 
         #region Client Certificate (Optional)

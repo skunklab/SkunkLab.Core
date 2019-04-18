@@ -22,7 +22,7 @@ namespace Piraeus.HttpGateway.Middleware
         private CancellationTokenSource source;
         private delegate void HttpResponseObserverHandler(object sender, SkunkLab.Channels.ChannelObserverEventArgs args);
         private event HttpResponseObserverHandler OnMessage;
-        private HttpResponseMessage response;
+        
         private WaitHandle[] waitHandles = new WaitHandle[]
         {
             new AutoResetEvent(false)
