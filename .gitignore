@@ -9,8 +9,7 @@ OneBranch Specific
 /src/**/gen/**/*
 /src/**/*.nuspec
 /src/**/StyleCop.Cache
-/build/**/*.ps1
-/build/**/*.cmd
+/build
 
 # QuickBuild and Build Exe
 /src/**/build*.dbb
