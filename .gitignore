@@ -2,9 +2,11 @@
 OneBranch Specific
 ###
 
-# Build generated files in src
-**/build/
 
+#omit folder
+build
+
+# Build generated files in src
 /src/**/objd/**/*
 /src/**/obj/**/*
 /src/**/bin/**/*
