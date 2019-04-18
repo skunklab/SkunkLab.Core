@@ -1,7 +1,0 @@
-{
-    "dockerized": false,
-    "clusterId": "myclusterid",
-    "serviceId": "myserviceid",
-    "loggerTypes": "Console;Debug",
-    "logLevel": "Warning"
-}
