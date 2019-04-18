@@ -1,3 +1,0 @@
-msbuild ..\src\Piraeus.WebApi\Piraeus.WebApi.csproj /t:Clean,Rebuild,restore /p:OutputPath=..\..\build\Piraeus.WebApi\Output /p:Configuration=Release /fl1 /fl2 /fl3 /flp1:logfile=.\BuildOutput\Piraeus.WebApi.log_errors;errorsonly /flp2:logfile=.\BuildOutput\Piraeus.WebApi_warnings.log;warningsonly /flp3:logfile=.\BuildOutput\Piraeus.WebApi.log
-
-dotnet publish "..\src\Piraeus.SiloHost\Piraeus.WebApi.csproj" -c Release -o "..\..\build\Piraeus.WebApi-Out"
