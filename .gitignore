@@ -3,7 +3,7 @@ OneBranch Specific
 ###
 
 # Build generated files in src
-/build/**
+**/build/
 
 /src/**/objd/**/*
 /src/**/obj/**/*
