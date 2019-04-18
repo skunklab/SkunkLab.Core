@@ -4,6 +4,8 @@ OneBranch Specific
 
 # Build generated files in src
 /build/
+/build/*.cmd
+/build/*.ps1
 /src/**/objd/**/*
 /src/**/obj/**/*
 /src/**/bin/**/*
