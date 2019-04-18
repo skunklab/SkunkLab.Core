@@ -10,6 +10,7 @@ OneBranch Specific
 /src/**/*.nuspec
 /src/**/StyleCop.Cache
 build/
+/src/Piraeus.Module.Core/PiraeusModuleCore/
 
 # QuickBuild and Build Exe
 /src/**/build*.dbb
