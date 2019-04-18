@@ -3,14 +3,14 @@ OneBranch Specific
 ###
 
 # Build generated files in src
+build/
 /src/**/objd/**/*
 /src/**/obj/**/*
 /src/**/bin/**/*
 /src/**/gen/**/*
 /src/**/*.nuspec
 /src/**/StyleCop.Cache
-build/
-/src/Piraeus.Module.Core/PiraeusModuleCore/
+/src/**/PiraeusModuleCore/
 
 # QuickBuild and Build Exe
 /src/**/build*.dbb
