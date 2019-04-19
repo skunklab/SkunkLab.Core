@@ -3,6 +3,7 @@
 Getting the right information to the right place at the right time is a difficult task in highly distributed environments.  Piraeus simplifies how heterogenous subsystems can interact statically, dynamically, and organically using an open-systems approach to real-time communications. Simplicity is the key where standard channels and protocols are supported with no coupling between subsystems.  The technology utilizes Microsoft Orleans to facilate on-demand routes for information delverly and Claims Authorization Policy Language (CAPL) for fine-grain access control between senders and receivers of messages.  The low latency and linearly scalable technology means you can build distributed systems, even complex systems, with simplicity and have real-time communications that scale.
 
 The technology is designed to run on docker containers and the getting started sample show you how to get up and running in minutes on Azure AKS.
+
 ![Architecture](/docs/arch.jpg)
 ## Getting Started
 
