@@ -317,7 +317,7 @@ namespace Samples.Mqtt.Client
             string issuer = "http://skunklab.io/";
             string audience = issuer;
             string nameClaimType = "http://skunklab.io/name";
-            string roleClaimType = "http://www.skunklab.io/role";
+            string roleClaimType = "http://skunklab.io/role";
             string symmetricKey = "//////////////////////////////////////////8=";
 
             List<Claim> claims = new List<Claim>()

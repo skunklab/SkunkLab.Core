@@ -35,7 +35,7 @@ function New-SampleConfig()
     Start-Sleep -Seconds 5              
 
     #define the claim type to match to determines the client's role
-    $matchClaimType = "http://www.skunklab.io/role"
+    $matchClaimType = "http://skunklab.io/role"
 
     #create a match expression of 'Literal' to match the role claim type
     $match = New-CaplMatch -Type Literal -ClaimType $matchClaimType -Required $true  

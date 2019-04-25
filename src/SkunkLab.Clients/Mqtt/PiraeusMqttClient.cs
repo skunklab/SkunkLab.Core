@@ -43,7 +43,12 @@ namespace Piraeus.Clients.Mqtt
             queue = new Queue<byte[]>();
         }
 
-        
+        public IChannel Channel { get { return channel; } }
+
+        public Task<ConnectAckCode> ConnectAsync(string v1, string v2, object securityToken)
+        {
+            throw new NotImplementedException();
+        }
 
         public event MqttClientChannelStateHandler OnChannelStateChange;
         public event MqttClientChannelErrorHandler OnChannelError;

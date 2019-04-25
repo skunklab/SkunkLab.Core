@@ -22,7 +22,6 @@ using Piraeus.Configuration;
 using Piraeus.GrainInterfaces;
 using Piraeus.WebApi.Security;
 using SkunkLab.Security.Authentication;
-//using Orleans.Clustering.Redis;
 using Piraeus.Extensions.Configuration;
 using SkunkLab.Storage;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -82,11 +81,6 @@ namespace Piraeus.WebApi
             services.AddSingleton<IClusterClient>(CreateClusterClient);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddRouting();
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("Access", policy =>
-            //        policy.Requirements.Add(new ApiAccessRequirement(authzPolicy)));
-            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -96,10 +90,6 @@ namespace Piraeus.WebApi
             {
                 app.UseDeveloperExceptionPage();
             }
-            //else
-            //{
-            //    app.UseHsts();
-            //}
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
@@ -108,8 +98,6 @@ namespace Piraeus.WebApi
 
             app.UseAuthentication();
             app.UseHttpsRedirection();
-            //app.UseMvcWithDefaultRoute();
-            //app.UseMvc();
             
 
             app.UseMvc(routes =>
