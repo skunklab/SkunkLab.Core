@@ -20,7 +20,7 @@ The technology is designed to run on docker containers and the getting started s
  3.  Load the PowerShell deployment script by typing
  ```. ./piraeusdeploy.ps1 ``` 
  4. Start the deployment with the following command and completing the desired custom parameters
-> New-PiraeusDeploy *Email* *Dns* *Location* *StorageAcctName* *ResourceGroupName*
+> New-PiraeusDeploy *Email* *Dns* *Location* *StorageAcctName* *ResourceGroupName* *SubscriptionNameOrId*
 > 
 *Email* - Your email address, i.e., required for Let's Encrypt certificate issuance
 *Dns* - The Dns name for the deployment, e.g., "growlingdog"
