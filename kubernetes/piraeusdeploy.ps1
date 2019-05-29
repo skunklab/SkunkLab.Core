@@ -1,20 +1,31 @@
-﻿#New-DeployPiraeus "<your email address>" "<dnsname>" "<datacenter location>" "<storage acct name>" "<resource group name>" "piraeuscluster" "eastus" 1 "http://skunklab.io/mgmt" "http://skunklab.io/mgmt" "//////////////////////////////////////////8=" "12345678:87654321" "http://skunklab.io/name" "http://skunklab.io/" "http://skunklab.io/" "//////////////////////////////////////////8=" "JWT" "skunklab.io" Standard_D2s_v3 Standard_D4s_v3
-#Example New-DeployPiraeus "foo@gmail.com" testhack eastus mystorageacct myResourceGroup
-#Note:  The FQDN will be "testhack.eastus.cloudapp.azure.net" and will be bound to the ACME certificate
-#Note:  If you run the deployment again 
-#       (1) Use a different dnsname (because it has already been used by Let's Encrypt/ACME
-#       (2) Remove the previous deployment via kubectl, i.e., the interaction portion of the script
-#       (3) The default clusterName is "piraeuscluster"
-
 function New-PiraeusDeploy()
 {
-    param ([string]$Email, [string]$DnsName, [string]$Location, [string]$StorageAcctName, [string]$ResourceGroupName, [string]$ClusterName = "piraeuscluster", [int]$NodeCount = 1,
+    param ([string]$Email, [string]$DnsName, [string]$Location, [string]$StorageAcctName, [string]$ResourceGroupName, [string]$SubscriptionNameOrId, [string]$AppId = "", [string]$Pwd = "", [string]$ClusterName = "piraeuscluster", [int]$NodeCount = 1,
             [string]$ApiIssuer = "http://skunklab.io/mgmt", [string]$ApiAudience = "http://skunklab.io/mgmt", [string]$ApiSymmetricKey = "//////////////////////////////////////////8=", [string]$ApiSecurityCodes = "12345678;87654321",
             [string]$IdentityClaimType = "http://skunklab.io/name", [string]$Issuer = "http://skunklab.io/", [string]$Audience = "http://skunklab.io/", [string]$SymmetricKey = "//////////////////////////////////////////8=", 
             [string]$TokenType = "JWT", [string]$CoapAuthority = "skunklab.io", [string]$FrontendVMSize = "Standard_D2s_v3", [string]$OrleansVMSize = "Standard_D4s_v3")
 
+
+            #Prereqs
+            Write-Host "The following software must be installed on your local machine." -ForegroundColor Cyan
+            Write-Host "-------------------------------------------------" -ForegroundColor Cyan
+            Write-Host "Helm v2.12.1 or later [https://github.com/helm/helm]" -ForegroundColor Cyan
+            Write-Host "Kubectl Client v1.10.11, Server v1.12.7 [https://kubernetes.io/docs/tasks/tools/install-kubectl]" -ForegroundColor Cyan
+            Write-Host "Powershell v6.2 or later (Powershell Core) [https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows?view=powershell-6]" -ForegroundColor Cyan
+            Write-Host "Azure CLI v2.0.61 or later [https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest]" -ForegroundColor Cyan
+            Write-Host "-------------------------------------------------" -ForegroundColor Cyan
+            Write-Host ""
+
+            $continueScript = Read-Host "Do you want to continue [y/n] ? "
+            if($continueScript.ToLowerInvariant() -ne "y")
+            {
+                Write-Host "Exiting script" -ForegroundColor Yellow
+                return;
+            }           
+
+
             #Remove previous deployments from kubectl
-            $cleanup = Read-Host "Clean up previous deployment (Y/N) ? "
+            $cleanup = Read-Host "Clean up previous kubectl deployment [y/n] ? "
             if($cleanup.ToLowerInvariant() -eq "y")
             {
 				
@@ -38,26 +49,98 @@ function New-PiraeusDeploy()
             }
 
             $step = 1
-            #create the resource group for the deployment
-            Write-Host "Step $step - Create resource group '$ResourceGroupName'" -ForegroundColor Green
-            az group create --name $ResourceGroupName --location $Location
+            #Set the subscription 
+            Write-Host "Step $step - Setting subscription  $SubscriptionNameOrId" -ForegroundColor Green
+            az account set --subscription $SubscriptionNameOrId
+            if($LASTEXITCODE -ne 0)
+            {
+                Write-Host "Subscription - $SubscriptionNameOrId could not be set" -ForegroundColor Yellow
+                Write-Host "Exiting script" -ForegroundColor Yellow
+                return;
+            }
             $step++
 
-            #create service principal
-            Write-Host "-- Step $step - Create service principal" -ForegroundColor Green
-            $creds = az ad sp create-for-rbac  --skip-assignment
-            $v1 = $creds[1].Replace(",","").Replace(":","=").Replace(" ","").Replace('"',"")
-            $sd1 = ConvertFrom-StringData -StringData $v1
-            $appId = $sd1.Values[0]
-            $v2 = $creds[4].Replace(",","").Replace(":","=").Replace(" ","").Replace('"',"")
-            $sd2 = ConvertFrom-StringData -StringData $v2
-            $pwd = $sd2.Values[0]
-            $step++
+
+            #Check if the Resource Group exists
+            $rgoutcome = az group exists --name $ResourceGroupName
+            
+            if($rgoutcome -eq "false")
+            {
+                Write-Host "Step $step - Create resource group '$ResourceGroupName'" -ForegroundColor Green
+                az group create --name $ResourceGroupName --location $Location 
+                $step++
+            }
+
+            #Delete the AKS cluster if exists
+            $clusterLine = az aks list --query "[?contains(name, '$ClusterName')]" --output table
+
+            if($clusterLine.Length -gt 0)
+            {
+                Write-Host "Step $step - Deleting old AKS cluster '$ClusterName'" -ForegroundColor Green
+                az aks delete --name $ClusterName --resource-group $ResourceGroupName --yes
+                $step++
+            }
+
+            if($AppId.Length -eq 0)
+            {
+                #create service principal
+                Write-Host "-- Step $step - Creating service principal" -ForegroundColor Green
+                $creds = az ad sp create-for-rbac  --skip-assignment
+                $v1 = $creds[1].Replace(",","").Replace(":","=").Replace(" ","").Replace('"',"")
+                $sd1 = ConvertFrom-StringData -StringData $v1
+                $appId = $sd1.Values[0]
+                $v2 = $creds[4].Replace(",","").Replace(":","=").Replace(" ","").Replace('"',"")
+                $sd2 = ConvertFrom-StringData -StringData $v2
+                $pwd = $sd2.Values[0]
+                $step++
+
+                Write-Host "Service Principal Application ID $appId" -ForegroundColor Cyan
+                Write-Host "Service Principal Password $pwd" -ForegroundColor Cyan
+            }
+            else
+            {
+                $appId = $AppId
+                $pwd = $Pwd
+            }
+
+            #Check if the Orleans storage account exists
+            $saLine= az storage account check-name --name $StorageAcctName 
+            if($saLine[2].Contains("true"))
+            {
+                #create the storage account
+                Write-Host "-- Step $step - Creating orleans storage account" -ForegroundColor Green
+                az storage account create --location $Location --name $StorageAcctName --resource-group $ResourceGroupName --sku "Standard_LRS"
+                $step++
+            } 
+
+            #Check if the Audit storage account exists
+            $auditStorageAcctName = $StorageAcctName + "audit"
+            $asaLine= az storage account check-name --name $auditStorageAcctName 
+            if($asaLine[2].Contains("true"))
+            {
+                #create the storage account
+                Write-Host "-- Step $step - Creating audit storage account" -ForegroundColor Green
+                az storage account create --location $Location --name $auditStorageAcctName --resource-group $ResourceGroupName --sku "Standard_LRS"
+                $step++
+            }
+
+            #Get the credentials for the storage accounts
+
+            $dcs = az storage account show-connection-string --name $StorageAcctName --resource-group $ResourceGroupName
+            $vs1 = $dcs.Replace(",","").Replace(":","=").Replace(" ","").Replace('"',"").Replace("{","").Replace("}","").Trim()
+            $ts1 = $vs1 -split "connectionString="
+            $dataConnectionString = $ts1[2]  
+
+            $adcs = az storage account show-connection-string --name $auditStorageAcctName --resource-group $ResourceGroupName
+            $vsa1 = $adcs.Replace(",","").Replace(":","=").Replace(" ","").Replace('"',"").Replace("{","").Replace("}","").Trim()
+            $tsa1 = $vsa1 -split "connectionString="
+            $auditConnectionString = $tsa1[2] 
 
             #create AKS cluster
             Write-Host "-- Step $step - Create AKS cluster" -ForegroundColor Green
             az aks create --resource-group $ResourceGroupName --name $ClusterName --node-count $NodeCount --service-principal $appId --client-secret $pwd --node-vm-size $FrontendVMSize --enable-vmss 
             $step++
+
 
             #get AKS credentials
             Write-Host "-- Step $step - Get AKS credentials" -ForegroundColor Green
@@ -131,26 +214,6 @@ function New-PiraeusDeploy()
             Remove-Item -Path "./certificate-copy.yaml"
             $step++
 
-            #create the orleans storage acct
-            Write-Host "-- Step $step - Creating orleans storage account" -ForegroundColor Green
-            az storage account create --location $Location --name $StorageAcctName --resource-group $ResourceGroupName --sku "Standard_LRS"
-            $dcs = az storage account show-connection-string --name $StorageAcctName --resource-group $ResourceGroupName
-            $vs1 = $dcs.Replace(",","").Replace(":","=").Replace(" ","").Replace('"',"").Replace("{","").Replace("}","").Trim()
-            $ts1 = $vs1 -split "connectionString="
-            $dataConnectionString = $ts1[2]            
-            $step++
-
-
-            #create the audit storage acct
-            Write-Host "-- Step $step - Creating audit storage account" -ForegroundColor Green
-            $auditStorageAcctName = $StorageAcctName + "audit"
-            az storage account create --location $Location --name $auditStorageAcctName --resource-group $ResourceGroupName --sku "Standard_LRS"
-            $adcs = az storage account show-connection-string --name $auditStorageAcctName --resource-group $ResourceGroupName
-            $vsa1 = $adcs.Replace(",","").Replace(":","=").Replace(" ","").Replace('"',"").Replace("{","").Replace("}","").Trim()
-            $tsa1 = $vsa1 -split "connectionString="
-            $auditConnectionString = $tsa1[2] 
-            $step++
-
             #add orleans VM to a new node pool
             Write-Host "-- Step $step - Adding Orleans node to node pool" -ForegroundColor Green
             az aks nodepool add --resource-group $ResourceGroupName --cluster-name $ClusterName --name "nodepool2" --node-count $NodeCount --node-vm-size $OrleansVMSize
@@ -168,10 +231,6 @@ function New-PiraeusDeploy()
             helm install ./piraeus-silo --name piraeus-silo --namespace kube-system --set dataConnectionString=$dataConnectionString
             $step++
 
-            #appy the front end helm chart
-            #Write-Host "-- Step $step - Deploying helm chart for piraeus front end" -ForegroundColor Green
-            #helm install ./piraeus-frontend --namespace kube-system --set dataConnectionString="$dataConnectionString" --set auditConnectionString="$auditConnectionString" --set clientIdentityNameClaimType="$IdentityClaimType" --set clientIssuer="$Issuer" --set clientAudience="$Audience" --set clientTokenType="$TokenType" --set clientSymmetricKey="$SymmetricKey" --set coapAuthority="$CoapAuthority" --set managementApiIssuer="$ApiIssuer" --set managementApiAudience="$ApiAudience" --set managmentApiSymmetricKey="$ApiSymmetricKey" --set managementApiSecurityCodes="$ApiSecurityCodes"
-            #$step++
             
             Write-Host "-- Step $step - Deploying helm chart for piraeus management api" -ForegroundColor Green
             helm install ./piraeus-mgmt-api --namespace kube-system --set dataConnectionString="$dataConnectionString"  --set managementApiIssuer="$ApiIssuer" --set managementApiAudience="$ApiAudience" --set managmentApiSymmetricKey="$ApiSymmetricKey" --set managementApiSecurityCodes="$ApiSecurityCodes"
@@ -190,7 +249,12 @@ function New-PiraeusDeploy()
             ApplyYaml "./ingress-copy.yaml"
             Remove-Item -Path "./ingress-copy.yaml"
 
-
+            Write-Host "---- OUTPUTS -----" -ForegroundColor Cyan
+            Write-Host "Hostname - $DnsName.$Location.cloudapp.azure.com" -ForegroundColor Magenta
+            Write-Host "Application ID - $appId" -ForegroundColor Magenta
+            Write-Host "Password - $pwd" -ForegroundColor Magenta
+            Write-Host "-------------------" -ForegroundColor Cyan
+            Write-Host ""
             Write-Host "--- Done :-) Dare Mighty Things ---" -ForegroundColor Cyan
 
 }
@@ -229,7 +293,7 @@ function GetExternalIP()
             Write-Host "Try get external ip...waiting 30 seconds" -ForegroundColor Yellow
             Start-Sleep -Seconds 30
         }  
-        elseif($lineValue -ne $null -and $lineValue.Length -gt 0)
+        elseif($lineValue.Length -gt 0)
         {
             $lineValue = $lineValue[1]
             $lineParams = $lineValue.Replace("  "," ")
@@ -323,5 +387,3 @@ function UpdateYaml()
 }
 
 #---- end functions
-
-
