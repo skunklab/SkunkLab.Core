@@ -198,11 +198,19 @@ function New-PiraeusDeploy()
             Write-Host "Got external IP = $IP" -ForegroundColor Yellow
             # Get the resource-id of the public ip
             $PUBLICIPID=$(az network public-ip list --query "[?ipAddress!=null]|[?contains(ipAddress, '$IP')].[id]" --output tsv)
+            Write-Host "PublicIPID = $PUBLICIPID" -ForegroundColor Yellow
             $step++
 
             #update the azure network with the public IP ID
             Write-Host "-- Step $step - Update Azure Network with Public IP ID" -ForegroundColor Green
-            az network public-ip update --ids $PUBLICIPID --dns-name $dnsName
+            if($SubscriptionNameOrId.Length -ne 0)
+            {
+              az network public-ip update --ids $PUBLICIPID --dns-name $dnsName --subscription $SubscriptionNameOrId
+            }
+            else
+            {
+              az network public-ip update --ids $PUBLICIPID --dns-name $dnsName
+            }
             $step++
 
             #update and apply certificate with DNS and location
