@@ -30,3 +30,4 @@ Install the Azure CLI preview for AKS support for multiple node pools as follows
 
     ```az provider register --namespace Microsoft.ContainerService```
 
+**[Deployment details](./deploydetail.md)**

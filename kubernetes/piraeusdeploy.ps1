@@ -194,8 +194,9 @@ function New-PiraeusDeploy()
             $step++
 
             Write-Host "-- Step $step - NGINX ingress controller's external IP" -ForegroundColor Green
-            $IP = GetExternalIP
+            $IP = GetExternalIP            
             Write-Host "Got external IP = $IP" -ForegroundColor Yellow
+         
             # Get the resource-id of the public ip
             $PUBLICIPID=$(az network public-ip list --query "[?ipAddress!=null]|[?contains(ipAddress, '$IP')].[id]" --output tsv)
             Write-Host "PublicIPID = $PUBLICIPID" -ForegroundColor Yellow

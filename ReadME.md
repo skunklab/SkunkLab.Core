@@ -5,6 +5,7 @@ Getting the right information to the right place at the right time is a difficul
 The technology is designed to run on docker containers and the getting started sample show you how to get up and running in minutes on Azure AKS.
 
 ![Architecture](/docs/arch.jpg)
+[Deployment Details](/docs/deploydetail.md)
 ## Getting Started
 
  1. Clone the source
