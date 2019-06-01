@@ -259,5 +259,5 @@ ApplyYaml "./ingress-copy.yaml"
 Remove-Item -Path "./ingress-copy.yaml" 
 ```
 
-![Deployment Infrastructure](/docs/parch.png)
+![Deployment Infrastructure](parch.png)
 
