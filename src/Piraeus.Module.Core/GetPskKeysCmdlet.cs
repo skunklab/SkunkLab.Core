@@ -17,7 +17,7 @@ namespace Piraeus.Module
 
         protected override void ProcessRecord()
         {
-            string url = String.Format("{0}/api/psk/RemovePskSecret", ServiceUrl);
+            string url = String.Format("{0}/api/psk/GetKeys", ServiceUrl);
             RestRequestBuilder builder = new RestRequestBuilder("GET", url, RestConstants.ContentType.Json, true, SecurityToken);
             RestRequest request = new RestRequest(builder);
             string[] keys = request.Get<string[]>();

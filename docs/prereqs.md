@@ -3,7 +3,7 @@
   
 The following software must be installed on your local machine to run the AKS  deployment of Piraeus and the samples.
   
-**[Helm](https://github.com/helm/helm)** v2.12.1 or later   
+**[Helm](https://github.com/helm/helm)** v2.12.1 - v2.13.0 (do not use v2.14.* at this time).   
 **[Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl)** Client v1.10.11, Server v1.12.7   
 **[Powershell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows?view=powershell-6)** v6.2 or later (Powershell Core)    
 **[Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)** v2.0.61 or later 

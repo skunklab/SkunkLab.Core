@@ -8,7 +8,7 @@ namespace Piraeus.Module
     [OutputType(typeof(Capl.Authorization.EvaluationOperation))]
     public class CaplOperationCmdlet : Cmdlet
     {
-        [Parameter(HelpMessage = "Value of Operation (optional)", Mandatory = true)]
+        [Parameter(HelpMessage = "Value of Operation (optional)", Mandatory = false)]
         public string Value;
 
         [Parameter(HelpMessage = "Type of operation", Mandatory = true)]

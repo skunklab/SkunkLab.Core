@@ -304,11 +304,13 @@ function GetExternalIP()
         }  
         elseif($lineValue.Length -gt 0)
         {
-            $lineValue = $lineValue[1]
-            $lineParams = $lineValue.Replace("  "," ")
-            $lineParams = $lineParams.Replace("  "," ")
-            $lineItems = $lineParams.Split(" ")
-            $externalIP = $lineItems[4]      
+            $line = $lineValue[1]
+            $lineout = $line -split '\s+'
+            $externalIP = $lineout[3]
+            #$lineParams = $lineValue.Replace("  "," ")
+            #$lineParams = $lineParams.Replace("  "," ")
+            #$lineItems = $lineParams.Split(" ")
+            #$externalIP = $lineItems[4]      
         }
         
               
