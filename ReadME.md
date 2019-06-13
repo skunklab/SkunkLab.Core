@@ -1,3 +1,4 @@
+
 # Piraeus
 ## Introduction
 Getting the right information to the right place at the right time is a difficult task in highly distributed environments.  Piraeus simplifies how heterogenous subsystems can interact statically, dynamically, and organically using an open-systems approach to real-time communications. Simplicity is the key where standard channels and protocols are supported with no coupling between subsystems.  The technology utilizes Microsoft Orleans to facilate on-demand routes for information delverly and Claims Authorization Policy Language (CAPL) for fine-grain access control between senders and receivers of messages.  The low latency and linearly scalable technology means you can build distributed systems, even complex systems, with simplicity and have real-time communications that scale.
@@ -9,7 +10,7 @@ The technology is designed to run on docker containers and the getting started s
 ## Getting Started
 
  1. Clone the source
- 2. Ensure the [prereqs](/docs/prereqs.md) are installed  2. 
+ 2. Ensure the [prereqs](/docs/prereqs.md) are installed. 
  3. Deploy Piraeus to Azure AKS
  4. Configure Piraeus
  5. Run a sample client
@@ -18,18 +19,20 @@ The technology is designed to run on docker containers and the getting started s
  
  1. Open a command prompt and navigate to the /kubernetes folder 
  2. Type *pwsh* to get a powershell v6 command prompt 
- 3.  Load the PowerShell deployment script by typing
- ```. ./piraeusdeploy.ps1 ``` 
- 4. Start the deployment with the following command and completing the desired custom parameters
-> New-PiraeusDeploy *Email* *Dns* *Location* *StorageAcctName* *ResourceGroupName* *SubscriptionNameOrId*
-> 
-*Email* - Your email address, i.e., required for Let's Encrypt certificate issuance
-*Dns* - The Dns name for the deployment, e.g., "growlingdog"
+ 3. Open the deploy.json file in notepad and update the following parameters in the file
+ *Email* - Your email address, i.e., required for Let's Encrypt certificate issuance
+*DnsNaame* - The DNS name for the deployment, e.g., "growlingdog"
 *Location* - The Azure data center location, e.g., "eastus"
 *StorageAcctName* - A name for the Azure storage account
 *ResourceGroupName* - Name of the resource group to deploy in your Azure subscription
 
-The address of the deployment will
+4.  Load the PowerShell deployment script by typing
+ ```. ./piraeusdeploy.ps1 ``` 
+ 5. Start the deployment with the following command and completing the desired custom parameters
+> New-PiraeusDeploy -File "deploy.json"
+> 
+
+FQDN of the Piraeus deployment will be:
 
 ```<dns>.<location>.cloudapp.azure.com```
 
