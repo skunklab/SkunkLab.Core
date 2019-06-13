@@ -5,5 +5,7 @@ namespace Piraeus.Auditing
     public interface IAuditor
     {
         Task WriteAuditRecordAsync(AuditRecord record);
+
+        Task UpdateAuditRecordAsync(AuditRecord record);
     }
 }

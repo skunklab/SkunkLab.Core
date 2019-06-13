@@ -558,8 +558,7 @@ namespace SkunkLab.Channels.Tcp
                 error = ex;
             }
             finally
-            {
-                Console.WriteLine("TCP Channel 2 receiver is closing.");
+            {                
                 OnError?.Invoke(this, new ChannelErrorEventArgs(Id, error != null ? error : new TimeoutException("Receiver closing")));
             }
         }

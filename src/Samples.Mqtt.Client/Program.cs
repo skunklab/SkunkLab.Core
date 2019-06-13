@@ -24,6 +24,10 @@ namespace Samples.Mqtt.Client
         static bool send;
         static int channelNum;
         static string hostname;
+        static string resourceA = "http://www.skunklab.io/resource-a";
+        static string resourceB = "http://www.skunklab.io/resource-b";
+        static string pubResource;
+        static string subResource;
 
         static void Main(string[] args)
         {           
@@ -40,9 +44,26 @@ namespace Samples.Mqtt.Client
                 Console.ReadKey();
                 return;
             }
-                
 
-            string token = GetSecurityToken(name, role);
+            Console.Write("Change name and role [y/n] ? ");
+            if(Console.ReadLine().ToLowerInvariant() == "y")
+            {
+                Console.Write("Enter name claim value ? ");
+                name = Console.ReadLine();
+                Console.Write("Enter role claim value ? ");
+                role = Console.ReadLine();
+            }
+
+            Console.Write("Change resource A and B [y/n] ? ");
+            if (Console.ReadLine().ToLowerInvariant() == "y")
+            {
+                Console.Write("Enter resource publish URI ? ");
+                pubResource = Console.ReadLine();
+                Console.Write("Enter resource subscribe URI ? ");
+                subResource = Console.ReadLine();
+            }
+
+                string token = GetSecurityToken(name, role);
 
             //create the channel
             channel = CreateChannel(token, cts);
@@ -123,7 +144,8 @@ namespace Samples.Mqtt.Client
             if (code != ConnectAckCode.ConnectionAccepted)
                 return;
 
-            string observableEvent = role == "A" ? "http://www.skunklab.io/resource-b" : "http://www.skunklab.io/resource-a";
+            string observableEvent = !string.IsNullOrEmpty(pubResource) ? subResource : role == "A" ? resourceB : resourceA;
+            //string observableEvent = role == "A" ? resourceB : resourceA;
 
             try
             {                
@@ -166,7 +188,8 @@ namespace Samples.Mqtt.Client
                     index++;
                     string payloadString = String.Format($"{DateTime.Now.Ticks}:{name}-message {index}");
                     byte[] payload = Encoding.UTF8.GetBytes(payloadString);
-                    string publishEvent = role == "A" ? "http://www.skunklab.io/resource-a" : "http://www.skunklab.io/resource-b";
+                    string publishEvent = !string.IsNullOrEmpty(pubResource) ? pubResource : role == "A" ? resourceA : resourceB;
+                    //string publishEvent = role == "A" ? "http://www.skunklab.io/resource-a" : "http://www.skunklab.io/resource-b";
                     Task pubTask = mqttClient.PublishAsync(QualityOfServiceLevelType.AtMostOnce, publishEvent, "text/plain", payload);
                     Task.WhenAll(pubTask);
 

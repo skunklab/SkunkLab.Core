@@ -29,8 +29,8 @@ namespace Piraeus.Adapters
             auditFactory = AuditFactory.CreateSingleton();
             if (config.AuditConnectionString != null && config.AuditConnectionString.Contains("DefaultEndpointsProtocol"))
             {
-                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.Message);
-                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.User);
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "messageaudit"), AuditType.Message);
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "useraudit"), AuditType.User);
             }
             else if (config.AuditConnectionString != null)
             {
@@ -148,8 +148,8 @@ namespace Piraeus.Adapters
             if (!closing)
             {
                 closing = true;
-                AuditRecord record = new UserAuditRecord(Channel.Id, DateTime.UtcNow);
-                userAuditor?.WriteAuditRecordAsync(record).Ignore();
+                AuditRecord record = new UserAuditRecord(Channel.Id, identity, DateTime.UtcNow);
+                userAuditor?.UpdateAuditRecordAsync(record).Ignore();
 
                 OnClose?.Invoke(this, new ProtocolAdapterCloseEventArgs(Channel.Id));
             }

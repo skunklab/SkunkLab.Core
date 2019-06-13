@@ -182,11 +182,27 @@ namespace SkunkLab.Channels.WebSocket
         {
             if (IsConnected)
             {
-                State = ChannelState.ClosedReceived;
+                State = ChannelState.ClosedReceived;                
             }
 
+            if (socket != null)
+            {
+                try
+                {
+                    await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Normal", CancellationToken.None);
+                    socket.Dispose();
+                    socket = null;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Fault closing Web socket server socket - {ex.Message}");
+                }
+            }
+
+
+
             OnClose?.Invoke(this, new ChannelCloseEventArgs(Id));
-             await Task.CompletedTask;
+            await Task.CompletedTask;
             
         }
 

@@ -6,7 +6,16 @@
     <AssemblyName>SkunkLab.Storage</AssemblyName>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
     <FileVersion>1.0.1.0</FileVersion>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Description>SkunkLab storage library for netcore v2.2</Description>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/skunklab/piraeus/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/skunklab/piraeus</PackageProjectUrl>
+    <PackageIconUrl>https://avatars2.githubusercontent.com/u/25301165?s=40&amp;amp;u=f8ab917e074351e186df6a41b4d3d764f6b5af96&amp;amp;v=4</PackageIconUrl>
+    <RepositoryUrl>https://github.com/skunklab/piraeus</RepositoryUrl>
+    <PackageTags>SkunkLab Piraeus Storage</PackageTags>
+    <Authors>theskunklab@gmail.com</Authors>
+    <Company>SkunkLab</Company>
   </PropertyGroup>
 
   <ItemGroup>

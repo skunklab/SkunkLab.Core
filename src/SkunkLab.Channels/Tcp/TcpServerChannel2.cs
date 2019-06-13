@@ -307,15 +307,12 @@ namespace SkunkLab.Channels.Tcp
             }
             finally
             {
-                Console.WriteLine("TCP Channel 2 receiver is closing.");
                 OnError?.Invoke(this, new ChannelErrorEventArgs(Id,  error ?? new TimeoutException("Receiver closing")));
             }
         }
 
         public override async Task CloseAsync()
         {
-            Console.WriteLine("Starting TCP Channel 2 close action");
-
             if (State == ChannelState.Closed || State == ChannelState.ClosedReceived)
             {
                 Console.WriteLine("TCP channel 2 is already closed...returning");

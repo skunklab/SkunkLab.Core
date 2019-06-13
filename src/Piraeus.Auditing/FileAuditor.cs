@@ -21,5 +21,12 @@ namespace Piraeus.Auditing
             storage.AppendFileAsync(path, source).IgnoreException();
             await Task.CompletedTask;
         }
+
+        public async Task UpdateAuditRecordAsync(AuditRecord record)
+        {
+            byte[] source = Encoding.UTF8.GetBytes(record.ConvertToCsv());
+            storage.AppendFileAsync(path, source).IgnoreException();
+            await Task.CompletedTask;
+        }
     }
 }

@@ -185,8 +185,8 @@ namespace Piraeus.Adapters
 
                 Trace.TraceInformation("{0} - Channel {1} closing.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), Channel.Id);
 
-                UserAuditRecord record = new UserAuditRecord(Channel.Id, DateTime.UtcNow);
-                userAuditor?.WriteAuditRecordAsync(record).Ignore();
+                UserAuditRecord record = new UserAuditRecord(Channel.Id, session.Identity, DateTime.UtcNow);
+                userAuditor?.UpdateAuditRecordAsync(record).Ignore();
 
                 OnClose?.Invoke(this, new ProtocolAdapterCloseEventArgs(Channel.Id));
             }
@@ -265,8 +265,8 @@ namespace Piraeus.Adapters
             auditFactory = AuditFactory.CreateSingleton();
             if (config.AuditConnectionString != null && config.AuditConnectionString.Contains("DefaultEndpointsProtocol"))
             {
-                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.Message);
-                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.User);
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "messageaudit"), AuditType.Message);
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "useraudit"), AuditType.User);
             }
             else if (config.AuditConnectionString != null)
             {

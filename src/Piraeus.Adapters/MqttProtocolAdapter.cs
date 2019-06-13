@@ -64,14 +64,14 @@ namespace Piraeus.Adapters
         public override IChannel Channel { get; set; }
 
         public override void Init()
-        {
+        {           
             Trace.TraceInformation("{0} - MQTT Protocol Adapter intialization on Channel '{1}'.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), Channel.Id);
 
             auditFactory = AuditFactory.CreateSingleton();
             if (config.AuditConnectionString != null && config.AuditConnectionString.Contains("DefaultEndpointsProtocol"))
             {
-                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.Message);
-                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString), AuditType.User);
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "messageaudit"), AuditType.Message);
+                auditFactory.Add(new AzureTableAuditor(config.AuditConnectionString, "useraudit"), AuditType.User);
             }
             else if(config.AuditConnectionString != null)
             {
@@ -423,7 +423,7 @@ namespace Piraeus.Adapters
 
         private void Channel_OnError(object sender, ChannelErrorEventArgs e)
         {
-            logger.LogError(e.Error, $"MQTT adapter Channel_OnError error on channel '{Channel.Id}'.");
+            logger?.LogError(e.Error, $"MQTT adapter Channel_OnError error on channel '{Channel.Id}'.");
             OnError?.Invoke(this, new ProtocolAdapterErrorEventArgs(Channel.Id, e.Error));
         }
 
@@ -434,8 +434,8 @@ namespace Piraeus.Adapters
                 if (!closing)
                 {
                     closing = true;
-                    UserAuditRecord record = new UserAuditRecord(Channel.Id, DateTime.UtcNow);
-                    userAuditor?.WriteAuditRecordAsync(record).IgnoreException();
+                    UserAuditRecord record = new UserAuditRecord(Channel.Id, session.Identity, DateTime.UtcNow);
+                    userAuditor?.UpdateAuditRecordAsync(record).IgnoreException();
                 }
 
                 OnClose?.Invoke(this, new ProtocolAdapterCloseEventArgs(e.ChannelId));

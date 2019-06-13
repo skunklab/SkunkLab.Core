@@ -2,16 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <RootNamespace>SkunkLab.Security</RootNamespace>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Description>SkunkLab Security for .NET Core v2.1</Description>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/skunklab/SkunkLab.Core/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/skunklab/SkunkLab.Core</PackageProjectUrl>
+    <Description>SkunkLab security library for netcore v2.2</Description>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/skunklab/piraeus/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/skunklab/piraeus</PackageProjectUrl>
     <PackageIconUrl>https://avatars2.githubusercontent.com/u/25301165?s=40&amp;amp;u=f8ab917e074351e186df6a41b4d3d764f6b5af96&amp;amp;v=4</PackageIconUrl>
-    <RepositoryUrl>https://github.com/skunklab/SkunkLab.Core</RepositoryUrl>
+    <RepositoryUrl>https://github.com/skunklab/piraeus</RepositoryUrl>
     <AssemblyName>SkunkLab.Security</AssemblyName>
+    <PackageTags>SkunkLab Piraeus Security</PackageTags>
+    <Authors>theskunklab@gmail.com</Authors>
+    <Company>SkunkLab</Company>
   </PropertyGroup>
 
   <ItemGroup>

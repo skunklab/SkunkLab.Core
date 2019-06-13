@@ -22,9 +22,10 @@ namespace Piraeus.Auditing
             LoginTime = loginTime;
         }
 
-        public UserAuditRecord(string channelId, DateTime logoutTime)
+        public UserAuditRecord(string channelId, string identity, DateTime logoutTime)
         {
             ChannelId = channelId;
+            Identity = identity;
             LogoutTime = logoutTime;
         }
 
