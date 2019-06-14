@@ -1,9 +1,11 @@
 
 # Piraeus
 ## Introduction
-Getting the right information to the right place at the right time is a difficult task in highly distributed environments.  Piraeus simplifies how heterogenous subsystems can interact statically, dynamically, and organically using an open-systems approach to real-time communications. Simplicity is the key where standard channels and protocols are supported with no coupling between subsystems.  The technology utilizes Microsoft Orleans to facilate on-demand routes for information delverly and Claims Authorization Policy Language (CAPL) for fine-grain access control between senders and receivers of messages.  The low latency and linearly scalable technology means you can build distributed systems, even complex systems, with simplicity and have real-time communications that scale.
+Getting the right information to the right place at the right time is a difficult task in highly distributed environments.  Piraeus simplifies how heterogenous subsystems can interact statically, dynamically, and organically using an open-systems approach to real-time communications. Simplicity is the key where standard channels and protocols are supported with no coupling between subsystems.  The technology utilizes Microsoft Orleans to facilate on-demand routes for information delivery and Claims Authorization Policy Language (CAPL) for fine-grain access control between senders and receivers of messages.  The low latency and linearly scalable technology means you can build distributed systems, even complex systems, with simplicity and have real-time communications that scale.
 
 The technology is designed to run on docker containers and the getting started sample show you how to get up and running in minutes on Azure AKS.
+
+For custom production deployments see [here](/docs/deployconfig.md)
 
 ![Architecture](/docs/arch.jpg)
 [Deployment Details](/docs/deploydetail.md)
@@ -52,6 +54,7 @@ FQDN of the Piraeus deployment will be:
 ### Run the Sample Client
 
  1. Open the Samples.Mqtt.Client project in Visual Studio 2017. 
- 2. Right-click the project and select Debug and Start New Instance from the menu.  This will launch the client console app.  Follow the instructions in console window entering the information in the image below using your FQDN.
+ 2. Right-click the project and select Debug and Start New Instance from the menu.  This will launch the client console app.  Follow the instructions in console window entering the information in the image below using your FQDN, e.g., growlingdog.eastus.cloudapp.azure.com.
  3. Right-click the project again and Debug and Start new instance from the menu.  This will launch a 2nd client console app.  Follow the instructions in the console window and enter in the information in image below using your FQDN.
  4. Send messages to and from both client apps and feel welcome to open more clients if you like.
+
