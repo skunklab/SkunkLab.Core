@@ -22,6 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SkunkLab.Channels\SkunkLab.Channels.csproj" />
     <ProjectReference Include="..\SkunkLab.Protocols\SkunkLab.Protocols.csproj" />
   </ItemGroup>
 

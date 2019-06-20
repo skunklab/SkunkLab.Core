@@ -31,15 +31,17 @@ namespace Piraeus.WebSocketGateway.Middleware
     {
         private readonly RequestDelegate _next;
         private PiraeusConfig config;
-        private ProtocolAdapter adapter;
+        //private ProtocolAdapter adapter;
         private CancellationTokenSource source;
-        private WebSocket socket;
+        //private WebSocket socket;
         private readonly WebSocketOptions _options;
+        private Dictionary<string, ProtocolAdapter> container;
 
         
 
         public PiraeusWebSocketMiddleware(RequestDelegate next, PiraeusConfig config, IClusterClient client, IOptions<WebSocketOptions> options)
-        {            
+        {
+            container = new Dictionary<string, ProtocolAdapter>();
             _next = next;
             _options = options.Value;
             this.config = config;
@@ -47,7 +49,7 @@ namespace Piraeus.WebSocketGateway.Middleware
             if (!GraphManager.IsInitialized)
             {
                 GraphManager.Initialize(client);
-            }
+            }            
         }
 
         public async Task Invoke(HttpContext context)
@@ -60,27 +62,60 @@ namespace Piraeus.WebSocketGateway.Middleware
             basicAuthn.Add(tokenType, config.ClientSymmetricKey, config.ClientIssuer, config.ClientAudience, context);
             IAuthenticator authn = basicAuthn;
 
-            socket = await context.WebSockets.AcceptWebSocketAsync();
-
+            WebSocket socket = await context.WebSockets.AcceptWebSocketAsync();
+            
             source = new CancellationTokenSource();
-            //adapter = ProtocolAdapterFactory.Create(config, context, socket, authn, source.Token);
-            adapter = ProtocolAdapterFactory.Create(config, context, socket, null, authn, source.Token);
+            ////adapter = ProtocolAdapterFactory.Create(config, context, socket, authn, source.Token);
+            ProtocolAdapter adapter = ProtocolAdapterFactory.Create(config, context, socket, null, authn, source.Token);
+            container.Add(adapter.Channel.Id, adapter);
             adapter.OnClose += Adapter_OnClose;
             adapter.OnError += Adapter_OnError;
             adapter.Init();
 
-            await adapter.Channel.OpenAsync();  //blocking until closed
+
+            await adapter.Channel.OpenAsync();
+            await _next(context);
+            Console.WriteLine("Exiting");
+            
         }
 
         private void Adapter_OnError(object sender, ProtocolAdapterErrorEventArgs e)
         {
-            //write the error
-            adapter.Channel.CloseAsync().GetAwaiter();
+            if(container.ContainsKey(e.ChannelId))
+            {
+                ProtocolAdapter adapter = container[e.ChannelId];
+                adapter.Channel.CloseAsync().GetAwaiter();
+            }
+            
         }
 
         private void Adapter_OnClose(object sender, ProtocolAdapterCloseEventArgs e)
         {
-            adapter.Dispose();
+            ProtocolAdapter adapter = null;
+
+            try
+            {
+                if(container.ContainsKey(e.ChannelId))
+                {
+                    adapter = container[e.ChannelId];
+                }
+
+                if ((adapter != null && adapter.Channel != null) && (adapter.Channel.State == ChannelState.Closed || adapter.Channel.State == ChannelState.Aborted || adapter.Channel.State == ChannelState.ClosedReceived || adapter.Channel.State == ChannelState.CloseSent))
+                {
+                    adapter.Dispose();
+                }
+                else
+                {
+                    try
+                    {
+                        adapter.Channel.CloseAsync().GetAwaiter();
+                    }
+                    catch { }
+                    adapter.Dispose();
+                }
+            }
+            catch { }
+
         }
 
 

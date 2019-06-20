@@ -185,13 +185,12 @@ namespace SkunkLab.Channels.WebSocket
                 State = ChannelState.ClosedReceived;                
             }
 
-            if (socket != null)
+            if (socket != null && (socket.State == WebSocketState.Open || socket.State == WebSocketState.Connecting))
             {
                 try
                 {
                     await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Normal", CancellationToken.None);
-                    socket.Dispose();
-                    socket = null;
+                    
                 }
                 catch (Exception ex)
                 {
@@ -231,9 +230,8 @@ namespace SkunkLab.Channels.WebSocket
         }
 
         public override async Task OpenAsync()
-        {
+        {           
             await this.handler.ProcessWebSocketRequestAsync(this.socket);
-            //await Task.CompletedTask;
         }
 
         public override async Task ReceiveAsync()

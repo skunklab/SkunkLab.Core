@@ -7,7 +7,7 @@
   "subscriptionNameOrId": "",
   "appId": null,
   "pwd": null,
-  "clusterName": "piraeusCluster",
+  "clusterName": "piraeuscluster",
   "nodeCount": 1,
   "apiIssuer": "http://skunklab.io/mgmt",
   "apiAudience": "http://skunklab.io/mgmt",

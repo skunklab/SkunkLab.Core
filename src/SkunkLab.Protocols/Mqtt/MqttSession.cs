@@ -108,7 +108,7 @@ namespace SkunkLab.Protocols.Mqtt
             bootstrapToken = token;
             HasBootstrapToken = true;
 
-            IsAuthenticated = Config.Authenticator.Authenticate(tt, token);
+            IsAuthenticated = Config.Authenticator.Authenticate(tt, token);           
             return IsAuthenticated;
         }
 

@@ -4,6 +4,7 @@ using Orleans;
 using Piraeus.Adapters;
 using Piraeus.Configuration;
 using Piraeus.Grains;
+using SkunkLab.Channels;
 using SkunkLab.Security.Authentication;
 using System;
 using System.Collections.Generic;
@@ -45,48 +46,62 @@ namespace Piraeus.WebSocketGateway.Controllers
 
 
         [HttpGet]
-        public async Task Get()
-        {
-            
+        public async Task<HttpResponseMessage> Get()
+        {            
             source = new CancellationTokenSource();
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
-                //string subprotocol = HttpContext.WebSockets.WebSocketRequestedProtocols[0];
-                socket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                //socket = HttpContext.WebSockets.AcceptWebSocketAsync().GetAwaiter().GetResult();
-
-
                 try
                 {
-                    //adapter = ProtocolAdapterFactory.Create(config, HttpContext, socket, authn, source.Token);
+                    socket = await HttpContext.WebSockets.AcceptWebSocketAsync();
                     adapter = ProtocolAdapterFactory.Create(config, HttpContext, socket, null, authn, source.Token);
                     adapter.OnClose += Adapter_OnClose;
                     adapter.OnError += Adapter_OnError;
                     adapter.Init();
-                    //StatusCode(101);
-                    //return new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
+                    await adapter.Channel.OpenAsync();
+                    return new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
                 }
                 catch(Exception ex)
                 {
                     StatusCode(500);
                     Console.WriteLine(ex.Message);
-                    //return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+                    return new HttpResponseMessage(HttpStatusCode.InternalServerError);
                 }
             }
             else
             {
-                //return new HttpResponseMessage(HttpStatusCode.NotFound);
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
             }
         }
 
         private void Adapter_OnError(object sender, ProtocolAdapterErrorEventArgs e)
         {
-            throw new NotImplementedException();
+            try
+            {
+                adapter.Channel.CloseAsync().GetAwaiter();
+            }
+            catch { }
         }
 
         private void Adapter_OnClose(object sender, ProtocolAdapterCloseEventArgs e)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if ((adapter != null && adapter.Channel != null) && (adapter.Channel.State == ChannelState.Closed || adapter.Channel.State == ChannelState.Aborted || adapter.Channel.State == ChannelState.ClosedReceived || adapter.Channel.State == ChannelState.CloseSent))
+                {
+                    adapter.Dispose();
+                }
+                else
+                {
+                    try
+                    {
+                        adapter.Channel.CloseAsync().GetAwaiter();
+                    }
+                    catch { }
+                    adapter.Dispose();
+                }
+            }
+            catch { }
         }
     }
 }

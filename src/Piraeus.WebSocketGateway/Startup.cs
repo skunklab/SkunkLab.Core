@@ -72,6 +72,7 @@ namespace Piraeus.WebSocketGateway
             pconfig = GetPiraeusConfig();
             config = GetOrleansConfig();
             //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
