@@ -21,12 +21,12 @@ For custom production deployments see [here](/docs/deployconfig.md)
  
  1. Open a command prompt and navigate to the /kubernetes folder 
  2. Type *pwsh* to get a powershell v6 command prompt 
- 3. Open the deploy.json file in notepad and update the following parameters in the file
- *Email* - Your email address, i.e., required for Let's Encrypt certificate issuance
-*DnsName* - The DNS name for the deployment, e.g., "growlingdog"
-*Location* - The Azure data center location, e.g., "eastus"
-*StorageAcctName* - A name for the Azure storage account
-*ResourceGroupName* - Name of the resource group to deploy in your Azure subscription
+ 3. Open the deploy.json file in notepad and update the following parameters in the file 
+ - *Email* - Your email address, i.e., required for Let's Encrypt certificate issuance
+- *DnsName* - The DNS name for the deployment, e.g., "growlingdog"
+- *Location* - The Azure data center location, e.g., "eastus"
+- *StorageAcctName* - A name for the Azure storage account
+- *ResourceGroupName* - Name of the resource group to deploy in your Azure subscription
 
 4.  Load the PowerShell deployment script by typing
  ```. ./piraeusdeploy.ps1 ``` 
