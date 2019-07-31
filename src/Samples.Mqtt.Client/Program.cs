@@ -45,25 +45,25 @@ namespace Samples.Mqtt.Client
                 return;
             }
 
-            Console.Write("Change name and role [y/n] ? ");
-            if(Console.ReadLine().ToLowerInvariant() == "y")
-            {
-                Console.Write("Enter name claim value ? ");
-                name = Console.ReadLine();
-                Console.Write("Enter role claim value ? ");
-                role = Console.ReadLine();
-            }
+            //Console.Write("Change name and role [y/n] ? ");
+            //if(Console.ReadLine().ToLowerInvariant() == "y")
+            //{
+            //    Console.Write("Enter name claim value ? ");
+            //    name = Console.ReadLine();
+            //    Console.Write("Enter role claim value ? ");
+            //    role = Console.ReadLine();
+            //}
 
-            Console.Write("Change resource A and B [y/n] ? ");
-            if (Console.ReadLine().ToLowerInvariant() == "y")
-            {
-                Console.Write("Enter resource publish URI ? ");
-                pubResource = Console.ReadLine();
-                Console.Write("Enter resource subscribe URI ? ");
-                subResource = Console.ReadLine();
-            }
+            //Console.Write("Change resource A and B [y/n] ? ");
+            //if (Console.ReadLine().ToLowerInvariant() == "y")
+            //{
+            //    Console.Write("Enter resource publish URI ? ");
+            //    pubResource = Console.ReadLine();
+            //    Console.Write("Enter resource subscribe URI ? ");
+            //    subResource = Console.ReadLine();
+            //}
 
-                string token = GetSecurityToken(name, role);
+            string token = GetSecurityToken(name, role);
 
             //create the channel
             channel = CreateChannel(token, cts);
