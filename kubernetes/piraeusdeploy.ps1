@@ -98,7 +98,7 @@ function New-PiraeusDeploy()
 
             if($clusterLine.Length -gt 0)
             {
-                Write-Host "Step $step - Deleting old AKS cluster $clusterName" -ForegroundColor Green
+                Write-Host "-- Step $step - Deleting old AKS cluster $clusterName" -ForegroundColor Green
                 az aks delete --name $clusterName --resource-group $resourceGroupName --yes
                 $step++
             }
@@ -169,7 +169,7 @@ function New-PiraeusDeploy()
 
             #apply RBAC
             Write-Host "-- Step $step - Apply kubectl RBAC" -ForegroundColor Green
-            ApplyYaml "./helm-rbac.yaml"
+            ApplyYaml "./helm-rbac.yaml" "kube-system"
             $step++
 
             #initialize tiller with helm
@@ -183,16 +183,23 @@ function New-PiraeusDeploy()
             SetNodeLabel "nodepool1" "pool" "nodepool1"
             $step++
 
+			Write-Host "-- Step $step - Creating namespace for cert-manager" -ForegroundColor Green
+			kubectl create namespace cert-manager
+			$step++
+
             Write-Host "-- Step $step - Disabling validation on cert-manager" -ForegroundColor Green
-            kubectl label namespace kube-system certmanager.k8s.io/disable-validation="true"
+            kubectl label namespace cert-manager certmanager.k8s.io/disable-validation="true"
             $step++
 
             Write-Host "-- Step $step - Getting cert-manager CRDs" -ForegroundColor Green
-            ApplyYaml "https://raw.githubusercontent.com/jetstack/cert-manager/release-0.6/deploy/manifests/00-crds.yaml"
+            ApplyYaml "https://raw.githubusercontent.com/jetstack/cert-manager/release-0.9/deploy/manifests/00-crds.yaml" "cert-manager"
             $step++
+            
+            Write-Host "-- Step $step - Adding Jetstack Helm repository " -ForegroundColor Green
+            helm repo add jetstack https://charts.jetstack.io
 
             Write-Host "-- Step $step - Installing cert-manager" -ForegroundColor Green
-            helm install --name cert-manager --namespace kube-system --set ingressShim.extraArgs='{--default-issuer-name=letsencrypt-prod,--default-issuer-kind=ClusterIssuer}' stable/cert-manager
+            helm install --name cert-manager --namespace cert-manager --set ingressShim.extraArgs='{--default-issuer-name=letsencrypt-prod,--default-issuer-kind=ClusterIssuer}' jetstack/cert-manager            
             Write-Host "Wait 45 seconds for cert-manager to initialize" -ForegroundColor Yellow
             Start-Sleep -Seconds 45
             $step++
@@ -200,14 +207,20 @@ function New-PiraeusDeploy()
             Write-Host "-- Step $step - Applying the certificate issuer" -ForegroundColor Green
             Copy-Item -Path "./issuer.yaml" -Destination "./issuer-copy.yaml"
             UpdateYaml -newValue $email -matchString "EMAILREF" -filename "./issuer-copy.yaml"
-            kubectl apply -f ./issuer-copy.yaml
+            kubectl apply -f ./issuer-copy.yaml -n kube-system
             Write-Host "Wait 30 seconds for issuer to initialize"
             Start-Sleep -Seconds 30
             Remove-Item -Path "./issuer-copy.yaml"
             $step++
 
+
+			Write-Host "-- Step $step - Adding NGINX Helm repository" -ForegroundColor Green
+			helm repo update NGINX 
+			$step++
+
             Write-Host "-- Step $step - Installing NGINX ingress controller" -ForegroundColor Green
-            helm install stable/nginx-ingress --namespace kube-system --set controller.replicaCount=1
+            InstallNGINX
+            #helm install stable/nginx-ingress --namespace kube-system --set controller.replicaCount=1
             Write-Host "Wait 45 seconds for nginx to initialize"
             Start-Sleep -Seconds 45
             $step++
@@ -238,7 +251,7 @@ function New-PiraeusDeploy()
             Copy-Item -Path "./certificate.yaml" -Destination "./certificate-copy.yaml"
             UpdateYaml -newValue $dnsName -matchString "INGRESSDNS" -filename "./certificate-copy.yaml"
             UpdateYaml -newValue $location -matchString "LOCATION" -filename "./certificate-copy.yaml"
-            ApplyYaml "./certificate-copy.yaml"
+            ApplyYaml "./certificate-copy.yaml" -n "cert-manager"
             Remove-Item -Path "./certificate-copy.yaml"
             $step++
 
@@ -274,7 +287,7 @@ function New-PiraeusDeploy()
             Copy-Item -Path "./ingress.yaml" -Destination "./ingress-copy.yaml"
             UpdateYaml -newValue $dnsName -matchString "INGRESSDNS" -filename "./ingress-copy.yaml"
             UpdateYaml -newValue $location -matchString "LOCATION" -filename "./ingress-copy.yaml"
-            ApplyYaml "./ingress-copy.yaml"
+            ApplyYaml "./ingress-copy.yaml" "kube-system"
             Remove-Item -Path "./ingress-copy.yaml"
 
             Write-Host "---- OUTPUTS -----" -ForegroundColor Cyan
@@ -287,6 +300,35 @@ function New-PiraeusDeploy()
 
 }
 
+
+function InstallNGINX()
+{
+	$looper = $true
+    while($looper)
+    {
+		try
+		{
+			helm install stable/nginx-ingress --namespace kube-system --set controller.replicaCount=1
+			if($LASTEXITCODE -ne 0 )
+            {
+				Write-Host "Error installing NGINX, waiting 20 seconds to try install NGINX again..." -ForegroundColor Yellow
+				Start-Sleep -Seconds 20
+            }
+            else
+            {
+				$looper = $false
+            }			
+		}
+		catch
+		{
+			Write-Host "Waiting 20 seconds to try install NGINX again..." -ForegroundColor Yellow
+            Start-Sleep -Seconds 20
+		}
+	}
+}
+
+
+
 function GetAksCredentials()
 {
     param([string]$rgn, [string]$cn)
@@ -296,7 +338,7 @@ function GetAksCredentials()
     {
         try
         {         
-            az aks get-credentials --resource-group $rgn --name $cn
+            az aks get-credentials --resource-group $rgn --name $cn            
             $looper = $false
         }
         catch
@@ -306,6 +348,7 @@ function GetAksCredentials()
         }    
     }
 }
+
 
 
 function GetExternalIP()
@@ -387,12 +430,12 @@ function SetNodeLabel
 
 function ApplyYaml
 {
-    param([string]$file)
+    param([string]$file, [string]$ns)
 
     $looper = $true
     while($looper)
     {
-        kubectl apply -f $file
+        kubectl apply -f $file -n $ns
         if($LASTEXITCODE -ne 0)
         {
             Write-Host "kubectl apply failed for $file. Waiting 10 seconds to try again..." -ForegroundColor Yellow

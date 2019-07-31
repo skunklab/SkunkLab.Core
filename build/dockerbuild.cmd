@@ -13,14 +13,6 @@ dotnet publish "..\src\Piraeus.WebApi\Piraeus.WebApi.csproj" -c Release -o "..\.
 
 dotnet publish "..\src\Piraeus.WebSocketGateway\Piraeus.WebSocketGateway.csproj" -c Release -o "..\..\build\Piraeus.WebSocketGateway-Out"
 
-docker rmi piraeus-silo
-docker rmi skunklab/piraeus-silo
-docker rmi piraeus-mgmt-api
-docker rmi skunklab/piraeus-mgmt-api
-docker rmi piraeus-websocket-gateway
-docker rmi skunklab/piraeus-websocket-gateway
-
-
 
 docker build -t piraeus-silo ./Piraeus.SiloHost-Out
 docker build -t piraeus-mgmt-api ./Piraeus.WebApi-Out

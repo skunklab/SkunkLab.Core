@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
+using Piraeus.GrainInterfaces;
 using Piraeus.Grains;
 using System;
 using System.Collections.Generic;
@@ -101,7 +102,9 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
-                IEnumerable<string> list = await GraphManager.GetPiSystemSubscriptionListAsync(resourceUriString);
+                //IEnumerable<string> list = await GraphManager.GetPiSystemSubscriptionListAsync(resourceUriString);
+                IPiSystem pisystem = GraphManager.GetPiSystem(resourceUriString);
+                IEnumerable<string> list = await pisystem.GetSubscriptionListAsync();
                 return StatusCode(200, list);
             }
             catch (Exception ex)

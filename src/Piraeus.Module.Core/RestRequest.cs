@@ -40,14 +40,24 @@ namespace Piraeus.Module
                         }
                     } while (bytesRead > 0);
 
-                    msg = bufferStream.ToArray();
+                    if (bufferStream != null && bufferStream.Length > 0)
+                    {
+                        msg = bufferStream.ToArray();
+                    }
                 }
                 //buffer = new byte[response.ContentLength];
                 //stream.Read(buffer, 0, buffer.Length);
             }
 
             //return Serializer.Deserialize<T>(contentType, buffer);
-            return Serializer.Deserialize<T>(contentType, msg);
+            if (msg != null)
+            {
+                return Serializer.Deserialize<T>(contentType, msg);
+            }
+            else
+            {
+                return default(T);
+            }
         }
 
         public override void Post()

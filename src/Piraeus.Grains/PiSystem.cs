@@ -182,8 +182,17 @@ namespace Piraeus.Grains
         }
 
         public async Task<IEnumerable<string>> GetSubscriptionListAsync()
-        {            
-            return await Task.FromResult<IEnumerable<string>>(State.Subscriptions.Keys.ToArray());
+        {
+            if (State.Subscriptions == null || State.Subscriptions.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                string[] result = State.Subscriptions.Keys.ToArray();
+
+                return await Task.FromResult<IEnumerable<string>>(result);
+            }
         }
 
         #endregion
