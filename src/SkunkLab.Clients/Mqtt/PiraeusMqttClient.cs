@@ -73,7 +73,7 @@ namespace Piraeus.Clients.Mqtt
         /// <param name="action"></param>
         public void RegisterTopic(string topic, Action<string, string, byte[]> action)
         {
-            Uri uri = new Uri(topic.ToLower(CultureInfo.InvariantCulture));
+            Uri uri = new Uri(topic.ToLowerInvariant());
             dispatcher.Register(uri.ToString(), action);
         }
 
@@ -83,7 +83,7 @@ namespace Piraeus.Clients.Mqtt
         /// <param name="topic"></param>
         public void UnregisterTopic(string topic)
         {
-            Uri uri = new Uri(topic.ToLower(CultureInfo.InvariantCulture));
+            Uri uri = new Uri(topic.ToLowerInvariant());
             dispatcher.Unregister(uri.ToString());
         }
 
@@ -266,7 +266,7 @@ namespace Piraeus.Clients.Mqtt
 
                 builder.Query = queryString;
 
-                PublishMessage msg = new PublishMessage(false, qos, false, 0, builder.ToString(), data);
+                PublishMessage msg = new PublishMessage(false, qos, false, 0, builder.ToString().ToLowerInvariant(), data);
                 if (qos != QualityOfServiceLevelType.AtMostOnce)
                 {
                     msg.MessageId = session.NewId();
@@ -309,21 +309,10 @@ namespace Piraeus.Clients.Mqtt
             try
             {
                 Dictionary<string, QualityOfServiceLevelType> dict = new Dictionary<string, QualityOfServiceLevelType>();
-                dict.Add(topicUriString, qos);
-                dispatcher.Register(topicUriString, action);
+                dict.Add(topicUriString.ToLowerInvariant(), qos);
+                dispatcher.Register(topicUriString.ToLowerInvariant(), action);
                 SubscribeMessage msg = new SubscribeMessage(session.NewId(), dict);
-
-
-                //if (channel.RequireBlocking)
-                //{
-                //    channel.SendAsync(msg.Encode()).GetAwaiter();
-                //    //Task t = channel.SendAsync(msg.Encode());
-                //    //Task.WaitAll(t);
-                //}
-                //else
-                //{
-                    await channel.SendAsync(msg.Encode());
-                //}
+                await channel.SendAsync(msg.Encode());
             }
             catch(Exception ex)
             {

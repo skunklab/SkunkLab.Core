@@ -67,10 +67,6 @@ namespace SkunkLab.Protocols.Mqtt
         {
             byte qos = Convert.ToByte((int)Enum.Parse(typeof(QualityOfServiceLevelType), this.QualityOfService.ToString(), false));
 
-            //byte fixedHeader = (byte)((0x08 << Constants.Header.MessageTypeOffset) |
-            //       (byte)(qos << Constants.Header.QosLevelOffset) |
-            //       (byte)(this.Dup ? (byte)(0x01 << Constants.Header.DupFlagOffset) : (byte)0x00) |
-            //       (byte)(this.Retain ? (byte)(0x01) : (byte)0x00));
 
             byte fixedHeader = (byte)((0x08 << Constants.Header.MessageTypeOffset) |
                    (byte)(1 << Constants.Header.QosLevelOffset) |
@@ -93,17 +89,7 @@ namespace SkunkLab.Protocols.Mqtt
                 payloadContainer.Add(topicQos);
             }
 
-            //int index = 0;
-            //while (index < this._topics.Count)
-            //{
-            //    string topic = this._topics[index].Item1;
-            //    QualityOfServiceLevelType qosLevel = this._topics[index].Item2;
-            //    payloadContainer.Add(topic);
-            //    byte topicQos = Convert.ToByte((int)qosLevel);
-            //    payloadContainer.Add(topicQos);
-            //    index++;
-            //}
-
+         
             byte[] payload = payloadContainer.ToBytes();
 
             byte[] remainingLengthBytes = EncodeRemainingLength(payload.Length + 2);
