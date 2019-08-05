@@ -85,7 +85,7 @@ These cmdlets are used to manage PSKs for gateways that require them.  PSKs allo
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | [Add-PiraeusPskSecret](Add-PiraeusPskSecret.md) | Add or update a PSK secret.  
 | [Get-PiraeusPskSecret](Get-PiraeusPskSecret.md) | Gets a PSK secret.  
-| [Get-PiraeusPskKeys](Get-PiraeusPskSecret.md) | Gets PSK identities.  
+| [Get-PiraeusPskKeys](Get-PiraeusPskKes.md) | Gets PSK identities.  
 |[Remove-PiraeusPskSecret](Remove-PiraeusPskSecret.md) | Remove a PSK secret.  
 
 
