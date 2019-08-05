@@ -1,10 +1,11 @@
-﻿Piraeus Management API
+﻿
+Get-CaplPolicy Cmdlet
+===
+[Back](MgmtApi.md)
 
-| Cmdlet | Get-CaplPolicy |
-|--------|----------------|
+Returns a CAPL AuthorizationPolicy object from Piraeus.
 
 
-Returns: CAPL AuthorizationPolicy object from Piraeus.
 
 | **Parameter** | **Optional** | **Description**                                                                       |
 |---------------|--------------|---------------------------------------------------------------------------------------|
@@ -13,16 +14,22 @@ Returns: CAPL AuthorizationPolicy object from Piraeus.
 | PolicyID      | N            | The unique policy ID URI that identifies the CAPL policy.                             |
 |                                                                                                         
 
-Example
+**Example**
 ```
-$policyId = “http://skunklab.io/policy/test”
+$url = "http://piraeus.eastus.cloudapp.azure.com"  
+$code = "12345678"  
+$token = Get-PiraeusManagementToken '
+	-ServiceUrl $url `
+	-Key $code
 
+$policyId = “http://skunklab.io/policy/test”
 $policy = Get-CaplPolicy
                          -PolicyID $policyId  
                          -ServiceUrl $url  
                          – SecurityToken $token
                                           
 ```
+[Management API](MgmtApi.md)
 
 
 

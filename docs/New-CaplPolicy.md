@@ -1,10 +1,9 @@
-﻿Piraeus Management API
+﻿
+New-CaplPolicy Cmdlet
+===
+[Back](MgmtApi.md)
 
-| Cmdlet | New-CaplPolicy |
-|--------|----------------|
-
-
-Returns: CAPL AuthorizationPolicy object.
+Returns a CAPL AuthorizationPolicy object.
 
 | **Parameter**        | **Optional** | **Description**                                                                                                                                                                                       |
 |----------------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -14,11 +13,11 @@ Returns: CAPL AuthorizationPolicy object.
 | Delegation           | Y            | An optional Boolean that indicates whether policy will evaluation claims by constrained delegation, i.e., the secondary set of claims associated with the security token. The default value is false. |
                                                                                                                                                                                                 
 
-Example
+**Example**
 ```
 $policyId = “http://skunklab.io/policy/test”
 
 $policy = New-CaplPolicy -PolicyID $policyId -EvaluationExpression $rule  
 ```
-
+[Management API](MgmtApi.md)
 

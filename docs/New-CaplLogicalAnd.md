@@ -1,10 +1,10 @@
-﻿Piraeus Management API
+﻿
 
-| Cmdlet | New-CaplLogicalAnd |
-|--------|--------------------|
+New-CaplLogicalAnd Cmdlet
+===
+[Back](MgmtApi.md)
 
-
-Returns: CAPL LogicalAnd object.
+Returns a CAPL LogicalAnd object.
 
 | **Parameter** | **Optional** | **Description**                                                                                  |
 |---------------|--------------|--------------------------------------------------------------------------------------------------|
@@ -12,10 +12,10 @@ Returns: CAPL LogicalAnd object.
 | Terms         | N            | An array of Evaluation Expressions, i.e., Rules and/or Logical Connectives (Logical OR and ANDs) |
 |               |              |                                                                                                                                                                                           
 
-Example
+**Example**
 ```
 $terms = @($rule1, $rule2)
 
 $logicalAnd = New-CapLogicalAnd -Evaluates $true -Terms $terms  
 ```
-
+[Management API](MgmtApi.md)

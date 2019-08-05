@@ -1,10 +1,10 @@
-﻿Piraeus Management API
+﻿
 
-| Cmdlet | New-CaplTransform |
-|--------|-------------------|
+New-CaplTransform Cmdlet
+===
+[Back](MgmtApi.md)
 
-
-Returns: CAPL transform object.
+Returns a CAPL transform object.
 
 | **Parameter** | **Optional** | **Description**                                                                                                                                                     |
 |---------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -14,7 +14,7 @@ Returns: CAPL transform object.
 | Term          | Y            | Optional Evaluation Expression, i.e., Rule, LogicalAnd, or LogicalOr. The Term is used only whether a determination is needed as to whether to apply the transform. |
 |               |              |                                                                                                                                                                                                                                                                                                                                    |
 
-Example
+**Example**
 ```
 $replacevalue = “device”
 
@@ -23,3 +23,4 @@ $transform = New-CaplTransform  `
                               -Match $match  `
                               -LiteralClaim $literalClaim
 ```
+[Management API](MgmtApi.md)

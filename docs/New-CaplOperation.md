@@ -1,10 +1,9 @@
-﻿Piraeus Management API
+﻿
+New-CaplOperation Cmdlet
+===
+[Back](MgmtApi.md)
 
-| Cmdlet | New-CaplOperation |
-|--------|-------------------|
-
-
-Returns: CAPL operation object.
+Return a CAPL operation object.
 
 | **Parameter** | **Optional** | **Description**                                                                                                                                                                                                                                                                                                                                   |
 |---------------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -12,7 +11,7 @@ Returns: CAPL operation object.
 | OperationType | N            | The type of operation to execute one of (i) BetweenDateTime (ii) Contains (iii) EqualDateTime (iv) EqualNumeric (v) Equal (vi) Exists (vii) GreaterThanDateTime (viii) GreaterThan (ix) GreaterThanOrEqualDateTime (x) GreaterThanOrEqual (xi) LessThanDateTime (xii) LessThan (xiii) LessThanOrEqualDateTime (xiv) LessThanOrEqual (xv) NotEqual |
 |               |              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
-Example
+**Example**
 ```
 $value = “device”
 
@@ -20,4 +19,4 @@ $operation = New-CaplOperation  `
                               -Value $value  `
                               -OperationType Equal
 ```
-
+[Management API](MgmtApi.md)

@@ -1,10 +1,9 @@
-﻿Piraeus Management API
+﻿
+New-CaplLogicalOr Cmdlet
+===
+[Back](MgmtApi.md)
 
-| Cmdlet | New-CaplLogicalOr |
-|--------|--------------------|
-
-
-Returns: CAPL LogicalOr object.
+Returns a CAPL LogicalOr object.
 
 | **Parameter** | **Optional** | **Description**                                                                                  |
 |---------------|--------------|--------------------------------------------------------------------------------------------------|
@@ -18,4 +17,4 @@ $terms = @($rule1, $rule2)
 
 $logicalOr = New-CapLogicalOr -Evaluates $true -Terms $terms  
 ```
-
+[Management API](MgmtApi.md)

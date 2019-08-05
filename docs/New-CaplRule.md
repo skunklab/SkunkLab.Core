@@ -1,10 +1,9 @@
-﻿Piraeus Management API
+﻿
+New-CaplRule Cmdlet
+===
+[Back](MgmtApi.md)
 
-| Cmdlet | New-CaplRule |
-|--------|--------------|
-
-
-Returns: CAPL rule object.
+Returns a CAPL rule object.
 
 | **Parameter**   | **Optional** | **Description**                                                           |
 |-----------------|--------------|---------------------------------------------------------------------------|
@@ -13,10 +12,11 @@ Returns: CAPL rule object.
 | Operation       | N            | CAPL operation object.                                                    |
 | Issuer          | Y            | Optional Issuer used to scope the Rule to the issuer of a security token. |
 |                 |              |                                                                           
-Example
+**Example**
 ```
 $rule = New-CaplRule  `
                    -Evaluates $true  `
                    -MatchExpression $match  `
                    -Operation $operation
 ```
+[Management API](MgmtApi.md)

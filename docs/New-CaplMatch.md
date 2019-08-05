@@ -1,10 +1,9 @@
-﻿Piraeus Management API
+﻿
+New-CaplMatch Cmdlet
+===
+[Back](MgmtApi.md)
 
-| Cmdlet | New-CaplMatch |
-|--------|---------------|
-
-
-Returns: CAPL match expression object.
+Returns a CAPL match expression object.
 
 | **Parameter** | **Optional** | **Description**                                                              |
 |---------------|--------------|------------------------------------------------------------------------------|
@@ -14,7 +13,7 @@ Returns: CAPL match expression object.
 | Value         | Y            | Value to match. List describes the value based on Match Type. (i) Literal - String (ii) Pattern - Reg Expression (iii) ComplexType - XPath (iv) Unary - Omitted                 |
 |               |              |                                                                              
 
-Example
+**Example**
 ```
 $claimType = “http://skunklab.io/claim/role”  
 $value = “device”
@@ -25,4 +24,5 @@ $matchExpression = New-CaplMatch  `
                        -MatchType Literal `  
                        -Value $value `
 ```
+[Management API](MgmtApi.md)
 
