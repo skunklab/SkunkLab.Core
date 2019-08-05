@@ -33,7 +33,6 @@ namespace Piraeus.Module
 
         [Parameter(HelpMessage = "SAS token used for authentication.", Mandatory = true)]
         public string Key;
-
       
         [Parameter(HelpMessage = "Description of the subscription.", Mandatory = false)]
         public string Description;

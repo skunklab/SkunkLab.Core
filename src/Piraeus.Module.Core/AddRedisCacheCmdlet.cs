@@ -22,13 +22,13 @@ namespace Piraeus.Module
         [Parameter(HelpMessage = "Redis security key.", Mandatory = true)]
         public string SecurityKey;
 
-        [Parameter(HelpMessage = "Optional Redis database number to use for the cache.  If omitted, will use the default database", Mandatory = false)]
+        [Parameter(HelpMessage = "(Optional) Redis database number to use for the cache.  If omitted, will use the default database", Mandatory = false)]
         public int DatabaseNum;
 
-        [Parameter(HelpMessage = "Optional expiry of a cached item.", Mandatory = false)]
+        [Parameter(HelpMessage = "(Optional) expiry of a cached item.", Mandatory = false)]
         public TimeSpan? Expiry;
 
-        [Parameter(HelpMessage = "Optional claim type for the identity used as the cache key.  If omitted, the resource URI query string must contain cachekey parameter and value to set the key.  If query string parameter is used it will override the claim type.")]
+        [Parameter(HelpMessage = "(Optional) claim type for the identity used as the cache key.  If omitted, the resource URI query string must contain cachekey parameter and value to set the key.  If query string parameter is used it will override the claim type.")]
         public string ClaimType;
 
         [Parameter(HelpMessage = "Description of the subscription.", Mandatory = false)]

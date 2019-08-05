@@ -50,7 +50,7 @@ namespace Piraeus.Module
         [Parameter(HelpMessage = "Durably persist messages for the TTL when the subsystem is disconnected.", Mandatory = false)]
         public bool DurableMessaging;
 
-        [Parameter(HelpMessage = "Optional claim type for the identity used as the cache key.  If omitted, the resource URI query string must contain cachekey parameter and value to set the key.  If query string parameter is used it will override the claim type.")]
+        [Parameter(HelpMessage = "(Optional) claim type for the identity used as the cache key.  If omitted, the resource URI query string must contain cachekey parameter and value to set the key.  If query string parameter is used it will override the claim type.")]
         public string ClaimKey;
 
 

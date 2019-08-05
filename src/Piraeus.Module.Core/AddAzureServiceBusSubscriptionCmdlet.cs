@@ -16,7 +16,7 @@ namespace Piraeus.Module
         [Parameter(HelpMessage = "Unique URI identifier of resource to subscribe.", Mandatory = true)]
         public string ResourceUriString;
 
-        [Parameter(HelpMessage = "Account name of IoT Hub, e.g, <account>.azure-devices.net", Mandatory = true)]
+        [Parameter(HelpMessage = "Account name of Servie Bus, i.e., <account>.servicebus.windows.net", Mandatory = true)]
         public string Account;
 
         [Parameter(HelpMessage = "Service Bus topic send messages.", Mandatory = true)]
