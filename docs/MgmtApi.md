@@ -10,6 +10,7 @@ Below lists the PowerShell cmdlets, group by feature set that can be used to man
 ----------------
 ### Access Control Cmdlets
 See [CAPL Intro](caplintro.md)
+
 | **Cmdlet**     | **Definition**                                                                                                                      |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | [Add-CaplPolicy](Add-CaplPolicy.md) | Adds or updates a CAPL Authorization Policy to Piraeus.
@@ -25,6 +26,7 @@ See [CAPL Intro](caplintro.md)
 | [New-CaplLiteralClaim](New-CaplLiteralClaim.md) | Returns a CAPL Literal Claim used by a Transform.
 ---------------------------
 ### π-system Cmdlets
+See [π-systems](pi-systems.md)
 π-systems are a fundamental primitive in Piraeus.  This is the point of agreement between senders and receivers for specific events or message types.
 | **Cmdlet**     | **Definition**                                                                                                                      |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------|
@@ -38,47 +40,49 @@ See [CAPL Intro](caplintro.md)
 Durable subscriptions are static routes attached to a π-system.  Most of time these are used by passive agents, i.e., agents that do not initialize connections to a Piraeus gateway.  For example, a Storage account or Web service. However, they can be used by active agents, which are automatically subscribed to a durable subscription by matching the active agents identity to the subscription.  Neither an active or passive agent can self-unsubscribe from a durable subscription.  This must be perform by an administrator using the Management API.
 | **Cmdlet**     | **Definition**                                                                                                                      |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| [Add-PiraeusSubscription](pisystems.md) | Adds or updates a subscription to a  π-system in Piraeus. Use for active receivers with durable subscriptions.
-|[Get-PiraeusSubscription](Add-CaplPolicy) | Gets a π-system from Piraeus.
-|[Remove-PiraeusSubscription](Add-CaplPolicy) | Deletes a subscription to a π-system from Piraeus.
-|[Add-PiraeusBlobStorageSubscription](Add-CaplPolicy) | Adds or updates a subscription to a  π-system in Piraeus for an Azure blob storage receiver.
-|[Add-PiraeusCosmosDbSubscription](Add-CaplPolicy) | Adds or updates a subscription to a  π-system in Piraeus for an Azure Cosmos DB receiver.
-|[Add-PiraeusDataLakeSubscription](Add-CaplPolicy) | Adds or updates a subscription to a  π-system in Piraeus for an Azure Data Lake receiver.
-|[Add-PiraeusEventGridSubscription](Add-CaplPolicy) |Adds or updates a subscription to a  π-system in Piraeus for an Azure Event Grid receiver.
-|[Add-PiraeusEventHubSubscription](Add-CaplPolicy) | Adds or updates a subscription to a  π-system in Piraeus for an Azure Event Hub receiver.
-|[Add-PiraeusIotHubCommandSubscription](Add-CaplPolicy) | Adds or updates a subscription to a  π-system in Piraeus for an Azure IoT Hub command receiver. This means the subscription will send a message to an Azure IoT Hub device.
-|[Add-PiraeusIotHubDeviceSubscription](Add-CaplPolicy) | Adds or updates a subscription to a  π-system in Piraeus for an Azure IoT Hub device receiver. This means the subscription acts as an Azure IoT Hub device and sends the subscription message to Azure IoT Hub.
-|[Add-PiraeusIotHubDirectMethodSubscription](Add-CaplPolicy) | Adds or updates a subscription to a  π-system in Piraeus for an Azure IoT Hub direct method receiver. This means the subscription will forward the message as a direct method to an Azure IoT device or Azure IoT Edge module.
-|[Add-PiraeusQueueStorageSubscription](Add-CaplPolicy) |Adds or updates a subscription to a  π-system in Piraeus for an Azure Storage Queue receiver.
-|[Add-PiraeusServiceBusSubscription](Add-CaplPolicy) | Adds or updates a subscription to a  π-system in Piraeus for an Azure Service Bus receiver. This requires use of a Servie Bus Topic, Service Bus queues are not allowed.
-|[Add-PiraeusWebServiceSubscription](Add-CaplPolicy) | Adds or updates a subscription to a  π-system in Piraeus sends to a Web service as an HTTP-POST.  This also can be used to send to Azure Functions.
-|[Add-PiraeusRedisCacheSubscription](Add-CaplPolicy) | Adds or updates a subscription to a π-system in Piraeus for a Redis cache receiver.
-|[Get-PiraeusSubscriptionList](Add-CaplPolicy) | Gets a list of subscriptions from a  π-system in Piraeus.
-|[Get-PiraeusSubscriberSubscriptions](Add-CaplPolicy) | Gets a list of durable subscriptions for an identity.
+| [Add-PiraeusSubscription](Add-PiraeusSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus. Use for active receivers with durable subscriptions.
+|[Get-PiraeusSubscription](Get-PiraeusSubscription.md) | Gets a π-system from Piraeus.
+|[Remove-PiraeusSubscription](Remove-PiraeusSubscription.md) | Deletes a subscription to a π-system from Piraeus.
+|[Add-PiraeusBlobStorageSubscription](Add-PiraeusBlobStorageSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus for an Azure blob storage receiver.
+|[Add-PiraeusCosmosDbSubscription](Add-PiraeusCosmosDbSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus for an Azure Cosmos DB receiver.
+|[Add-PiraeusDataLakeSubscription](Add-PiraeusDataLakeSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus for an Azure Data Lake receiver.
+|[Add-PiraeusEventGridSubscription](Add-PiraeusEventGridSubscription.md) |Adds or updates a subscription to a  π-system in Piraeus for an Azure Event Grid receiver.
+|[Add-PiraeusEventHubSubscription](Add-PiraeusEventHubSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus for an Azure Event Hub receiver.
+|[Add-PiraeusIotHubCommandSubscription](Add-PiraeusIotHubCommandSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus for an Azure IoT Hub command receiver. This means the subscription will send a message to an Azure IoT Hub device.
+|[Add-PiraeusIotHubDeviceSubscription](Add-PiraeusIotHubDeviceSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus for an Azure IoT Hub device receiver. This means the subscription acts as an Azure IoT Hub device and sends the subscription message to Azure IoT Hub.
+|[Add-PiraeusIotHubDirectMethodSubscription](Add-PiraeusIotHubDirectMethodSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus for an Azure IoT Hub direct method receiver. This means the subscription will forward the message as a direct method to an Azure IoT device or Azure IoT Edge module.
+|[Add-PiraeusQueueStorageSubscription](Add-PiraeusQueueStorageSubscription.md) |Adds or updates a subscription to a  π-system in Piraeus for an Azure Storage Queue receiver.
+|[Add-PiraeusServiceBusSubscription](Add-PiraeusServiceBusSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus for an Azure Service Bus receiver. This requires use of a Servie Bus Topic, Service Bus queues are not allowed.
+|[Add-PiraeusWebServiceSubscription](Add-PiraeusWebServiceSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus sends to a Web service as an HTTP-POST.  This also can be used to send to Azure Functions.
+|[Add-PiraeusRedisCacheSubscription](Add-PiraeusRedisCacheSubscription.md) | Adds or updates a subscription to a π-system in Piraeus for a Redis cache receiver.
+|[Get-PiraeusSubscriptionList](Get-PiraeusSubscriptionList.md) | Gets a list of subscriptions from a  π-system in Piraeus.
+|[Get-PiraeusSubscriberSubscriptions](Get-PiraeusSubscriberSubscriptions.md) | Gets a list of durable subscriptions for an identity.
 ---------------
 ### Metrics Cmdlets
 These cmdlets retrieve metrics from π-systems orsubscriptions, e.g. number of messages, total bytes sent/received, and errors.
 
 | **Cmdlet**     | **Definition**                                                                                                                      |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| [Get-PiraeusEventMetrics](pisystems.md) | Gets metrics from a π-system.
-|[Get-PiraeusSubscriptionMetrics](Add-CaplPolicy) | Gets metrics from a subscription.
+| [Get-PiraeusEventMetrics](Get-PiraeusEventMetrics.md) | Gets metrics from a π-system.
+|[Get-PiraeusSubscriptionMetrics](Get-PiraeusSubscriptionMetrics.md) | Gets metrics from a subscription.
 ----------------------------------
 ### Service Identity Cmdlets
 These cmdlets can be used (if needed) to configure the Piraeus service identity.  The service identity is used only when sending to a durable subscription that requires an identity, e.g., most Web services.
 
 | **Cmdlet**     | **Definition**                                                                                                                      |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| [Add-PiraeusServiceIdentityClaims](pisystems.md) | Add or update Piraeus service identity claims used in symmetric key based security tokens.  This is seldom used as it is also configure on deployment.  
-|[Add-PiraeusServiceIdentityCertificate](Add-CaplPolicy) | Specifies the location of a X.509 certificate to be used as a security token if required. This is seldom used as it is also configure on deployment.  
+| [Add-PiraeusServiceIdentityClaims](Add-PiraeusServiceIdentityClaims.md) | Add or update Piraeus service identity claims used in symmetric key based security tokens.  This is seldom used as it is also configure on deployment.  
+|[Add-PiraeusServiceIdentityCertificate](Add-PiraeusServiceIdentityCertificate.md) | Specifies the location of a X.509 certificate to be used as a security token if required. This is seldom used as it is also configure on deployment.  
 
 ### Pre-Shared Key (PSK) Cmdlets
 These cmdlets are used to manage PSKs for gateways that require them.  PSKs allow an active agent to connect using TLSv2, an encrypted channel, without using X.509 certificates. They are not a substitute for identity.  A security token is required for identity.
 
 | **Cmdlet**     | **Definition**                                                                                                                      |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| [Add-PiraeusPskSecret](pisystems.md) | Add or update a PSK secret.  
-|[Remove-PiraeusPskSecret](Add-CaplPolicy) | Remove a PSK secret.  
+| [Add-PiraeusPskSecret](Add-PiraeusPskSecret.md) | Add or update a PSK secret.  
+| [Get-PiraeusPskSecret](Get-PiraeusPskSecret.md) | Gets a PSK secret.  
+| [Get-PiraeusPskKeys](Get-PiraeusPskSecret.md) | Gets PSK identities.  
+|[Remove-PiraeusPskSecret](Remove-PiraeusPskSecret.md) | Remove a PSK secret.  
 
 
 
