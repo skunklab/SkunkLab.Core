@@ -27,14 +27,16 @@ See [CAPL Intro](caplintro.md)
 ---------------------------
 ### π-system Cmdlets
 See [π-systems](pi-systems.md)
+
 π-systems are a fundamental primitive in Piraeus.  This is the point of agreement between senders and receivers for specific events or message types.
+
 | **Cmdlet**     | **Definition**                                                                                                                      |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | [Add-PiraeusEventMetadata](Add-PiraeusEventMetadata.md) | Adds or updates a π-system in Piraeus.
 |[Get-PiraeusEventMetadata](Get-PiraeusEventMetadata.md) | Gets a π-system from Piraeus.
 |[Get-PiraeusSigmaAlgebra](Get-PiraeusSigmaAlgebra.md) | Gets a list of  π-system from Piraeus.
 |[Remove-PiraeusEvent](Add-CaplPolicy) | Removes a π-system from Piraeus and any subscriptions to the π-system.
----------------
+
 
 ### Durable Subscription Cmdlets
 Durable subscriptions are static routes attached to a π-system.  Most of time these are used by passive agents, i.e., agents that do not initialize connections to a Piraeus gateway.  For example, a Storage account or Web service. However, they can be used by active agents, which are automatically subscribed to a durable subscription by matching the active agents identity to the subscription.  Neither an active or passive agent can self-unsubscribe from a durable subscription.  This must be perform by an administrator using the Management API.
