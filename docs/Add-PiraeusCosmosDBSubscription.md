@@ -1,9 +1,10 @@
 ﻿
 
 
-Add-PiraeusCosmosDBSubscription cmdlet
+Add-PiraeusCosmosDBSubscription Cmdlet
 =====
 [Back](MgmtApi.md)
+
 Adds a subscription for CosmosDB storage as a static route from a π-system.
 
 | **Parameter**     | **Optional** | **Definition**                                                                                                                      |

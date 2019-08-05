@@ -1,9 +1,10 @@
 ﻿
 
 
-Add-PiraeusEventGridSubscription cmdlet
+Add-PiraeusEventGridSubscription Cmdlet
 =====
 [Back](MgmtApi.md)
+
 Adds a subscription for Event Grid as a static route from a π-system.
 
 | **Parameter**     | **Optional** | **Definition**                                                                                                                      |

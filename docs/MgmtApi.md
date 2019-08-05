@@ -43,8 +43,8 @@ Durable subscriptions are static routes attached to a π-system.  Most of time t
 
 | **Cmdlet**     | **Definition**                                                                                                                      |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| [Add-PiraeusSubscription](Add-PiraeusSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus. Use for active receivers with durable subscriptions.
-|[Get-PiraeusSubscription](Get-PiraeusSubscription.md) | Gets a π-system from Piraeus.
+| [Add-PiraeusSubscriptionMetadata](Add-PiraeusSubscriptionMetadata.md) | Adds or updates a subscription to a  π-system in Piraeus. Use for active receivers with durable subscriptions.
+|[Get-PiraeusSubscriptionMetadata](Get-PiraeusSubscriptionMetadata.md) | Gets a π-system from Piraeus.
 |[Remove-PiraeusSubscription](Remove-PiraeusSubscription.md) | Deletes a subscription to a π-system from Piraeus.
 |[Add-PiraeusBlobStorageSubscription](Add-PiraeusBlobStorageSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus for an Azure blob storage receiver.
 |[Add-PiraeusCosmosDbSubscription](Add-PiraeusCosmosDbSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus for an Azure Cosmos DB receiver.

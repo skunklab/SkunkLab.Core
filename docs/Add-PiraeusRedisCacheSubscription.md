@@ -4,9 +4,10 @@
 
 
 
-Add-PiraeusRedisCacheSubscription cmdlet
+Add-PiraeusRedisCacheSubscription Cmdlet
 =====
 [Back](MgmtApi.md)
+
 Adds a subscription for Redis Cache to receive events as a static route from a π-system.
 
 **Parameter**     | **Optional** | **Definition**                                                                                                                      |
@@ -40,7 +41,7 @@ $expiry = New-TimeSpan -Hours  1
 $claimType= "http://skunklab.io/name"
 $description = “Test Web Service subscription”
 
-Add-PiraeusWebServiceSubscription `
+Add-PiraeusRedisCacheSubscription `
 	-ServiceUrl $url `
 	-SecurityToken $token `	
 	-ResourceUriString $piSystemId `  

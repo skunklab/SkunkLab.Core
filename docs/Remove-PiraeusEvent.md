@@ -1,6 +1,6 @@
 ﻿
 
-Remove-PiraeusEvent cmdlet
+Remove-PiraeusEvent Cmdlet
 =====
 [Back](MgmtApi.md)
 
@@ -17,7 +17,7 @@ The PowerShell sample below shows how the $\pi$-system is removed from Piraeus
 ```diff
 $piSystemId= "http://example.org/pisystem-A"
 
-Remove-PiraeusEventMetadata `
+Remove-PiraeusEvent `
               -ResourceUriString $piSystemId `
               -ServiceUrl $url  `
               -SecurityToken $token 

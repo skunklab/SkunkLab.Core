@@ -4,7 +4,7 @@
 
 
 
-Remove-PiraeusSubscription cmdlet
+Remove-PiraeusSubscription Cmdlet
 =====
 [Back](MgmtApi.md)
 

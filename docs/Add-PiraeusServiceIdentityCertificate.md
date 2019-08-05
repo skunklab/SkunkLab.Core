@@ -1,6 +1,6 @@
 ﻿
 
-Add-PiraeusServiceIdentityCertificate cmdlet
+Add-PiraeusServiceIdentityCertificate Cmdlet
 =====
 [Back](MgmtApi.md)
 

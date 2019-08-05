@@ -3,9 +3,10 @@
 
 
 
-Add-PiraeusServiceBusSubscription cmdlet
+Add-PiraeusServiceBusSubscription Cmdlet
 =====
 [Back](MgmtApi.md)
+
 Adds a subscription for an Service Bus topic to receive events as a static route from a π-system.
 
 **Parameter**     | **Optional** | **Definition**                                                                                                                      |

@@ -1,6 +1,6 @@
 ﻿
 
-Add-PiraeusServiceIdentityClaims cmdlet
+Add-PiraeusServiceIdentityClaims Cmdlet
 =====
 [Back](MgmtApi.md)
 

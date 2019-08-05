@@ -1,7 +1,8 @@
 ﻿
-Add-PiraeusBlobStorageSubscription cmdlet
+Add-PiraeusBlobStorageSubscription Cmdlet
 =====
 [Back](MgmtApi.md)
+
 Adds a subscription for Azure Blob Storage as a static route from a π-system.
 
 **Parameter**     | **Optional** | **Definition**                                                                                                                      |

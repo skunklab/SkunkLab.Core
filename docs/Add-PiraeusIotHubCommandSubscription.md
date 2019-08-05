@@ -1,9 +1,10 @@
 ﻿
 
 
-Add-PiraeusIotHubCommandSubscription cmdlet
+Add-PiraeusIotHubCommandSubscription Cmdlet
 =====
 [Back](MgmtApi.md)
+
 Adds a subscription for IoT Hub command to send to a device as a static route from a π-system.
 
 **Parameter**     | **Optional** | **Definition**                                                                                                                      |

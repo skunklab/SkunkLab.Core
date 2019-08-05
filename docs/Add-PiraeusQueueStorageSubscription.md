@@ -2,9 +2,10 @@
 
 
 
-Add-PiraeusQueueStorageSubscription cmdlet
+Add-PiraeusQueueStorageSubscription Cmdlet
 =====
 [Back](MgmtApi.md)
+
 Adds a subscription for an Azure storage queue to receive events as a static route from a π-system.
 
 **Parameter**     | **Optional** | **Definition**                                                                                                                      |

@@ -4,9 +4,10 @@
 
 
 
-Add-PiraeusWebServiceSubscription cmdlet
+Add-PiraeusWebServiceSubscription Cmdlet
 =====
 [Back](MgmtApi.md)
+
 Adds a subscription for an Web Service, which includes Azure Functions with HTTP-POST trigger to receive events as a static route from a π-system.
 
 **Parameter**     | **Optional** | **Definition**                                                                                                                      |

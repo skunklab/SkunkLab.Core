@@ -1,8 +1,9 @@
 ﻿
 
-Add-PiraeusDataLakeSubscription cmdlet
+Add-PiraeusDataLakeSubscription Cmdlet
 =====
 [Back](MgmtApi.md)
+
 Adds a subscription for Azure Data Lake as a static route from a π-system.
 
 **Parameter**     | **Optional** | **Definition**                                                                                                                      |

@@ -1,6 +1,6 @@
 ﻿
 
-Get-PiraeusSigmaAlgebra cmdlet
+Get-PiraeusSigmaAlgebra Cmdlet
 =====
 [Back](MgmtApi.md)
 
