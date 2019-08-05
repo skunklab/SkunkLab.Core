@@ -35,7 +35,7 @@ See [π-systems](pi-systems.md)
 | [Add-PiraeusEventMetadata](Add-PiraeusEventMetadata.md) | Adds or updates a π-system in Piraeus.
 |[Get-PiraeusEventMetadata](Get-PiraeusEventMetadata.md) | Gets a π-system from Piraeus.
 |[Get-PiraeusSigmaAlgebra](Get-PiraeusSigmaAlgebra.md) | Gets a list of  π-system from Piraeus.
-|[Remove-PiraeusEvent](Add-CaplPolicy) | Removes a π-system from Piraeus and any subscriptions to the π-system.
+|[Remove-PiraeusEvent](Remove-PiraeusEvent.md) | Removes a π-system from Piraeus and any subscriptions to the π-system.
 
 
 ### Durable Subscription Cmdlets

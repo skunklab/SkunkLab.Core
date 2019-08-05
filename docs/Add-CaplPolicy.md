@@ -1,6 +1,7 @@
 ﻿Add-CaplPolicy Cmdlet
 ===
 [Back](MgmtApi.md)
+
 Adds a CAPL authorization policy to Piraeus.
 
 
