@@ -3,7 +3,7 @@ Add-PiraeusEventMetadata Cmdlet
 =====
 [Back](MgmtApi.md)
 
-Adds a $\pi$-system to Piraeus.
+Adds a π-system to Piraeus.
 
 
 | **Parameter** | **Optional** | **Description**                                                                       |
