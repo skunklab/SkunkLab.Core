@@ -1,8 +1,7 @@
-﻿Piraeus Management API
-
-| Cmdlet | Get-PiraeusManagementToken |
-|--------|----------------------------|
-
+﻿
+Get-PiraeusManagementToken Cmdlet
+===
+[Back](MgmtApi.md)
 
 Returns: JWT security token for use in all other cmdlets
 
@@ -19,4 +18,6 @@ $code = “12345678”
 
 $token = Get-PiraeusManagementToken -ServiceUrl $url -Key $code
 ```
+[Management API](MgmtApi.md)
+
 
