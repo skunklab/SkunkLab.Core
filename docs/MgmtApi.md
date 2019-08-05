@@ -16,7 +16,7 @@ See [CAPL Intro](caplintro.md)
 | [Add-CaplPolicy](Add-CaplPolicy.md) | Adds or updates a CAPL Authorization Policy to Piraeus.
 | [Get-CaplPolicy](Get-CaplPolicy.md) | Gets a CAPL Authorization Policy from Piraeus.
 | [Remove-CaplPolicy](Remove-CaplPolicy.md) | Deletes a CAPL Authorization Policy from Piraeus.
-| [New-CaplPolicy](Get-CaplPolicy.md)        |  Returns a CAPL authorization. |
+| [New-CaplPolicy](New-CaplPolicy.md)        |  Returns a CAPL authorization. |
 | [New-CaplRule](New-CaplRule.md) | Returns a new CAPL Rule used by one of the following (Policy, LogicalAnd, or LogicalOr)
 | [New-CaplOperation](New-CaplOperation.md) | Return a new CAPL Operation used by a Rule.
 | [New-CaplMatch](New-CaplMatch.md)| Returns a new CAPL Match Expression used by a Rule.
