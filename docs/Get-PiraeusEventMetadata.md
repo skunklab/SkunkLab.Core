@@ -13,6 +13,12 @@ Returns the metadata for a Piraeus π-system.
 
 The PowerShell sample below shows how the $\pi$-system is returned from Piraeus
 ```diff
+$url = "http://piraeus.eastus.cloudapp.azure.com"  
+$code = "12345678"  
+$token = Get-PiraeusManagementToken '
+	-ServiceUrl $url `
+	-Key $code 
+
 $pisystemId = "http://example.org/pisystem-A"
 
 Get-PiraeusEventMetadata `

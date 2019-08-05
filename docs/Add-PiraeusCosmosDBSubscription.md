@@ -2,9 +2,8 @@
 
 
 Add-PiraeusCosmosDBSubscription cmdlet
-===============================
+=====
 [Back](MgmtApi.md)
-
 Adds a subscription for CosmosDB storage as a static route from a π-system.
 
 | **Parameter**     | **Optional** | **Definition**                                                                                                                      |
@@ -22,7 +21,11 @@ Adds a subscription for CosmosDB storage as a static route from a π-system.
 
 **Example**
 ```
-$resource = ""
+$url = "http://piraeus.eastus.cloudapp.azure.com" 
+$code = "12345678" 
+$token = Get-PiraeusManagementToken -ServiceUrl $url -Key $code
+
+$piSystemId= "http://skunklab.io/test/resource-a"
 $account = ""
 $database = ""
 $collection = ""
@@ -32,8 +35,9 @@ $description = ""
 
 
 Add-PiraeusCosmosDbSubscription `
-				-ServiceUrl $url -SecurityToken $token `
-                                -ResourceUriString $resource `
+				-ServiceUrl $url `
+				-SecurityToken $token `
+                                -ResourceUriString $piSystemId `
                                 -Account $account `
                                 -Database $database `
                                 -Collection $collection `

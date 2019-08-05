@@ -1,10 +1,11 @@
 ﻿
 
-Get-PiraeusSigmaAlgebra cmdlet
+
+Get-PiraeusPskKeys cmdlet
 =====
 [Back](MgmtApi.md)
 
-Returns a list of  Piraeus π-systems as an array of strings.
+Returns a list of  Pre-shared Key identities from Piraeus, which can be used to modify PSK secrets for those identities.
 
 | **Parameter** | **Optional** | **Description**                                                                       |
 |---------------|--------------|---------------------------------------------------------------------------------------|
@@ -21,7 +22,7 @@ $token = Get-PiraeusManagementToken '
 	-ServiceUrl $url `
 	-Key $code 
 
-Get-PiraeusSigmaAlgebra `
+Get-PiraeusPskKeys `
               -ServiceUrl $url  `
               -SecurityToken $token
 ```

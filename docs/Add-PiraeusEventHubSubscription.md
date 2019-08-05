@@ -1,7 +1,8 @@
 ﻿
 
 
-Add-PiraeusEventGridSubscription cmdlet
+
+Add-PiraeusEventHubSubscription cmdlet
 =====
 [Back](MgmtApi.md)
 Adds a subscription for Event Grid as a static route from a π-system.
@@ -11,8 +12,11 @@ Adds a subscription for Event Grid as a static route from a π-system.
 | ServiceUrl        | N            | Url of the Piraeus Management API service, e.g., https://\<dns\>.\<location\>.cloudapp.azure.com                                    |
 | SecurityToken     | N            | Security token acquired from the Management API using a security code.                                                              |
 | ResourceUriString | N            | The π-system URI identifier associated with a specific event.                                                                       |
-| Host| N            | Full host name of the Event Grid, e.g., piraeussampletopic.eastus-1.eventgrid.azure.net.                                                                                                |
-| TopicKey               | N            | Event Grid topic key.                                                                                                         |
+| Account| N            | Account name of EventHub, e.g, <account>.servicebus.windows.net                                                                                                |
+| Hub| N            | Name of Event Hub.                                                                                                      |
+| PartitionId |Y|(Optional) ID of partition if you want to send message to a single partition.|
+| KeyName|N| Name of key used for authentication.|
+|Key|N|Token used for authentication.|
 | NumClients          | Y            | Number of Event Grid clients. Default is 1.                                                             |
 | Description       | Y            | An optional description of the subscription, which is useful if querying subscriptions for a π-system from the management API.      |
 
@@ -27,15 +31,19 @@ $token = Get-PiraeusManagementToken '
 	-Key $code 
 
 $pisSystemId= "http://skunklab.io/test/resource-a"
-$topicKey = "...some_topic_key..."
-$host = "piraeussampletopic.eastus-1.eventgrid.azure.net"
+$account = "myeventhubacct"
+$hub = "myhub"
+$keyname= "mykeyname"
+$key= "...some_event_hub_key..."
 $numClients = 1
-$description = "Test Event Grid Subscription"
+$description = "Test Event Hub Subscription"
 
-Add-PiraeusEventGridSubscription -ServiceUrl $url -SecurityToken $token `
+Add-PiraeusEventHubSubscription -ServiceUrl $url -SecurityToken $token `
                                  -ResourceUriString $piSystemId`
-                                 -TopicKey $topicKey `
-                                 -Host $host `
+                                 -Account $account `
+                                 -Hub $hub `
+                                 -KeyName $keyname `
+                                 -Key $key `
                                  -NumClients $numClients `
                                  -Description $description
   ```

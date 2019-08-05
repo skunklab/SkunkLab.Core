@@ -1,15 +1,17 @@
 ﻿
 
-Get-PiraeusSigmaAlgebra cmdlet
+
+Get-PiraeusSubscriptionMetrics cmdlet
 =====
 [Back](MgmtApi.md)
 
-Returns a list of  Piraeus π-systems as an array of strings.
+Returns metrics for a subscription.
 
 | **Parameter** | **Optional** | **Description**                                                                       |
 |---------------|--------------|---------------------------------------------------------------------------------------|
 | ServiceUrl    | N            | The management API service URL, e.g., https://\<dns\>.\<location\>.cloudapp.azure.com |
-| SecurityToken | N            | The security token previously acquired to access the management API.                  |                          
+| SecurityToken | N            | The security token previously acquired to access the management API.                  |
+| SubscriptionUriString| N            |  Unique URI identifier of subscription.                   |                                                    
 |                                                                                                         
 **Example**
 
@@ -20,9 +22,14 @@ $code = "12345678"
 $token = Get-PiraeusManagementToken '
 	-ServiceUrl $url `
 	-Key $code 
+	
+$subscriptionId = "http://example.org/pisystem-A/c8b59c7c-484e-4dbe-9c3d-f25ee6fefa46"
 
-Get-PiraeusSigmaAlgebra `
+Get-PiraeusSubscriptionMetrics `
               -ServiceUrl $url  `
-              -SecurityToken $token
+              -SecurityToken $token `
+              -SubscriptionUriString $subscriptionId 
 ```
 [Management API](MgmtApi.md)
+
+

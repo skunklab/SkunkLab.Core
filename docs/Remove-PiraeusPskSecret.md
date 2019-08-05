@@ -1,15 +1,18 @@
 ﻿
 
-Get-PiraeusSigmaAlgebra cmdlet
+
+
+Remove-PiraeusPskSecret cmdlet
 =====
 [Back](MgmtApi.md)
 
-Returns a list of  Piraeus π-systems as an array of strings.
+Removes a PSK secret from Piraeus.
 
 | **Parameter** | **Optional** | **Description**                                                                       |
 |---------------|--------------|---------------------------------------------------------------------------------------|
 | ServiceUrl    | N            | The management API service URL, e.g., https://\<dns\>.\<location\>.cloudapp.azure.com |
-| SecurityToken | N            | The security token previously acquired to access the management API.                  |                          
+| SecurityToken | N            | The security token previously acquired to access the management API.                  |
+| Identity| N            | Psk Identity.                |                                                    
 |                                                                                                         
 **Example**
 
@@ -20,9 +23,11 @@ $code = "12345678"
 $token = Get-PiraeusManagementToken '
 	-ServiceUrl $url `
 	-Key $code 
-
-Get-PiraeusSigmaAlgebra `
+$identity = "myPskIdentity"
+Remove-PiraeusPskSecret `
               -ServiceUrl $url  `
-              -SecurityToken $token
+              -SecurityToken $token `
+              -Identity $identity
 ```
 [Management API](MgmtApi.md)
+

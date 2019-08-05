@@ -1,7 +1,7 @@
 ﻿
 
 Add-PiraeusDataLakeSubscription cmdlet
-===============================
+=====
 [Back](MgmtApi.md)
 Adds a subscription for Azure Data Lake as a static route from a π-system.
 
@@ -30,7 +30,7 @@ $token = Get-PiraeusManagementToken '
 	-ServiceUrl $url `
 	-Key $code 
 
-$piSystem = “http://skunklab.io/test/resource-a”  
+$piSystemId = “http://skunklab.io/test/resource-a”  
 $account = “mystorageacct”  
 $domain= “microsoft.onmicrosoft.com”  
 $appId = "...AAD App ID..."
@@ -42,7 +42,7 @@ $description = “Test Azure Data Lake subscription”
 Add-PiraeusDataLakeSubscription `
 	-ServiceUrl $url `
 	-SecurityToken $token `	
-	-ResourceUriString $piSystem `  
+	-ResourceUriString $piSystemId `  
 	-Account $account `
 	-Domain $container `
 	-AppId $appId `

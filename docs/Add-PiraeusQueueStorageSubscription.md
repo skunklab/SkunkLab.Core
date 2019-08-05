@@ -1,21 +1,23 @@
 ﻿
-Add-PiraeusBlobStorageSubscription cmdlet
+
+
+
+Add-PiraeusQueueStorageSubscription cmdlet
 =====
 [Back](MgmtApi.md)
-Adds a subscription for Azure Blob Storage as a static route from a π-system.
+Adds a subscription for an Azure storage queue to receive events as a static route from a π-system.
 
 **Parameter**     | **Optional** | **Definition**                                                                                                                      |
 |-------------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | ServiceUrl        | N            | Url of the Piraeus Management API service, e.g., https://\<dns\>.\<location\>.cloudapp.azure.com                                    |
 | SecurityToken     | N            | Security token acquired from the Management API using a security code.                                                              |
 | ResourceUriString | N            | The π-system URI identifier associated with a specific event.                                                                       |
-| Account           | N            | The Azure Blob storage account name.                                                                                                |
-| Key               | N            | The Azure Blob storage key.                                                                                                         |
-| Container         | Y            | Optional container name to store the file(s) in Azure Blob Storage.                                                                 |
-| BlobType          | N            | The type of Azure Blob to be used, i.e., one of (Block, Append, Page).                                                              |
-| NumClients        | Y            | The number Azure Blob clients associated with deployment. For high frequency writes multiple clients can be used. The default is 1. |
+| Account           | N            | Account name of Azure Queue Storage, e.g, <account>.queue.core.windows.net                                                                                                |
+| Queue| N            | Name of queue to write messages.                                                                                                        |
+| TTL| Y| (Optional) TTL as TimeSpan for messages to remain in queue.|                                                                                              |
+| Key| N            | Either storage key or SAS token for account or queue.               |
 | Description       | Y            | An optional description of the subscription, which is useful if querying subscriptions for a π-system from the management API.      |
-| Filename          | Y            | A filename which is an optional parameter, but used when the BlobType is “Append”, i.e., appending to a single file.                |
+
 
 **Example**
 
@@ -29,19 +31,21 @@ $token = Get-PiraeusManagementToken '
 
 $piSystemId = “http://skunklab.io/test/resource-a”  
 $account = “mystorageacct”  
-$container = “myfiles”  
-$filename = “myappendfile.txt”  
-$key =  "...blob-storage-key..."
-$description = “Test Azure Blob storage subscription”
+$queue= “myqueue”  
+$ttl = New-TimeSpan -Hours  1
+$key= "...storage_acct_key..."
+$description = “Test Queue Storage subscription”
 
-Add-PiraeusBlobStorageSubscription `
+Add-PiraeusQueueStorageSubscription `
 	-ServiceUrl $url `
 	-SecurityToken $token `	
 	-ResourceUriString $piSystemId `  
 	-Account $account `
-	-Container $container`  
-	-BlobType Append `  
-	-Filename $filename
+	-Queue $queue `
+	-Key $key ` 
+	-TTL $ttl `
+	-Description $description
 ```
 
 [Management API](MgmtApi.md)
+

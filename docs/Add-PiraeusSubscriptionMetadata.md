@@ -1,9 +1,9 @@
 ﻿
-Add-PiraeusEventMetadata Cmdlet
+Add-PiraeusSubscriptionMetadata Cmdlet
 =====
 [Back](MgmtApi.md)
 
-Adds a $\pi$-system to Piraeus.
+Adds a durable subscription to a $\pi$-system in Piraeus.
 
 
 | **Parameter** | **Optional** | **Description**                                                                       |
@@ -48,4 +48,5 @@ Add-PiraeusEventMetadata `
 	-SecurityToken $token 
 ```
 [Management API](MgmtApi.md)
+
 

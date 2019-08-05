@@ -2,27 +2,25 @@
 
 Remove-PiraeusEvent cmdlet
 =====
-Removes a Piraeus π-system and all subscriptions.
-roperty                 | Description                                                                                                                                                                                 |
-|--------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ResourceUriString        | A unique identifier of the pi-system as a URI                                                                                                                                               |
-                                                                                             |
+[Back](MgmtApi.md)
+Removes a Piraeus π-system and all of its subscriptions.
 
-## Putting It Together
+**Parameter** | **Optional** | **Description**                                                                       |
+|---------------|--------------|---------------------------------------------------------------------------------------|
+| ServiceUrl    | N            | The management API service URL, e.g., https://\<dns\>.\<location\>.cloudapp.azure.com |
+| SecurityToken | N            | The security token previously acquired to access the management API.                  |
+| ResourceUriString        |N| A unique identifier of the pi-system as a URI                                                                                                                                               |
+**Example**
 
-The PowerShell sample below shows how the $\pi$-system is returned from Piraeus
+The PowerShell sample below shows how the $\pi$-system is removed from Piraeus
 ```diff
-+#variables
+$piSystemId= "http://example.org/pisystem-A"
 
-$pisystemId = "http://example.org/pisystem-A"
-
-+#add the pi-system to piraeus
-
-Get-PiraeusEventMetadata
-              -ResourceUriString $pisystemId 
-              -ServiceUrl $url  
-              -SecurityToken $token
+Get-PiraeusEventMetadata `
+              -ResourceUriString $piSystemId `
+              -ServiceUrl $url  `
+              -SecurityToken $token 
 
 
 ```
-
+[Management API](MgmtApi.md)
