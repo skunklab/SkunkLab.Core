@@ -40,6 +40,7 @@ See [π-systems](pi-systems.md)
 
 ### Durable Subscription Cmdlets
 Durable subscriptions are static routes attached to a π-system.  Most of time these are used by passive agents, i.e., agents that do not initialize connections to a Piraeus gateway.  For example, a Storage account or Web service. However, they can be used by active agents, which are automatically subscribed to a durable subscription by matching the active agents identity to the subscription.  Neither an active or passive agent can self-unsubscribe from a durable subscription.  This must be perform by an administrator using the Management API.
+
 | **Cmdlet**     | **Definition**                                                                                                                      |
 |-------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | [Add-PiraeusSubscription](Add-PiraeusSubscription.md) | Adds or updates a subscription to a  π-system in Piraeus. Use for active receivers with durable subscriptions.
@@ -59,7 +60,8 @@ Durable subscriptions are static routes attached to a π-system.  Most of time t
 |[Add-PiraeusRedisCacheSubscription](Add-PiraeusRedisCacheSubscription.md) | Adds or updates a subscription to a π-system in Piraeus for a Redis cache receiver.
 |[Get-PiraeusSubscriptionList](Get-PiraeusSubscriptionList.md) | Gets a list of subscriptions from a  π-system in Piraeus.
 |[Get-PiraeusSubscriberSubscriptions](Get-PiraeusSubscriberSubscriptions.md) | Gets a list of durable subscriptions for an identity.
----------------
+
+
 ### Metrics Cmdlets
 These cmdlets retrieve metrics from π-systems orsubscriptions, e.g. number of messages, total bytes sent/received, and errors.
 
