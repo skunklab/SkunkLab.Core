@@ -372,7 +372,18 @@ namespace Piraeus.Configuration
 
         public string[] GetSecurityCodes()
         {
-            return ManagementApiSecurityCodes.Split(";", StringSplitOptions.RemoveEmptyEntries);
+            string[] result = null;
+            string code = ManagementApiSecurityCodes;
+            if (code.Contains(";"))
+            {
+                result = code.Split(";", StringSplitOptions.RemoveEmptyEntries);
+            }
+            else
+            {
+                result = new string[1];
+                result[0] = code;
+            }
+            return result;
         }
 
         public LoggerType GetLoggerTypes()
