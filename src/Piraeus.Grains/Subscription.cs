@@ -199,8 +199,9 @@ namespace Piraeus.Grains
                     return;
                 }
 
-
-                var query = indexes.Where((c) => State.Metadata.Indexes.Contains(new KeyValuePair<string, string>(c.Key, c.Value)));
+                
+                //var query = indexes.Where((c) => State.Metadata.Indexes.Contains(new KeyValuePair<string, string>(c.Key, c.Value)));
+                var query = indexes.Where((c) => (c.Value.First() != '~' && State.Metadata.Indexes.Contains(new KeyValuePair<string, string>(c.Key, c.Value))) || (c.Value.First() == '~' && !State.Metadata.Indexes.Contains(new KeyValuePair<string, string>(c.Key, c.Value.TrimStart('~')))));
 
                 if (indexes.Count == query.Count())
                 {

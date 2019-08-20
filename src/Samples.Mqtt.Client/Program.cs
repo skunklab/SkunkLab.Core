@@ -343,6 +343,7 @@ namespace Samples.Mqtt.Client
             string roleClaimType = "http://skunklab.io/role";
             string symmetricKey = "//////////////////////////////////////////8=";
 
+
             List<Claim> claims = new List<Claim>()
             {
                 new Claim(nameClaimType, name),

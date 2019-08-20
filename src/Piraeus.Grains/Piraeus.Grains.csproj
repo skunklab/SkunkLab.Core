@@ -12,6 +12,7 @@
     </ItemGroup>
   </Target>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.DataLake.Store" Version="1.1.17" />
     <PackageReference Include="Microsoft.Azure.Devices" Version="1.17.2" />
     <PackageReference Include="Microsoft.Azure.Devices.Client" Version="1.19.0" />
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.2.1" />

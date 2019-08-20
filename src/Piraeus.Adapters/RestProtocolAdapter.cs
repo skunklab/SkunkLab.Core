@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Security;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Piraeus.Adapters
 {
@@ -121,7 +122,8 @@ namespace Piraeus.Adapters
                         message.CacheKey = uri.CacheKey;
                     }
 
-                    List<KeyValuePair<string, string>> indexList = uri.Indexes == null ? null : new List<KeyValuePair<string, string>>(uri.Indexes);
+                    //List<KeyValuePair<string, string>> indexList = uri.Indexes == null ? null : new List<KeyValuePair<string, string>>(uri.Indexes);
+                    List<KeyValuePair<string, string>> indexList = GetIndexes(uri);
 
                     await PublishAsync(decoder.Id, message, indexList);
                     await Channel.CloseAsync();
@@ -159,7 +161,7 @@ namespace Piraeus.Adapters
         private void Adapter_OnObserve(object sender, ObserveMessageEventArgs e)
         {
             byte[] payload = ProtocolTransition.ConvertToHttp(e.Message);
-            OnObserve?.Invoke(this, new ChannelObserverEventArgs(e.Message.ResourceUri, e.Message.ContentType, payload));
+            OnObserve?.Invoke(this, new ChannelObserverEventArgs(this.Channel.Id, e.Message.ResourceUri, e.Message.ContentType, payload));
         }
 
         #endregion
@@ -230,5 +232,24 @@ namespace Piraeus.Adapters
             }
         }
         #endregion
+
+        private List<KeyValuePair<string, string>> GetIndexes(MessageUri msgUri)
+        {
+            List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>(msgUri.Indexes);
+
+            if (msgUri.Indexes.Contains(new KeyValuePair<string, string>("~", "~")))
+            {
+                list.Remove(new KeyValuePair<string, string>("~", "~"));
+                string claimType = config.ClientIdentityNameClaimType;
+                var query = config.GetClientIndexes().Where((ck) => ck.Key == claimType);
+                if (query.Count() == 1)
+                {
+                    query.GetEnumerator().MoveNext();
+                    list.Add(new KeyValuePair<string, string>(query.GetEnumerator().Current.Value, "~" + identity));
+                }
+            }
+
+            return list.Count > 0 ? list : null;
+        }
     }
 }

@@ -25,18 +25,11 @@ namespace Piraeus.TcpGateway
             OrleansConfig oconfig = null;
             PiraeusConfig pconfig = null;
 
-            //LoggerFactory loggerFactory = new LoggerFactory();
-
             IConfigurationBuilder configBuilder = new ConfigurationBuilder();
             configBuilder.AddOrleansConfiguration(out oconfig);
             configBuilder.AddPiraeusConfiguration(out pconfig);
 
             PiraeusGatewayOptions pgo = new PiraeusGatewayOptions(oconfig);
-            //services.AddGatewayService(typeof(TcpGatewayService), null);
-
-            //services.AddOrleansConfiguration();
-            //services.AddPiraeusConfiguration();
-            //services.AddOrleansClusterClient(loggerFactory, options => options.IsLocal = false);
             
             IServiceProvider sp = services.BuildServiceProvider();
             LoggerType loggerType = oconfig.GetLoggerTypes();
@@ -57,8 +50,6 @@ namespace Piraeus.TcpGateway
             
             TcpGatewayService tgs = sp.GetRequiredService<TcpGatewayService>();
             tgs.Init(oconfig.Dockerized);
-
-            //services.AddSingleton<TcpGatewayService>((f) => f.GetRequiredService<TcpGatewayService>());
 
 
             

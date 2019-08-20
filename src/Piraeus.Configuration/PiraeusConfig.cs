@@ -429,7 +429,7 @@ namespace Piraeus.Configuration
         //}
 
         /// <summary>
-        /// Gets the client indexes
+        /// Gets the client indexes, where Key is the claim type and Value is the claim key.
         /// </summary>
         /// <returns></returns>
         public List<KeyValuePair<string,string>> GetClientIndexes()

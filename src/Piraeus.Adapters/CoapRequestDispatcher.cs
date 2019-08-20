@@ -10,15 +10,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Piraeus.Auditing;
+using System.Linq;
+using Piraeus.Configuration;
 
 namespace Piraeus.Adapters
 {
     public class CoapRequestDispatcher : ICoapRequestDispatch
     {
-        public CoapRequestDispatcher(CoapSession session, IChannel channel)
+        public CoapRequestDispatcher(CoapSession session, IChannel channel, PiraeusConfig config)
         {
             this.channel = channel;
             this.session = session;
+            this.config = config;
             auditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.Message);
             coapObserved = new Dictionary<string, byte[]>();
             coapUnobserved = new HashSet<string>();
@@ -34,6 +37,7 @@ namespace Piraeus.Adapters
         private HashSet<string> coapUnobserved;
         private Dictionary<string, byte[]> coapObserved;
         private bool disposedValue = false; // To detect redundant calls
+        private PiraeusConfig config;
 
         public string Identity
         {
@@ -200,14 +204,15 @@ namespace Piraeus.Adapters
                 }
                 else
                 {
-                    List<KeyValuePair<string, string>> indexes = new List<KeyValuePair<string, string>>(uri.Indexes);
+                    //List<KeyValuePair<string, string>> indexes = new List<KeyValuePair<string, string>>(uri.Indexes);
+                    List<KeyValuePair<string, string>> indexes = GetIndexes(uri);
+                    await adapter.PublishAsync(msg, indexes);
+                    //Task task = Retry.ExecuteAsync(async () =>
+                    //{
+                    //    await adapter.PublishAsync(msg, indexes);
+                    //});
 
-                    Task task = Retry.ExecuteAsync(async () =>
-                    {
-                        await adapter.PublishAsync(msg, indexes);
-                    });
-
-                    task.LogExceptions();
+                    //task.LogExceptions();
                 }
 
 
@@ -219,7 +224,25 @@ namespace Piraeus.Adapters
                 throw ex;
             }
         }
-        
+
+        private List<KeyValuePair<string, string>> GetIndexes(CoapUri coapUri)
+        {
+            List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>(coapUri.Indexes);
+
+            if (coapUri.Indexes.Contains(new KeyValuePair<string, string>("~", "~")))
+            {
+                list.Remove(new KeyValuePair<string, string>("~", "~"));
+                var query = config.GetClientIndexes().Where((ck) => ck.Key == session.Config.IdentityClaimType);
+                if (query.Count() == 1)
+                {
+                    query.GetEnumerator().MoveNext();
+                    list.Add(new KeyValuePair<string, string>(query.GetEnumerator().Current.Value, "~" + session.Identity));
+                }
+            }
+
+            return list.Count > 0 ? list : null;
+        }
+
         public async Task<CoapMessage> PutAsync(CoapMessage message)
         {
             CoapUri uri = new CoapUri(message.ResourceUri.ToString());

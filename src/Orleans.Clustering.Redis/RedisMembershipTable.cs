@@ -86,27 +86,43 @@ namespace Orleans.Clustering.Redis
 
         public async Task<bool> InsertRow(MembershipEntry entry, TableVersion tableVersion)
         {
+            bool ret = false;
+
             try
             {
-                RedisMembershipEntry rentry = RedisMembershipEntry.Create(clusterId, entry, "0");
-                RedisMembershipCollection collection = null;
-
-                var val = await database.StringGetAsync(clusterId);
-
-                if (!val.IsNull)
+                while (true)
                 {
-                    collection = serializer.Deserialize<RedisMembershipCollection>(val);
-                    collection.Add(rentry);
-                }
-                else
-                {
-                    collection = new RedisMembershipCollection();
-                    collection.Add(rentry);
-                }
+                    long ticks = DateTime.UtcNow.Ticks;
+                    await database.StringSetAsync("locktoken", ticks.ToString(), new TimeSpan(0, 0, 10));
 
-                bool ret = await database.StringSetAsync(clusterId, serializer.Serialize(collection));
+                    RedisMembershipEntry rentry = RedisMembershipEntry.Create(clusterId, entry, "0");
+                    RedisMembershipCollection collection = null;
 
-                return ret;
+                    var val = await database.StringGetAsync(clusterId);
+
+                    if (!val.IsNull)
+                    {
+                        collection = serializer.Deserialize<RedisMembershipCollection>(val);
+                        collection.Add(rentry);
+                    }
+                    else
+                    {
+                        collection = new RedisMembershipCollection();
+                        collection.Add(rentry);
+                    }
+
+                    string tokenValue = await database.StringGetAsync("locktoken");
+                    if (tokenValue != ticks.ToString())
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        ret = await database.StringSetAsync(clusterId, serializer.Serialize(collection));
+                        break;
+                    }
+                }
+                    return ret;
             }
             catch(Exception ex)
             {
@@ -118,20 +134,38 @@ namespace Orleans.Clustering.Redis
         public async Task<MembershipTableData> ReadAll()
         {
             logger?.LogInformation("It worked !!! :-)");
+            MembershipTableData data = null;
+
             try
             {
-                MembershipTableData data = null;
-                var val = await database.StringGetAsync(clusterId);
+                while (true)
+                {
+                    long ticks = DateTime.UtcNow.Ticks;
+                    await database.StringSetAsync("locktoken", ticks.ToString(), new TimeSpan(0, 0, 10));
+                    
+                    var val = await database.StringGetAsync(clusterId);
 
-                if (!val.IsNull)
-                {
-                    RedisMembershipCollection collection = serializer.Deserialize<RedisMembershipCollection>(val);
-                    data = collection.ToMembershipTableData();
+                    if (!val.IsNull)
+                    {
+                        RedisMembershipCollection collection = serializer.Deserialize<RedisMembershipCollection>(val);
+                        data = collection.ToMembershipTableData();
+                    }
+                    else
+                    {
+                        data = new MembershipTableData(_tableVersion);
+                    }
+
+                    string tokenValue = await database.StringGetAsync("locktoken");
+                    if (tokenValue != ticks.ToString())
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                else
-                {
-                    data = new MembershipTableData(_tableVersion);
-                }
+
                 return data;
             }
             catch(Exception ex)
@@ -143,19 +177,36 @@ namespace Orleans.Clustering.Redis
 
         public async Task<MembershipTableData> ReadRow(SiloAddress key)
         {
+            MembershipTableData data = null;
+
             try
             {
-                MembershipTableData data = null;
-                var val = await database.StringGetAsync(clusterId);
+                while (true)
+                {
+                    long ticks = DateTime.UtcNow.Ticks;
+                    await database.StringSetAsync("locktoken", ticks.ToString(), new TimeSpan(0, 0, 10));
 
-                if (!val.IsNull)
-                {
-                    RedisMembershipCollection collection = serializer.Deserialize<RedisMembershipCollection>(val);
-                    data = collection.ToMembershipTableData();
-                }
-                else
-                {
-                    data = new MembershipTableData(_tableVersion);
+                    var val = await database.StringGetAsync(clusterId);
+
+                    if (!val.IsNull)
+                    {
+                        RedisMembershipCollection collection = serializer.Deserialize<RedisMembershipCollection>(val);
+                        data = collection.ToMembershipTableData();
+                    }
+                    else
+                    {
+                        data = new MembershipTableData(_tableVersion);
+                    }
+
+                    string tokenValue = await database.StringGetAsync("locktoken");
+                    if (tokenValue != ticks.ToString())
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
 
                 return data;
@@ -194,32 +245,49 @@ namespace Orleans.Clustering.Redis
 
         public async Task<bool> UpdateRow(MembershipEntry entry, string etag, TableVersion tableVersion)
         {
+            bool ret = false;
+
             try
             {
-                bool ret = false;
-
-                if (string.IsNullOrEmpty(etag))
+                while (true)
                 {
-                    etag = "0";
-                }
+                    long ticks = DateTime.UtcNow.Ticks;
+                    await database.StringSetAsync("locktoken", ticks.ToString(), new TimeSpan(0, 0, 10));
 
-
-                var rentry = RedisMembershipEntry.Create(clusterId, entry, etag);
-                var val = await database.StringGetAsync(clusterId);
-
-                if (!val.IsNull)
-                {
-                    RedisMembershipCollection collection = serializer.Deserialize<RedisMembershipCollection>(val);
-                    var items = collection.Where((x) => x.DeploymentId == clusterId && x.Address.ToParsableString() == rentry.Address.ToParsableString());
-                    if (items != null && items.Count() > 0)
+                    if (string.IsNullOrEmpty(etag))
                     {
-                        RedisMembershipEntry oldEntry = items.First();
-                        rentry.LastIndex = oldEntry.LastIndex++;
-                        collection.Remove(oldEntry);
-                        collection.Add(rentry);
-                        ret = await database.StringSetAsync(clusterId, serializer.Serialize(collection));
+                        etag = "0";
+                    }
+
+
+                    var rentry = RedisMembershipEntry.Create(clusterId, entry, etag);
+                    var val = await database.StringGetAsync(clusterId);
+
+                    if (!val.IsNull)
+                    {
+                        RedisMembershipCollection collection = serializer.Deserialize<RedisMembershipCollection>(val);
+                        var items = collection.Where((x) => x.DeploymentId == clusterId && x.Address.ToParsableString() == rentry.Address.ToParsableString());
+                        if (items != null && items.Count() > 0)
+                        {
+                            RedisMembershipEntry oldEntry = items.First();
+                            rentry.LastIndex = oldEntry.LastIndex++;
+                            collection.Remove(oldEntry);
+                            collection.Add(rentry);
+
+                            string tokenValue = await database.StringGetAsync("locktoken");
+                            if (tokenValue != ticks.ToString())
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                ret = await database.StringSetAsync(clusterId, serializer.Serialize(collection));
+                                break;
+                            }
+                        }
                     }
                 }
+
                 return ret;
             }
             catch(Exception ex)

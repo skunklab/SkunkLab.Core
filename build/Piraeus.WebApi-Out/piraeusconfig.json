@@ -1,0 +1,9 @@
+{
+    "managementApiIssuer": "http://skunklab.io/mgmt",
+    "managementApiAudience": "http://skunklab.io/mgmt",
+    "managmentApiSymmetricKey": "//////////////////////////////////////////8=",
+    "managementApiSecurityCodes": "12345678;87654321",
+    "loggerTypes": "Console;Debug",
+    "logLevel": "Warning",
+    "ports": "8080"
+}

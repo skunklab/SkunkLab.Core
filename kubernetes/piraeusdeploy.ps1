@@ -88,7 +88,7 @@ function New-PiraeusDeploy()
             
             if($rgoutcome -eq "false")
             {
-                Write-Host "Step $step - Create resource group '$resourceGroupName'" -ForegroundColor Green
+                Write-Host "-- Step $step - Create resource group '$resourceGroupName'" -ForegroundColor Green
                 az group create --name $resourceGroupName --location $location 
                 $step++
             }
@@ -199,14 +199,14 @@ function New-PiraeusDeploy()
             helm repo add jetstack https://charts.jetstack.io
 
             Write-Host "-- Step $step - Installing cert-manager" -ForegroundColor Green
-            helm install --name cert-manager --namespace cert-manager --set ingressShim.extraArgs='{--default-issuer-name=letsencrypt-prod,--default-issuer-kind=ClusterIssuer}' jetstack/cert-manager            
+            helm install --name cert-manager --namespace cert-manager --version v0.9.0 --set ingressShim.extraArgs='{--default-issuer-name=letsencrypt-prod,--default-issuer-kind=ClusterIssuer}' jetstack/cert-manager --set webhook.enabled=true           
             Write-Host "Wait 45 seconds for cert-manager to initialize" -ForegroundColor Yellow
             Start-Sleep -Seconds 45
             $step++
 
             Write-Host "-- Step $step - Applying the certificate issuer" -ForegroundColor Green
             Copy-Item -Path "./issuer.yaml" -Destination "./issuer-copy.yaml"
-            UpdateYaml -newValue $email -matchString "EMAILREF" -filename "./issuer-copy.yaml"
+            UpdateYaml -newValue $email -matchString "EMAILREF" -filename "./issuer-copy.yaml"            
             kubectl apply -f ./issuer-copy.yaml -n kube-system
             Write-Host "Wait 30 seconds for issuer to initialize"
             Start-Sleep -Seconds 30
@@ -300,6 +300,24 @@ function New-PiraeusDeploy()
 
 }
 
+function KubeApply()
+{
+	param([string]$filename, [string]$ns)
+	$looper = $true
+    while($looper)
+    {    
+		kubectl apply -f $filename -n $ns
+		if($LASTEXITCODE -ne 0)
+        {
+            Write-Host "Waiting 30 to re-apply file..." -ForegroundColor Yellow
+            Start-Sleep -Seconds 30
+        }
+        else
+        {
+			$looper = $false
+        }
+	}
+}
 
 function InstallNGINX()
 {

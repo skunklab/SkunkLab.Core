@@ -22,6 +22,8 @@ namespace Piraeus.Adapters
         {
             this.context = context;
             this.logger = logger;
+            this.config = config;
+
             CoapConfigOptions options = config.ObserveOption && config.NoResponseOption ? CoapConfigOptions.Observe | CoapConfigOptions.NoResponse : config.ObserveOption ? CoapConfigOptions.Observe : config.NoResponseOption ? CoapConfigOptions.NoResponse : CoapConfigOptions.None;
             CoapConfig coapConfig = new CoapConfig(authenticator, config.CoapAuthority, options, config.AutoRetry,
                 config.KeepAliveSeconds, config.AckTimeoutSeconds, config.AckRandomFactor,
@@ -65,6 +67,7 @@ namespace Piraeus.Adapters
         private IAuditor userAuditor;
         private bool closing;
         private IAuditFactory auditFactory;
+        private PiraeusConfig config;
             
 
         #endregion
@@ -124,7 +127,7 @@ namespace Piraeus.Adapters
             }
             else
             {
-                dispatcher = new CoapRequestDispatcher(session, Channel);
+                dispatcher = new CoapRequestDispatcher(session, Channel, config);
             }
         }
 
@@ -144,7 +147,7 @@ namespace Piraeus.Adapters
 
                 }
 
-                OnObserve?.Invoke(this, new ChannelObserverEventArgs(message.ResourceUri.ToString(), MediaTypeConverter.ConvertFromMediaType(message.ContentType), message.Payload));
+                OnObserve?.Invoke(this, new ChannelObserverEventArgs(this.Channel.Id, message.ResourceUri.ToString(), MediaTypeConverter.ConvertFromMediaType(message.ContentType), message.Payload));
 
                 Task task = Task.Factory.StartNew(async () =>
                 {

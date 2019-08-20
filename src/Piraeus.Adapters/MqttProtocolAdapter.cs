@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Piraeus.Adapters
 {
@@ -295,7 +296,15 @@ namespace Piraeus.Adapters
                         msg.CacheKey = mqttUri.CacheKey;
                     }
 
-                    await adapter.PublishAsync(msg, null);
+                    if (mqttUri.Indexes != null)
+                    {                 
+                        List<KeyValuePair<string,string>> list = GetIndexes(mqttUri);
+                        await adapter.PublishAsync(msg, list);
+                    }
+                    else
+                    {
+                        await adapter.PublishAsync(msg);
+                    }
                 }
                 else
                 {
@@ -320,6 +329,23 @@ namespace Piraeus.Adapters
                 }
             }
 
+        }
+        private List<KeyValuePair<string,string>> GetIndexes(MqttUri mqttUri)
+        {
+            List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>(mqttUri.Indexes);
+
+            if (mqttUri.Indexes.Contains(new KeyValuePair<string, string>("~", "~")))
+            {
+                list.Remove(new KeyValuePair<string, string>("~", "~"));
+                var query = config.GetClientIndexes().Where((ck) => ck.Key == session.Config.IdentityClaimType);
+                if (query.Count() == 1)
+                {
+                    query.GetEnumerator().MoveNext();                    
+                    list.Add(new KeyValuePair<string, string>(query.GetEnumerator().Current.Value, "~" + session.Identity));
+                }
+            }
+
+            return list.Count > 0 ? list : null;
         }
 
         #endregion
@@ -355,7 +381,7 @@ namespace Piraeus.Adapters
             try
             {
                 MqttMessage msg = MqttMessage.DecodeMessage(e.Message);
-                OnObserve?.Invoke(this, new ChannelObserverEventArgs(null, null, e.Message));
+                OnObserve?.Invoke(this, new ChannelObserverEventArgs(this.Channel.Id, null, null, e.Message));
 
                 if (!session.IsAuthenticated)
                 {

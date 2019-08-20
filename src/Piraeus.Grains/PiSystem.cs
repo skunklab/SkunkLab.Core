@@ -110,13 +110,13 @@ namespace Piraeus.Grains
             Uri uri = new Uri(id);
 
             //test for match with resource 
-            if(id == null || State.Metadata.ResourceUriString != id.Replace("/" + uri.Segments[uri.Segments.Length - 1], ""))
-            {
-                Exception ex = new SubscriptionIdentityMismatchException(String.Format("Subscription identity is mismatched with resource. Subscription {0}, Resource {1}", id, State.Metadata.ResourceUriString));
-                //GetLogger().Log(1010, Orleans.Runtime.Severity.Error, ex.Message, null, ex);
-                await NotifyErrorAsync(ex);
-                return;
-            }
+            //if(id == null || State.Metadata.ResourceUriString != id.Replace("/" + uri.Segments[uri.Segments.Length - 1], ""))
+            //{
+            //    Exception ex = new SubscriptionIdentityMismatchException(String.Format("Subscription identity is mismatched with resource. Subscription {0}, Resource {1}", id, State.Metadata.ResourceUriString));
+            //    //GetLogger().Log(1010, Orleans.Runtime.Severity.Error, ex.Message, null, ex);
+            //    await NotifyErrorAsync(ex);
+            //    return;
+            //}          
 
             //get the subscription into resource state
             if (State.Subscriptions.ContainsKey(id))

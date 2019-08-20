@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkunkLab.Security", "SkunkL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkunkLab.Storage", "SkunkLab.Storage\SkunkLab.Storage.csproj", "{DC37B01B-9743-40CF-907E-375E9169808A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Piraeus.UdpGateway", "Piraeus.UdpGateway\Piraeus.UdpGateway.csproj", "{4D3005F2-EE65-4270-9DF4-6DB1C4A2CC08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,10 @@ Global
 		{DC37B01B-9743-40CF-907E-375E9169808A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC37B01B-9743-40CF-907E-375E9169808A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC37B01B-9743-40CF-907E-375E9169808A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D3005F2-EE65-4270-9DF4-6DB1C4A2CC08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D3005F2-EE65-4270-9DF4-6DB1C4A2CC08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D3005F2-EE65-4270-9DF4-6DB1C4A2CC08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D3005F2-EE65-4270-9DF4-6DB1C4A2CC08}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

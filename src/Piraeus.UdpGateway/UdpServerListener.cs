@@ -1,25 +1,26 @@
-﻿using Piraeus.Adapters;
-using Piraeus.Configuration.Settings;
+﻿using Microsoft.Extensions.Logging;
+using Piraeus.Adapters;
+using Piraeus.Configuration;
 using SkunkLab.Channels;
 using SkunkLab.Security.Authentication;
 using SkunkLab.Security.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace Piraeus.UdpGateway
 {
     public class UdpServerListener
     {
-        public UdpServerListener(PiraeusConfig config, IPEndPoint localEP, CancellationToken token)
+        public UdpServerListener(PiraeusConfig config, IPEndPoint localEP, ILogger logger = null, CancellationToken token = default(CancellationToken))
         {
             this.config = config;
             this.localEP = localEP;
+            this.logger = logger;
             this.token = token;
             cache = new Dictionary<string, Tuple<ProtocolAdapter, CancellationTokenSource>>();
             container = new Dictionary<string, string>();
@@ -33,6 +34,7 @@ namespace Piraeus.UdpGateway
 
         public event EventHandler<ServerFailedEventArgs> OnError;
 
+        private ILogger logger;
         private readonly PiraeusConfig config;
         private readonly IAuthenticator authn;
 
@@ -62,10 +64,10 @@ namespace Piraeus.UdpGateway
                         if (!cache.ContainsKey(key))
                         {
                             CancellationTokenSource cts = new CancellationTokenSource();
-                            //ProtocolAdapter adapter = ProtocolAdapterFactory.Create(config, authn, listener, result.RemoteEndPoint, cts.Token);
                             ProtocolAdapter adapter = ProtocolAdapterFactory.Create(config, authn, listener, result.RemoteEndPoint, null, cts.Token);
                             adapter.OnError += Adapter_OnError;
                             adapter.OnClose += Adapter_OnClose;
+                            adapter.OnObserve += Adapter_OnObserve;
                             await adapter.Channel.OpenAsync();
                             container.Add(adapter.Channel.Id, key);
                             cache.Add(key, new Tuple<ProtocolAdapter, CancellationTokenSource>(adapter, cts));
@@ -84,17 +86,31 @@ namespace Piraeus.UdpGateway
                 }
                 catch (Exception ex)
                 {                   
-                    OnError?.Invoke(this, new ServerFailedEventArgs("UDP", localEP.Port));
-                    //await Log.LogErrorAsync("UDP server channel error {0}", ex.Message);
-
+                    OnError?.Invoke(this, new ServerFailedEventArgs(ex, "UDP", localEP.Port));
                 }
             }
         }
 
-
-
-
-
+        private void Adapter_OnObserve(object sender, ChannelObserverEventArgs e)
+        {
+            if(container.ContainsKey(e.ChannelId))
+            {
+                string key = container[e.ChannelId];
+               if(cache.ContainsKey(key))
+                {
+                    IChannel channel = cache[key].Item1.Channel;
+                    channel.SendAsync(e.Message).GetAwaiter();
+                }
+               else
+                {
+                    logger?.Log(LogLevel.Warning, "UDP cache does not contain channel.");
+                }
+            }
+            else
+            {
+                logger?.Log(LogLevel.Warning, "Channel not available to UDP");
+            }
+        }
 
         private void Adapter_OnClose(object sender, ProtocolAdapterCloseEventArgs e)
         {

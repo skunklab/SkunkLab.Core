@@ -1,0 +1,12 @@
+{
+    "coapAuthority": "skunklab.io",
+    "ports": "8081",
+    "auditConnectionString": null,
+    "clientIdentityNameClaimType": "http://skunklab.io/name",
+    "clientIssuer": "http://skunklab.io/",
+    "clientAudience": "http://skunklab.io/",
+    "clientTokenType": "JWT",
+    "clientSymmetricKey": "//////////////////////////////////////////8=",
+    "loggerTypes": "Console;Debug",
+    "logLevel": "Warning"
+}
