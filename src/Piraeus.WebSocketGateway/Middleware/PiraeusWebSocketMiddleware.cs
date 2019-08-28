@@ -31,9 +31,7 @@ namespace Piraeus.WebSocketGateway.Middleware
     {
         private readonly RequestDelegate _next;
         private PiraeusConfig config;
-        //private ProtocolAdapter adapter;
         private CancellationTokenSource source;
-        //private WebSocket socket;
         private readonly WebSocketOptions _options;
         private Dictionary<string, ProtocolAdapter> container;
 
@@ -65,7 +63,6 @@ namespace Piraeus.WebSocketGateway.Middleware
             WebSocket socket = await context.WebSockets.AcceptWebSocketAsync();
             
             source = new CancellationTokenSource();
-            ////adapter = ProtocolAdapterFactory.Create(config, context, socket, authn, source.Token);
             ProtocolAdapter adapter = ProtocolAdapterFactory.Create(config, context, socket, null, authn, source.Token);
             container.Add(adapter.Channel.Id, adapter);
             adapter.OnClose += Adapter_OnClose;
@@ -85,8 +82,7 @@ namespace Piraeus.WebSocketGateway.Middleware
             {
                 ProtocolAdapter adapter = container[e.ChannelId];
                 adapter.Channel.CloseAsync().GetAwaiter();
-            }
-            
+            }            
         }
 
         private void Adapter_OnClose(object sender, ProtocolAdapterCloseEventArgs e)

@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v2.2",
-    "signature": "f3dd1601e945f9a09094655f61482df2363927b1"
+    "signature": "2db1380ce5f80bdb18840f632388ce517c19a925"
   },
   "compilationOptions": {
     "defines": [
@@ -338,6 +338,25 @@
         },
         "compile": {
           "lib/netstandard1.3/Microsoft.Azure.Amqp.dll": {}
+        }
+      },
+      "Microsoft.Azure.DataLake.Store/1.1.17": {
+        "dependencies": {
+          "Microsoft.NETCore.App": "2.2.0",
+          "Microsoft.Rest.ClientRuntime": "2.3.16",
+          "NLog": "4.5.0",
+          "Newtonsoft.Json": "11.0.2",
+          "System.Buffers": "4.5.0",
+          "System.Net.Requests": "4.3.0"
+        },
+        "runtime": {
+          "lib/netcoreapp1.1/Microsoft.Azure.DataLake.Store.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.1.17.0"
+          }
+        },
+        "compile": {
+          "lib/netcoreapp1.1/Microsoft.Azure.DataLake.Store.dll": {}
         }
       },
       "Microsoft.Azure.Devices/1.17.2": {
@@ -1094,6 +1113,17 @@
           "Microsoft.NETCore.Platforms": "2.2.0",
           "Microsoft.NETCore.Targets": "2.0.0",
           "System.Runtime": "4.3.0"
+        }
+      },
+      "NLog/4.5.0": {
+        "runtime": {
+          "lib/netstandard2.0/NLog.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.5.0.7357"
+          }
+        },
+        "compile": {
+          "lib/netstandard2.0/NLog.dll": {}
         }
       },
       "NuGet.Frameworks/4.7.0": {
@@ -2207,6 +2237,7 @@
       },
       "Piraeus.Grains/1.0.0": {
         "dependencies": {
+          "Microsoft.Azure.DataLake.Store": "1.1.17",
           "Microsoft.Azure.Devices": "1.17.2",
           "Microsoft.Azure.Devices.Client": "1.19.0",
           "Microsoft.Azure.DocumentDB.Core": "2.2.1",
@@ -5327,6 +5358,13 @@
       "path": "microsoft.azure.amqp/2.3.7",
       "hashPath": "microsoft.azure.amqp.2.3.7.nupkg.sha512"
     },
+    "Microsoft.Azure.DataLake.Store/1.1.17": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-K/tynPmbEFrYwKNZ5DuudgicpbFDCYzX9XT1p8mrp3TFoR891LhhxrO3hXpKhHyikxc9XbPj9X/BWZHFGcql5A==",
+      "path": "microsoft.azure.datalake.store/1.1.17",
+      "hashPath": "microsoft.azure.datalake.store.1.1.17.nupkg.sha512"
+    },
     "Microsoft.Azure.Devices/1.17.2": {
       "type": "package",
       "serviceable": true,
@@ -5634,6 +5672,13 @@
       "sha512": "sha512-9ZQKCWxH7Ijp9BfahvL2Zyf1cJIk8XYLF6Yjzr2yi0b2cOut/HQ31qf1ThHAgCc3WiZMdnWcfJCgN82/0UunxA==",
       "path": "microsoft.win32.primitives/4.3.0",
       "hashPath": "microsoft.win32.primitives.4.3.0.nupkg.sha512"
+    },
+    "NLog/4.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lzqhWWkcC2HplWKsT3Rv81O7WbMt0xr0ICnCGqTgiSkqbnRxL8tTDGL0WRK7+sFZnZ/GQThkQcjSymhcbz05/w==",
+      "path": "nlog/4.5.0",
+      "hashPath": "nlog.4.5.0.nupkg.sha512"
     },
     "NuGet.Frameworks/4.7.0": {
       "type": "package",

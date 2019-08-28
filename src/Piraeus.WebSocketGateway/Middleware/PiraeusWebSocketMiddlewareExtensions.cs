@@ -18,12 +18,5 @@ namespace Piraeus.WebSocketGateway.Middleware
         }
 
        
-
-        //public static IServiceCollection AddPiraeusWebSocket(this IServiceCollection services)
-        //{
-        //    services.AddTransient<PiraeusWebSocketMiddleware>();
-
-        //    return services;
-        //}
     }
 }

@@ -24,15 +24,7 @@ namespace Piraeus.WebSocketGateway
 
         public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider)
         {
-            //if (env.IsDevelopment())
-            //{
-            //    app.UseDeveloperExceptionPage();
-            //}
-            //else
-            //{
-            //    app.UseHsts();
-            //}
-
+         
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -42,28 +34,8 @@ namespace Piraeus.WebSocketGateway
             app.UseAuthentication();
             app.UseWebSockets();
             app.UseMiddleware<PiraeusWebSocketMiddleware>();
-            //app.UseStaticFiles();
 
             app.UseMvc();
-
-            //app.UseMvc(routes =>
-            //{
-            //    routes.MapRoute("ApiRoute", "{controller=Connect}/{id}");
-            //});
-
-            //app.Use(async (context, next) =>
-            //{
-            //    var p = new PiraeusWebSocketMiddleware(null, pconfig);
-            //    await p.Invoke(context);
-            //    //await next.Invoke();                
-
-            //    //try
-            //    //{
-            //    //    await next.Invoke();                 
-            //    //}
-            //    //catch (BadHttpRequestException ex) when (ex.StatusCode == StatusCodes.Status413RequestEntityTooLarge) { }
-            //});
-
 
         }
 
@@ -71,7 +43,6 @@ namespace Piraeus.WebSocketGateway
         {
             pconfig = GetPiraeusConfig();
             config = GetOrleansConfig();
-            //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -93,7 +64,6 @@ namespace Piraeus.WebSocketGateway
             services.AddSingleton<PiraeusConfig>(pconfig);
             services.AddSingleton<IClusterClient>(CreateClusterClient);
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            //services.AddPiraeusWebSocket();
             
             services.AddRouting();
             services.AddMvcCore();

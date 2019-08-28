@@ -15,6 +15,7 @@ using System.Diagnostics;
 using Piraeus.Core;
 using Microsoft.AspNetCore.Http;
 using Piraeus.Auditing;
+using System.Threading.Tasks.Dataflow;
 
 namespace Piraeus.Adapters
 {
@@ -31,7 +32,7 @@ namespace Piraeus.Adapters
 
             container = new Dictionary<string, Tuple<string, string>>();
             ephemeralObservers = new Dictionary<string, IMessageObserver>();
-            durableObservers = new Dictionary<string, IMessageObserver>();
+            durableObservers = new Dictionary<string, IMessageObserver>();            
         }
 
         public event EventHandler<ObserveMessageEventArgs> OnObserve;   //signal protocol adapter
@@ -46,6 +47,8 @@ namespace Piraeus.Adapters
         private Dictionary<string, IMessageObserver> durableObservers;   //subscription, observer
         private System.Timers.Timer leaseTimer; //timer for leases
         private bool disposedValue = false; // To detect redundant calls
+        
+
 
         public string Identity
         {
@@ -77,7 +80,6 @@ namespace Piraeus.Adapters
 
                     //add the lease key to the list of ephemeral observers
                     durableObservers.Add(item, observer);
-
 
                     //get the resource from the subscription
                     Uri uri = new Uri(item);
@@ -197,8 +199,10 @@ namespace Piraeus.Adapters
             return authz;
         }
 
+        
         public async Task PublishAsync(EventMessage message, List<KeyValuePair<string, string>> indexes = null)
         {
+           
             AuditRecord record = null;
             DateTime receiveTime = DateTime.UtcNow;
 

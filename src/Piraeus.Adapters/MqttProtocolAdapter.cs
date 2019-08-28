@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Security;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks.Dataflow;
 
 namespace Piraeus.Adapters
 {
@@ -33,9 +34,11 @@ namespace Piraeus.Adapters
 
 
             this.context = context;
-            session = new MqttSession(mqttConfig);
+            
             InitializeAuditor(config);
 
+
+            session = new MqttSession(mqttConfig);
 
             Channel = channel;
             Channel.OnClose += Channel_OnClose;
@@ -60,7 +63,6 @@ namespace Piraeus.Adapters
         private IAuditFactory auditFactory;
         private IAuditor messageAuditor;
         private IAuditor userAuditor;
-
 
         public override IChannel Channel { get; set; }
 
@@ -269,7 +271,9 @@ namespace Piraeus.Adapters
         {
             try
             {
+                
                 PublishMessage message = args.Message as PublishMessage;
+                MqttUri muri = new MqttUri(message.Topic);
                 PublishAsync(message).GetAwaiter();
             }
             catch (Exception ex)
