@@ -32,9 +32,7 @@ docker tag piraeus-silo skunklab/piraeus-silo
 docker tag piraeus-mgmt-api skunklab/piraeus-mgmt-api
 docker tag piraeus-websocket-gateway skunklab/piraeus-websocket-gateway
 
-docker push skunklab/piraeus-silo
-docker push skunklab/piraeus-mgmt-api
-docker push skunklab/piraeus-websocket-gateway
+
 
 
 
