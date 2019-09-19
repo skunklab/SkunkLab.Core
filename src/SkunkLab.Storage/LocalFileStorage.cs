@@ -53,6 +53,8 @@ namespace SkunkLab.Storage
                 }
 
                 container.Add(path.ToLowerInvariant());
+                if (!File.Exists(path))
+                    File.Create(path);
 
                 using (FileStream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
@@ -192,6 +194,69 @@ namespace SkunkLab.Storage
             await WriteFileAsync(path, buffer, token);
         }
 
+        public async Task AppendFileAsync(string path, byte[] source, int maxSize, CancellationToken token = default(CancellationToken))
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentNullException("path");
+            }
+
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException(path);
+            }
+
+            if(File.Exists(path))
+            {
+                FileInfo info = new FileInfo(path);
+                if(maxSize > 0 && info.Length >= Convert.ToInt64(maxSize))
+                {
+                    //copy the file with an epoch
+                    RenameFile(path);                    
+                }
+            }
+
+            byte[] existing = await ReadFileAsync(path, token);
+
+            byte[] buffer = null;
+            string crlf = "\r\n";
+            byte[] crlfBytes = Encoding.UTF8.GetBytes(crlf);
+
+            if (existing.Length == 0)
+            {
+                buffer = new byte[source.Length];
+                Buffer.BlockCopy(source, 0, buffer, 0, source.Length);                
+            }
+            else
+            {
+                buffer = new byte[crlfBytes.Length + source.Length + existing.Length];
+                Buffer.BlockCopy(existing, 0, buffer, 0, existing.Length);
+                Buffer.BlockCopy(crlfBytes, 0, buffer, existing.Length, crlfBytes.Length);
+                Buffer.BlockCopy(source, 0, buffer, existing.Length + crlfBytes.Length, source.Length);
+            }
+            
+            
+
+            await WriteFileAsync(path, buffer, token);
+        }
+
+        public static void RenameFile(string path)
+        {
+            FileInfo srcInfo = new FileInfo(path);
+            string folder = path.Replace("/" + srcInfo.Name, "");
+            string ext = srcInfo.Extension;
+
+            long ticks = DateTime.UtcNow.Ticks;
+            DateTimeOffset dto = new DateTimeOffset(DateTime.UtcNow);
+            long unix = dto.ToUnixTimeMilliseconds();
+            string epoch = unix.ToString();
+
+            string srcShortName = srcInfo.Name.Replace(srcInfo.Extension, "");
+            string newFile = String.Format($"{folder}/{srcShortName.ToLowerInvariant()}_{epoch}") + ext;
+            File.Move(path, newFile);
+            File.Delete(path);
+
+        }
         public async Task TruncateFileAsync(string path, int maxBytes, CancellationToken token = default(CancellationToken))
         {
             if(string.IsNullOrEmpty(path))

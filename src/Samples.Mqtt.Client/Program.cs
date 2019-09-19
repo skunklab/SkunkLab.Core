@@ -1,9 +1,11 @@
-﻿using Piraeus.Clients.Mqtt;
+﻿using Newtonsoft.Json.Linq;
+using Piraeus.Clients.Mqtt;
 using SkunkLab.Channels;
 using SkunkLab.Channels.WebSocket;
 using SkunkLab.Protocols.Mqtt;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
@@ -28,6 +30,12 @@ namespace Samples.Mqtt.Client
         static string resourceB = "http://www.skunklab.io/resource-b";
         static string pubResource;
         static string subResource;
+        static string issuer = "http://skunklab.io/";
+        static string audience = issuer;
+        static string nameClaimType = "http://skunklab.io/name";
+        static string roleClaimType = "http://skunklab.io/role";
+        static string symmetricKey = "//////////////////////////////////////////8=";
+
 
         static void Main(string[] args)
         {           
@@ -87,12 +95,35 @@ namespace Samples.Mqtt.Client
         static void UseUserInput()
         {
             WriteHeader();
-            hostname = SelectHostname();
+            if (File.Exists("config.json"))
+            {
+                Console.Write("Use config.json file [y/n] ? ");
+                if(Console.ReadLine().ToLowerInvariant() == "y")
+                {
+                    JObject jobj = JObject.Parse(Encoding.UTF8.GetString(File.ReadAllBytes("config.json")));
+                    string dnsName = jobj.Value<string>("dnsName");
+                    string loc = jobj.Value<string>("location");
+                    hostname = String.Format($"{dnsName}.{loc}.cloudapp.azure.com");
+                    issuer = String.Format($"http://{dnsName}.io/");
+                    audience = issuer;
+                    nameClaimType = jobj.Value<string>("identityClaimType");                                       
+                    roleClaimType = String.Format($"http://{dnsName}.io/role");
+                    symmetricKey = jobj.Value<string>("symmetricKey");
+                    resourceA = $"http://{dnsName}.io/resource-a";
+                    resourceB = $"http://{dnsName}.io/resource-b";
+                }
+
+            }
+            else
+            {
+                hostname = SelectHostname();                
+            }
+
             name = SelectName();
             role = SelectRole();
             channelNum = SelectChannel();
 
-            
+
         }
 
         #endregion
@@ -103,9 +134,8 @@ namespace Samples.Mqtt.Client
         {
             PrintMessage("-------------------------------------------------------------------", ConsoleColor.White);
             PrintMessage("                       MQTT Sample Client", ConsoleColor.Cyan);
-            PrintMessage(" Run SampleClientConfig.ps1 script prior to running this sample", ConsoleColor.Yellow);
             PrintMessage("-------------------------------------------------------------------", ConsoleColor.White);
-            PrintMessage("press any key to contiune...", ConsoleColor.White);
+            PrintMessage("press any key to continue...", ConsoleColor.White);
             Console.ReadKey();
         }
         static void PrintMessage(string message, ConsoleColor color, bool section = false, bool input = false)
@@ -337,11 +367,11 @@ namespace Samples.Mqtt.Client
             //For the sample we are going to build a token that can
             //be authn'd and authz'd for this sample
 
-            string issuer = "http://skunklab.io/";
-            string audience = issuer;
-            string nameClaimType = "http://skunklab.io/name";
-            string roleClaimType = "http://skunklab.io/role";
-            string symmetricKey = "//////////////////////////////////////////8=";
+            //string issuer = "http://skunklab.io/";
+            //string audience = issuer;
+            //string nameClaimType = "http://skunklab.io/name";
+            //string roleClaimType = "http://skunklab.io/role";
+            //string symmetricKey = "//////////////////////////////////////////8=";
 
 
             List<Claim> claims = new List<Claim>()

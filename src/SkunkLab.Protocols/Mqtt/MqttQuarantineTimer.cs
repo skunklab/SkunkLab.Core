@@ -27,6 +27,7 @@ namespace SkunkLab.Protocols.Mqtt
         private Timer timer;
         private ushort currentId;
         private bool disposed;
+        private object lockObj;
 
         public ushort NewId()
         {
@@ -77,15 +78,23 @@ namespace SkunkLab.Protocols.Mqtt
 
         private void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            List<ushort> list = new List<ushort>();
+            try
+            {
+                List<ushort> list = new List<ushort>();
 
-           
-                IEnumerable<KeyValuePair<ushort, RetryMessageData>> items = container.Where((c) => c.Value.NextRetryTime < DateTime.UtcNow
-                                                && c.Value.Direction == DirectionType.Out);
 
-                if (items != null && items.Count() > 0)
+                //IEnumerable<KeyValuePair<ushort, RetryMessageData>> items = container.Where((c) => c.Value.NextRetryTime < DateTime.UtcNow
+                //                                && c.Value.Direction == DirectionType.Out);
+
+                //KeyValuePair<ushort, RetryMessageData>[] kvps = items?.ToArray();
+
+
+                KeyValuePair<ushort, RetryMessageData>[] kvps = container.Where((c) => c.Value.NextRetryTime < DateTime.UtcNow
+                                                        && c.Value.Direction == DirectionType.Out).ToArray();
+
+                if (kvps.Length > 0)
                 {
-                    foreach (var item in items.ToArray())
+                    foreach (var item in kvps)
                     {
                         item.Value.Increment(config.AckTimeout);
                         container[item.Key] = item.Value;
@@ -108,6 +117,8 @@ namespace SkunkLab.Protocols.Mqtt
                 {
                     Remove(item);
                 }
+            }
+            catch { }
             
         }
 

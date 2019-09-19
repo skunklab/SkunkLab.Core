@@ -110,12 +110,6 @@ namespace Piraeus.Adapters
                 length = mm.Payload.Length;
                 record = new MessageAuditRecord(e.Message.MessageId, session.Identity, this.Channel.TypeId, "MQTT", length, MessageDirectionType.Out, true, sendTime);
             }
-            //catch(AggregateException ae)
-            //{
-            //    string msg = String.Format("{0} - MQTT adapter observe error on channel '{1}' with '{2}'", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), Channel.Id, ae.Flatten().InnerException.Message);
-            //    Trace.TraceError(msg);
-            //    record = new AuditRecord(e.Message.MessageId, session.Identity, this.Channel.TypeId, "MQTT", length, MessageDirectionType.Out, true, sendTime, msg);
-            //}
             catch(Exception ex)
             {
                 string msg = String.Format("{0} - MQTT adapter observe error on channel '{1}' with '{2}'", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), Channel.Id, ex.Message);
@@ -139,7 +133,7 @@ namespace Piraeus.Adapters
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"MQTT adapter send error on channel '{Channel.Id}'.");
+                logger?.LogError(ex, $"MQTT adapter send error on channel '{Channel.Id}'.");
             }
         }
 

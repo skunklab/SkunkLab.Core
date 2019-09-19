@@ -19,44 +19,23 @@ The technology is designed to run on docker containers and the getting started s
  4. Configure Piraeus
  5. Run a sample client
  
- ### Deploy Piraeus to Azure AKS
+ ### Deploy Piraeus Demo
  
  1. Open a command prompt and navigate to the /kubernetes folder 
  2. Type *pwsh* to get a powershell v6 command prompt 
- 3. Open the deploy.json file in notepad and update the following parameters in the file 
- - *Email* - Your email address, i.e., required for Let's Encrypt certificate issuance
-- *DnsName* - The DNS name for the deployment, e.g., "growlingdog"
-- *Location* - The Azure data center location, e.g., "eastus"
-- *StorageAcctName* - A name for the Azure storage account
-- *ResourceGroupName* - Name of the resource group to deploy in your Azure subscription
-
-4.  Load the PowerShell deployment script by typing
- ```. ./piraeusdeploy.ps1 ``` 
- 5. Start the deployment with the following command and completing the desired custom parameters
-> New-PiraeusDeploy -File "deploy.json"
-> 
+ 3. Type . ./NewPiraeusDeploy.ps1
+ 4. Execute the following command New-PiraeusDemo with the following parameters
+ -  *-SubscriptionName*  Name of Azure subscription to do the deployment.
+ -  *-ResourceGroupName*  Name of the Resoure Group for the deployment.
+ -  *-Email* Your email address, which is necessary for the Let's Encrypt certificates (limited 50 dns names per email address per week)
+ -  *-Dns* Dns name for the deployment, which can be used only  1 time for each new deployment, e.g., "flyingdogs42"
+ -  *-Location* Azure data center location, e.g., "eastus"
+ -  *-StorageAcctName* The name of a storage account to be created.  *Warning*: If storage account already exists, it will be deleted and recreated and *you will loose all existing data*.
 
 FQDN of the Piraeus deployment will be:
-
 ```<dns>.<location>.cloudapp.azure.com```
 
-### Configure Piraeus
+The sample will be automatically configured in Piraeus and a  configuration file will be written to Samples.Mqtt.Client project. 
 
- 1. In the /kubernetes folder and using a Powershell 6 prompt load the SampleConfig script
- 
- ``` . ./Sample.Config.ps1```
- 
- 2. Run the sample configuration using the same DNS and Location parameters used in the deployment to AKS
- 
- ``` New-SampleConfig *Dns* *Location*```
- 
- 3. The first time you run the Sample Configuration you will be prompted to load the Piraeus.Module.Core powershell module.  Select "Y" the first time you run the script to load the module.
- 4. You should see the metadata output to the console when the script completes for resource-a and resource-b
-
-### Run the Sample Client
-
- 1. Open the Samples.Mqtt.Client project in Visual Studio 2017. 
- 2. Right-click the project and select Debug and Start New Instance from the menu.  This will launch the client console app.  Follow the instructions in console window entering the information in the image below using your FQDN, e.g., growlingdog.eastus.cloudapp.azure.com.
- 3. Right-click the project again and Debug and Start new instance from the menu.  This will launch a 2nd client console app.  Follow the instructions in the console window and enter in the information in image below using your FQDN.
- 4. Send messages to and from both client apps and feel welcome to open more clients if you like.
+Build the Samples.Mqtt.Client project, then run 2 Samples.Mqtt.Client instances. Use the "use file [y]" option when prompted.  Type in different client "names" in each of the 2 instances and select role "A" for one instance and "B" for the other when prompted.  Now, your 2 instances can communicate with each other.
 

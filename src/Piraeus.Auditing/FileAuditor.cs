@@ -18,14 +18,14 @@ namespace Piraeus.Auditing
         public async Task WriteAuditRecordAsync(AuditRecord record)
         {
             byte[] source = Encoding.UTF8.GetBytes(record.ConvertToCsv());
-            storage.AppendFileAsync(path, source).IgnoreException();
+            storage.AppendFileAsync(path, source, 100000).IgnoreException();
             await Task.CompletedTask;
         }
 
         public async Task UpdateAuditRecordAsync(AuditRecord record)
         {
             byte[] source = Encoding.UTF8.GetBytes(record.ConvertToCsv());
-            storage.AppendFileAsync(path, source).IgnoreException();
+            storage.AppendFileAsync(path, source, 100000).IgnoreException();
             await Task.CompletedTask;
         }
     }
