@@ -27,13 +27,13 @@ function New-PiraeusDemo()
 	$config.apiSymmetricKey = $apiSymmetricKey
 	$config.apiSecurityCodes = $apiCodes
 	$config.symmetricKey = $symmetricKey
-	$config.apiIssuer = "http://" + $Dns + ".io/mgmt"
+	$config.apiIssuer = "http://$Dns.$Location.cloudapp.azure.com/mgmt"
 	$config.apiAudience = $config.apiIssuer
 	$config.tokenType = "JWT"
-	$config.identityClaimType = "http://" + $Dns + ".io/name"
-	$config.issuer = "http://" + $Dns + ".io/"
+	$config.identityClaimType = "http://$Dns.$Location.cloudapp.azure.com/name"
+	$config.issuer = "http://$Dns.$Location.cloudapp.azure.com/"
 	$config.audience = $config.issuer
-	$config.coapAuthority = $Dns + ".io"
+	$config.coapAuthority = "http://$Dns.$Location.cloudapp.azure.com"
 	$config.frontendVMSize = "Standard_D2s_v3"
 	$config.orleansVMSize  = "Standard_D4s_v3"
 	$config.nodeCount = 1
@@ -643,7 +643,7 @@ function NewSampleConfig()
 
     #define the claim type to match to determines the client's role
     $authority = $DnsName.ToLower()
-    $matchClaimType = "http://$authority.io/role"
+    $matchClaimType = "http://$Dns.$Location.cloudapp.azure.com/role"
 
     #create a match expression of 'Literal' to match the role claim type
     $match = New-CaplMatch -Type Literal -ClaimType $matchClaimType -Required $true  
@@ -655,7 +655,7 @@ function NewSampleConfig()
     $rule_A = New-CaplRule -Evaluates $true -MatchExpression $match -Operation $operation_A
 
     #define a unique identifier (as URI) for the policy
-    $policyId_A = "http://$authority.io/resource-a" 
+    $policyId_A = "http://$Dns.$Location.cloudapp.azure.com/policy/resource-a" 
 
     #create the policy for clients in role "A"
     $policy_A = New-CaplPolicy -PolicyID $policyId_A -EvaluationExpression $rule_A
@@ -671,7 +671,7 @@ function NewSampleConfig()
     $rule_B = New-CaplRule -Evaluates $true -MatchExpression $match -Operation $operation_B
 
     #define a unique identifier (as URI) for the policy
-    $policyId_B = "http://$authority.io/resource-b" 
+    $policyId_B = "http://$Dns.$Location.cloudapp.azure.com/policy/resource-b" 
 
     #create the policy for users in role "A"
     $policy_B = New-CaplPolicy -PolicyID $policyId_B -EvaluationExpression $rule_B
@@ -687,8 +687,8 @@ function NewSampleConfig()
 
 
     #Uniquely identify Piraeus resources by URI
-    $resource_A = "http://$authority.io/resource-a"
-    $resource_B = "http://$authority.io/resource-b"
+    $resource_A = "http://$Dns.$Location.cloudapp.azure.com/resource-a"
+    $resource_B = "http://$Dns.$Location.cloudapp.azure.com/resource-b"
 
     #Add the resources to Piraeus
 

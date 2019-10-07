@@ -104,13 +104,13 @@ namespace Samples.Mqtt.Client
                     string dnsName = jobj.Value<string>("dnsName");
                     string loc = jobj.Value<string>("location");
                     hostname = String.Format($"{dnsName}.{loc}.cloudapp.azure.com");
-                    issuer = String.Format($"http://{dnsName}.io/");
+                    issuer = String.Format($"http://{hostname}/");
                     audience = issuer;
                     nameClaimType = jobj.Value<string>("identityClaimType");                                       
-                    roleClaimType = String.Format($"http://{dnsName}.io/role");
+                    roleClaimType = String.Format($"http://{hostname}/role");
                     symmetricKey = jobj.Value<string>("symmetricKey");
-                    resourceA = $"http://{dnsName}.io/resource-a";
-                    resourceB = $"http://{dnsName}.io/resource-b";
+                    resourceA = $"http://{hostname}/resource-a";
+                    resourceB = $"http://{hostname}/resource-b";
                 }
 
             }
