@@ -30,12 +30,12 @@ namespace SkunkLab.Storage
                 client.BufferManager = bufferManager;
             }
         }
-        
+
         private static SkunkLabBufferManager bufferManager;
 
         public static TableStorage CreateSingleton(string connectionString)
         {
-            if(instance == null)
+            if (instance == null)
             {
                 instance = new TableStorage(connectionString);
             }
@@ -49,16 +49,16 @@ namespace SkunkLab.Storage
             bufferManager = new SkunkLabBufferManager(manager, defaultBufferSize);
             return CreateSingleton(connectionString);
         }
-        
+
         public static TableStorage New(string connectionString)
         {
             return new TableStorage(connectionString);
         }
-        
+
         public static TableStorage New(string connectionString, long maxBufferPoolSize, int defaultBufferSize)
         {
             BufferManager manager = BufferManager.CreateBufferManager(maxBufferPoolSize, defaultBufferSize);
-            bufferManager = new SkunkLabBufferManager(manager, defaultBufferSize);            
+            bufferManager = new SkunkLabBufferManager(manager, defaultBufferSize);
             return new TableStorage(connectionString);
         }
 
@@ -67,10 +67,10 @@ namespace SkunkLab.Storage
         private CloudTableClient client;
 
         #region Write Table
-                
+
         public async Task WriteAsync(string tableName, ITableEntity entity)
         {
-            if(entity == null)
+            if (entity == null)
             {
                 Trace.TraceWarning("Table {0} entity is null", tableName);
                 return;
@@ -81,9 +81,9 @@ namespace SkunkLab.Storage
                 CloudTable table = client.GetTableReference(tableName);
                 await table.CreateIfNotExistsAsync();
                 TableOperation operation = TableOperation.InsertOrReplace(entity);
-                await table.ExecuteAsync(operation);                
+                await table.ExecuteAsync(operation);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Table {0} failed write.", tableName);
                 Trace.TraceError("Table {0} write error {1}", tableName, ex.Message);
@@ -137,8 +137,8 @@ namespace SkunkLab.Storage
                 query = new TableQuery<T>();
             }
 
-            TableQuerySegment<T> segment = await table.ExecuteQuerySegmentedAsync<T>(query, new TableContinuationToken()); 
-          
+            TableQuerySegment<T> segment = await table.ExecuteQuerySegmentedAsync<T>(query, new TableContinuationToken());
+
             if (!(segment == null || segment.Results.Count == 0))
             {
                 return segment.ToList();
@@ -155,7 +155,7 @@ namespace SkunkLab.Storage
             await table.CreateIfNotExistsAsync();
             var query = new TableQuery<T>().Where(TableQuery.GenerateFilterCondition(fieldName, operation, value));
             TableQuerySegment<T> segment = await table.ExecuteQuerySegmentedAsync<T>(query, new TableContinuationToken());
-            
+
             if (!(segment == null || segment.Results.Count == 0))
             {
                 return segment.ToList();

@@ -20,7 +20,7 @@ namespace SkunkLab.Protocols.Coap
 
         public OptionBuilder(IEnumerable<CoapOption> options)
         {
-            if(options == null)
+            if (options == null)
             {
                 throw new ArgumentNullException("options");
             }
@@ -29,12 +29,12 @@ namespace SkunkLab.Protocols.Coap
 
             list = new SortedList<int, CoapOption>();
             IEnumerator<CoapOption> en = options.GetEnumerator();
-            while(en.MoveNext())
+            while (en.MoveNext())
             {
-                
+
                 int typeInt = (int)en.Current.Type;
-                
-                if(optionDict.ContainsKey(typeInt))
+
+                if (optionDict.ContainsKey(typeInt))
                 {
                     optionDict[typeInt] = optionDict[typeInt] + 1;
                 }
@@ -44,10 +44,10 @@ namespace SkunkLab.Protocols.Coap
                 }
 
                 list.Add(((int)en.Current.Type * 1000) + optionDict[typeInt], en.Current);
-            }  
+            }
         }
 
-        
+
         public void Append(CoapOption option)
         {
             int typeInt = (int)option.Type;
@@ -61,8 +61,8 @@ namespace SkunkLab.Protocols.Coap
                 optionDict.Add(typeInt, 0);
             }
 
-            list.Add(((int)option.Type * 1000) + optionDict[typeInt], option);          
-        }        
+            list.Add(((int)option.Type * 1000) + optionDict[typeInt], option);
+        }
 
         public byte[] Encode()
         {
@@ -75,7 +75,7 @@ namespace SkunkLab.Protocols.Coap
                 foreach (KeyValuePair<int, CoapOption> kvp in kvps)
                 {
                     byte[] encodedOption = kvp.Value.Encode(previous);
-                    
+
                     stream.Write(encodedOption, 0, encodedOption.Length);
                     previous = (int)kvp.Value.Type;
                 }
@@ -86,7 +86,7 @@ namespace SkunkLab.Protocols.Coap
 
             return options;
         }
-        
+
 
 
     }

@@ -1,38 +1,173 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Capl.Authorization;
+using Microsoft.Extensions.Logging;
 using Orleans;
-using Piraeus.Core.Metadata;
-using Piraeus.GrainInterfaces;
-using Piraeus.Core.Utilities;
-using System.Collections.Generic;
+using Orleans.Clustering.Redis;
+using Orleans.Hosting;
+using Piraeus.Configuration;
 using Piraeus.Core.Messaging;
-using Capl.Authorization;
-using System.Security.Claims;
+using Piraeus.Core.Metadata;
+using Piraeus.Core.Utilities;
+using Piraeus.GrainInterfaces;
+using System;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
 using System.Text.RegularExpressions;
-using System.Security;
+using System.Threading.Tasks;
 
 namespace Piraeus.Grains
 {
     public class GraphManager
     {
-        private static IClusterClient client;
-               
+        /// <summary>
+        /// Creates a singleton of the GraphManager.
+        /// </summary>
+        /// <param name="client"></param>
+        /// <returns></returns>
+        /// <remarks>This will mean that only 1 IClusterClient will be used.</remarks>
+        public static GraphManager Create(IClusterClient client)
+        {
+            if (instance == null)
+            {
+                instance = new GraphManager(client);
+            }
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Creates a singleton of the GraphManager
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        /// <remarks>This will mean that only 1 IClusterClient will be used.</remarks>
+        public static GraphManager Create(OrleansConfig config)
+        {
+            if (instance == null)
+            {
+                instance = new GraphManager(config);
+            }
+
+            return instance;
+        }
 
         public static bool IsInitialized
         {
-            get { return client != null; }
+            get
+            {
+                return instance != null && instance.client != null;
+            }
         }
 
-        public static void Initialize(IClusterClient clusterClient)
-        {
-            client = clusterClient;
-        }
+        public static GraphManager Instance { get { return instance; } }
 
-        
+
+        private readonly IClusterClient client;
+        private static GraphManager instance;
+
         #region Static Resource Operations
 
+        #region ctor
+        public GraphManager(IClusterClient client)
+        {
+            this.client = client;
+        }
+
+        /// <summary>
+        /// Creates a new instance of GraphManager
+        /// </summary>
+        /// <param name="config"></param>
+        /// <remarks>Creates a new IClusterClient per instance of GraphManager.</remarks>
+        public GraphManager(OrleansConfig config)
+        : this(config.DataConnectionString, config.GetLoggerTypes(), Enum.Parse<LogLevel>(config.LogLevel, true), config.AppInsightsKey)
+        {
+        }
+
+        public GraphManager(string connectionString, LoggerType loggers, LogLevel logLevel, string instrumentationKey = null)
+        {
+            //use storage provider
+            var builder = new ClientBuilder();
+            builder.ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly));
+
+            AddStorageProvider(builder, connectionString);
+            AddAppInsighlts(builder, loggers, instrumentationKey);
+            AddLoggers(builder, loggers, logLevel, instrumentationKey);
+            this.client = builder.Build();
+            this.client.Connect(CreateRetryFilter()).GetAwaiter().GetResult();
+        }
+
+        private Func<Exception, Task<bool>> CreateRetryFilter(int maxAttempts = 5)
+        {
+            var attempt = 0;
+            return RetryFilter;
+
+            async Task<bool> RetryFilter(Exception exception)
+            {
+                attempt++;
+                Console.WriteLine($"Cluster client attempt {attempt} of {maxAttempts} failed to connect to cluster.  Exception: {exception}");
+                if (attempt > maxAttempts)
+                {
+                    return false;
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(4));
+                return true;
+            }
+        }
+
+        private IClientBuilder AddStorageProvider(IClientBuilder builder, string connectionString)
+        {
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                builder.UseLocalhostClustering();
+            }
+            else
+            {
+                if (connectionString.Contains("6379") || connectionString.Contains("6380"))
+                {
+                    builder.UseRedisGatewayListProvider(options => options.ConnectionString = connectionString);
+                }
+                else
+                {
+                    builder.UseAzureStorageClustering(options => options.ConnectionString = connectionString);
+                }
+            }
+
+            return builder;
+        }
+        private IClientBuilder AddAppInsighlts(IClientBuilder builder, LoggerType loggers, string instrumentationKey = null)
+        {
+            if (string.IsNullOrEmpty(instrumentationKey))
+                return builder;
+
+            if (loggers.HasFlag(Piraeus.Configuration.LoggerType.AppInsights))
+            {
+                builder.AddApplicationInsightsTelemetryConsumer(instrumentationKey);
+            }
+
+            return builder;
+        }
+
+        private IClientBuilder AddLoggers(IClientBuilder builder, LoggerType loggers, LogLevel logLevel, string instrumentationKey = null)
+        {
+            builder.ConfigureLogging(op =>
+            {
+                if (loggers.HasFlag(Piraeus.Configuration.LoggerType.Console))
+                {
+                    op.AddConsole();
+                    op.SetMinimumLevel(logLevel);
+                }
+
+                if (loggers.HasFlag(Piraeus.Configuration.LoggerType.Debug))
+                {
+                    op.AddDebug();
+                    op.SetMinimumLevel(logLevel);
+                }
+            });
+
+            return builder;
+        }
+
+        #endregion        
 
 
         /// <summary>
@@ -40,10 +175,10 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="resourceUriString">Unique URI that identifies the resource.</param>
         /// <returns>Resource interface for grain.</returns>
-        public static IPiSystem GetPiSystem(string resourceUriString)
-        {            
+        public IPiSystem GetPiSystem(string resourceUriString)
+        {
             Uri uri = new Uri(resourceUriString);
-            string uriString = uri.ToCanonicalString(false);            
+            string uriString = uri.ToCanonicalString(false);
             return client.GetGrain<IPiSystem>(uriString);
         }
 
@@ -52,7 +187,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="metadata">Metadata that describes the resource.</param>
         /// <returns></returns>
-        public static async Task UpsertPiSystemMetadataAsync(EventMetadata metadata)
+        public async Task UpsertPiSystemMetadataAsync(EventMetadata metadata)
         {
             Uri uri = new Uri(metadata.ResourceUriString);
             metadata.ResourceUriString = uri.ToCanonicalString(false);
@@ -65,16 +200,16 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="resourceUriString">Unique URI that identifies the resource.</param>
         /// <returns>Resource's metadata.</returns>
-        public static async Task<EventMetadata> GetPiSystemMetadataAsync(string resourceUriString)
+        public async Task<EventMetadata> GetPiSystemMetadataAsync(string resourceUriString)
         {
             IPiSystem resource = GetPiSystem(resourceUriString);
             return await resource.GetMetadataAsync();
         }
 
-        
 
 
-        public static async Task<CommunicationMetrics> GetPiSystemMetricsAsync(string resourceUriString)
+
+        public async Task<CommunicationMetrics> GetPiSystemMetricsAsync(string resourceUriString)
         {
             IPiSystem resource = GetPiSystem(resourceUriString);
             return await resource.GetMetricsAsync();
@@ -86,7 +221,7 @@ namespace Piraeus.Grains
         /// <param name="metadata">Metadata that describes the subscription.</param>
         /// <returns>Unique URI for the subscription.</returns>
         /// <remarks>The function creates a subscription, adds the subscription to the resource, then return the URI that identifies the subscription.</remarks>
-        public static async Task<string> SubscribeAsync(string resourceUriString, SubscriptionMetadata metadata)
+        public async Task<string> SubscribeAsync(string resourceUriString, SubscriptionMetadata metadata)
         {
             Uri uri = new Uri(resourceUriString);
             string subscriptionUriString = uri.ToCanonicalString(true) + Guid.NewGuid().ToString();
@@ -99,7 +234,7 @@ namespace Piraeus.Grains
 
             //Add the subscription to the resource
             IPiSystem resource = GetPiSystem(uri.ToCanonicalString(false));
-            await resource.SubscribeAsync(subscription);            
+            await resource.SubscribeAsync(subscription);
 
             return subscriptionUriString;
         }
@@ -109,7 +244,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="subscriptionUriString">Unique URI for the subscription.</param>
         /// <returns></returns>
-        public static async Task UnsubscribeAsync(string subscriptionUriString)
+        public async Task UnsubscribeAsync(string subscriptionUriString)
         {
             //get the resource to unsubscribe
             Uri uri = new Uri(subscriptionUriString);
@@ -120,7 +255,7 @@ namespace Piraeus.Grains
             await resource.UnsubscribeAsync(subscriptionUriString);
         }
 
-        public static async Task UnsubscribeAsync(string subscriptionUriString, string identity)
+        public async Task UnsubscribeAsync(string subscriptionUriString, string identity)
         {
             Uri uri = new Uri(subscriptionUriString);
             string resourceUriString = uri.ToCanonicalString(false, true);
@@ -136,7 +271,7 @@ namespace Piraeus.Grains
         /// <param name="resourceUriString">Unique URI that identifies the resource.</param>
         /// <param name="message">Message to publish.</param>
         /// <returns></returns>
-        public static async Task PublishAsync(string resourceUriString, EventMessage message)
+        public async Task PublishAsync(string resourceUriString, EventMessage message)
         {
             IPiSystem resource = GetPiSystem(resourceUriString);
             await resource.PublishAsync(message);
@@ -149,7 +284,7 @@ namespace Piraeus.Grains
         /// <param name="message">Message to publishes.</param>
         /// <param name="indexes">Indexes used to filter subscriptions to subset.</param>
         /// <returns></returns>
-        public static async Task PublishAsync(string resourceUriString, EventMessage message, List<KeyValuePair<string, string>> indexes)
+        public async Task PublishAsync(string resourceUriString, EventMessage message, List<KeyValuePair<string, string>> indexes)
         {
             IPiSystem resource = GetPiSystem(resourceUriString);
             await resource.PublishAsync(message, indexes);
@@ -160,7 +295,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="resourceUriString">Unique URI that identifies the resource.</param>
         /// <returns>Array of subscription URIs subscribed to the resource.</returns>
-        public static async Task<IEnumerable<string>> GetPiSystemSubscriptionListAsync(string resourceUriString)
+        public async Task<IEnumerable<string>> GetPiSystemSubscriptionListAsync(string resourceUriString)
         {
             IPiSystem resource = GetPiSystem(resourceUriString);
             return await resource.GetSubscriptionListAsync();
@@ -173,7 +308,7 @@ namespace Piraeus.Grains
         /// <param name="lifetime">The lifetime of the lease.</param>
         /// <param name="observer">Metric observer to receive events.</param>
         /// <returns>A unique string for the lease key, which is used to refresh the lease for the observer.</returns>
-        public static async Task<string> AddResourceObserverAsync(string resourceUriString, TimeSpan lifetime, MetricObserver observer)
+        public async Task<string> AddResourceObserverAsync(string resourceUriString, TimeSpan lifetime, MetricObserver observer)
         {
             IMetricObserver objRef = await client.CreateObjectReference<IMetricObserver>(observer);
             IPiSystem resource = GetPiSystem(resourceUriString);
@@ -187,7 +322,7 @@ namespace Piraeus.Grains
         /// <param name="lifetime">The lifetime of the lease.</param>
         /// <param name="observer">Error observer to receive events.</param>
         /// <returns>A unique string for the lease key, whic is used to refresh the lease for the observer.</returns>
-        public static async Task<string> AddResourceObserverAsync(string resourceUriString, TimeSpan lifetime, ErrorObserver observer)
+        public async Task<string> AddResourceObserverAsync(string resourceUriString, TimeSpan lifetime, ErrorObserver observer)
         {
             IErrorObserver objRef = await client.CreateObjectReference<IErrorObserver>(observer);
             IPiSystem resource = GetPiSystem(resourceUriString);
@@ -201,7 +336,7 @@ namespace Piraeus.Grains
         /// <param name="leaseKey">Unique string of the observer's lease.</param>
         /// <param name="lifetime">The lifetime of the renewed lease.</param>
         /// <returns></returns>
-        public static async Task<bool> RenewResourceObserverLeaseAsync(string resourceUriString, string leaseKey, TimeSpan lifetime)
+        public async Task<bool> RenewResourceObserverLeaseAsync(string resourceUriString, string leaseKey, TimeSpan lifetime)
         {
             IPiSystem resource = GetPiSystem(resourceUriString);
             return await resource.RenewObserverLeaseAsync(leaseKey, lifetime);
@@ -213,7 +348,7 @@ namespace Piraeus.Grains
         /// <param name="resourceUriString">Unique URI that identifies the resource.</param>
         /// <param name="leaseKey">Unqiue string of the observer's lease.</param>
         /// <returns></returns>
-        public static async Task RemoveResourceObserverAsync(string resourceUriString, string leaseKey)
+        public async Task RemoveResourceObserverAsync(string resourceUriString, string leaseKey)
         {
             IPiSystem resource = GetPiSystem(resourceUriString);
             await resource.RemoveObserverAsync(leaseKey);
@@ -224,7 +359,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="resourceUriString">Unique URI that identifies the resource.</param>
         /// <returns></returns>
-        public static async Task ClearPiSystemAsync(string resourceUriString)
+        public async Task ClearPiSystemAsync(string resourceUriString)
         {
             IPiSystem resource = GetPiSystem(resourceUriString);
             await resource.ClearAsync();
@@ -239,7 +374,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="subscriptionUriString">Unique URI that identifies the subscription.</param>
         /// <returns>Subscription interface for grain.</returns>
-        public static ISubscription GetSubscription(string subscriptionUriString)
+        public ISubscription GetSubscription(string subscriptionUriString)
         {
             Uri uri = new Uri(subscriptionUriString);
             return client.GetGrain<ISubscription>(uri.ToCanonicalString(false));
@@ -250,7 +385,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="metadata">Metadata that describes the subscription.</param>
         /// <returns></returns>
-        public static async Task UpsertSubscriptionMetadataAsync(SubscriptionMetadata metadata)
+        public async Task UpsertSubscriptionMetadataAsync(SubscriptionMetadata metadata)
         {
             ISubscription subscription = GetSubscription(metadata.SubscriptionUriString);
             await subscription.UpsertMetadataAsync(metadata);
@@ -261,14 +396,14 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="subscriptionUriString">Unique URI that identifies the subscription.</param>
         /// <returns>Subscription metadata.</returns>
-        public static async Task<SubscriptionMetadata> GetSubscriptionMetadataAsync(string subscriptionUriString)
+        public async Task<SubscriptionMetadata> GetSubscriptionMetadataAsync(string subscriptionUriString)
         {
             Uri uri = new Uri(subscriptionUriString);
             ISubscription subscription = GetSubscription(uri.ToCanonicalString(false));
             return await subscription.GetMetadataAsync();
         }
 
-        public static async Task<CommunicationMetrics> GetSubscriptionMetricsAsync(string subscriptionUriString)
+        public async Task<CommunicationMetrics> GetSubscriptionMetricsAsync(string subscriptionUriString)
         {
             ISubscription subscription = GetSubscription(subscriptionUriString);
             return await subscription.GetMetricsAsync();
@@ -281,7 +416,7 @@ namespace Piraeus.Grains
         /// <param name="lifetime">Lifetime of the lease.</param>
         /// <param name="observer">Observer to receive events.</param>
         /// <returns>A unique string for the lease key, which is used to renew or delete the observer's lease.</returns>
-        public static async Task<string> AddSubscriptionObserverAsync(string subscriptionUriString, TimeSpan lifetime, MessageObserver observer)
+        public async Task<string> AddSubscriptionObserverAsync(string subscriptionUriString, TimeSpan lifetime, MessageObserver observer)
         {
             IMessageObserver observerRef = await client.CreateObjectReference<IMessageObserver>(observer);
             ISubscription subscription = GetSubscription(subscriptionUriString);
@@ -295,7 +430,7 @@ namespace Piraeus.Grains
         /// <param name="lifetime">Lifetime of the lease.</param>
         /// <param name="observer">Observer to receive events.</param>
         /// <returns>A unqiue string for the lease key, which is used to renew or delete the observer's lease.</returns>
-        public static async Task<string> AddSubscriptionObserverAsync(string subscriptionUriString, TimeSpan lifetime, MetricObserver observer)
+        public async Task<string> AddSubscriptionObserverAsync(string subscriptionUriString, TimeSpan lifetime, MetricObserver observer)
         {
             IMetricObserver observerRef = await client.CreateObjectReference<IMetricObserver>(observer);
             ISubscription subscription = GetSubscription(subscriptionUriString);
@@ -309,7 +444,7 @@ namespace Piraeus.Grains
         /// <param name="lifetime">Lifetime of the lease.</param>
         /// <param name="observer">Observer to receive events.</param>
         /// <returns>A unique string for the lease key, which is used to renew or delete the observer's lease.</returns>
-        public static async Task<string> AddSubscriptionObserverAsync(string subscriptionUriString, TimeSpan lifetime, ErrorObserver observer)
+        public async Task<string> AddSubscriptionObserverAsync(string subscriptionUriString, TimeSpan lifetime, ErrorObserver observer)
         {
             IErrorObserver observerRef = await client.CreateObjectReference<IErrorObserver>(observer);
             ISubscription subscription = GetSubscription(subscriptionUriString);
@@ -322,7 +457,7 @@ namespace Piraeus.Grains
         /// <param name="subscriptionUriString">Unique URI that identifies the subscription.</param>
         /// <param name="leaseKey">Unqiue string of the lease to remove.</param>
         /// <returns></returns>
-        public static async Task RemoveSubscriptionObserverAsync(string subscriptionUriString, string leaseKey)
+        public async Task RemoveSubscriptionObserverAsync(string subscriptionUriString, string leaseKey)
         {
             ISubscription subscription = GetSubscription(subscriptionUriString);
             await subscription.RemoveObserverAsync(leaseKey);
@@ -335,7 +470,7 @@ namespace Piraeus.Grains
         /// <param name="leaseKey">Unique string of the lease to renew.</param>
         /// <param name="lifetime">Lifetime of the renewed lease.</param>
         /// <returns>True if the lease is renewed; otherwise False.</returns>
-        public static async Task<bool> RenewObserverLeaseAsync(string subscriptionUriString, string leaseKey, TimeSpan lifetime)
+        public async Task<bool> RenewObserverLeaseAsync(string subscriptionUriString, string leaseKey, TimeSpan lifetime)
         {
             ISubscription subscription = GetSubscription(subscriptionUriString);
             return await subscription.RenewObserverLeaseAsync(leaseKey, lifetime);
@@ -346,7 +481,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="subscriptionUriString">Unique URI that identifies the subscription.</param>
         /// <returns></returns>
-        public static async Task SubscriptionClearAsync(string subscriptionUriString)
+        public async Task SubscriptionClearAsync(string subscriptionUriString)
         {
             ISubscription subscription = GetSubscription(subscriptionUriString);
             await subscription.ClearAsync();
@@ -360,9 +495,9 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="identity">The identity of the subscriber.</param>
         /// <returns>Subscriber interface for grain.</returns>
-        public static ISubscriber GetSubscriber(string identity)
-        {            
-            if(string.IsNullOrEmpty(identity))
+        public ISubscriber GetSubscriber(string identity)
+        {
+            if (string.IsNullOrEmpty(identity))
             {
                 return null;
             }
@@ -376,7 +511,7 @@ namespace Piraeus.Grains
         /// <param name="identity">Identity of the subscriber.</param>
         /// <param name="subscriptionUriString">Unique URI that identifies the subscription.</param>
         /// <returns></returns>
-        public static async Task AddSubscriberSubscriptionAsync(string identity, string subscriptionUriString)
+        public async Task AddSubscriberSubscriptionAsync(string identity, string subscriptionUriString)
         {
             ISubscriber subscriber = GetSubscriber(identity);
 
@@ -392,7 +527,7 @@ namespace Piraeus.Grains
         /// <param name="identity">Identity of the subscriber.</param>
         /// <param name="subscriptionUriString">Unique URI that identifies the subsription.</param>
         /// <returns></returns>
-        public static async Task RemoveSubscriberSubscriptionAsync(string identity, string subscriptionUriString)
+        public async Task RemoveSubscriberSubscriptionAsync(string identity, string subscriptionUriString)
         {
             ISubscriber subscriber = GetSubscriber(identity);
 
@@ -407,7 +542,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="identity">Identity of the subscriber.</param>
         /// <returns>Array of subscription URIs for the subscriber.</returns>
-        public static async Task<IEnumerable<string>> GetSubscriberSubscriptionsListAsync(string identity)
+        public async Task<IEnumerable<string>> GetSubscriberSubscriptionsListAsync(string identity)
         {
             ISubscriber subscriber = GetSubscriber(identity);
 
@@ -426,7 +561,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="identity">Identity of the subscriber.</param>
         /// <returns></returns>
-        public static async Task ClearSubscriberSubscriptionsAsync(string identity)
+        public async Task ClearSubscriberSubscriptionsAsync(string identity)
         {
             ISubscriber subscriber = GetSubscriber(identity);
 
@@ -439,12 +574,12 @@ namespace Piraeus.Grains
         #endregion
 
         #region Static ResourceList
-        
+
         /// <summary>
         /// Returns of list of resources in Orleans.
         /// </summary>
         /// <returns>Array of resource URIs.</returns>
-        public static async Task<List<string>> GetSigmaAlgebraAsync()
+        public async Task<List<string>> GetSigmaAlgebraAsync()
         {
             ISigmaAlgebra resourceList = client.GetGrain<ISigmaAlgebra>("resourcelist");
             return await resourceList.GetListAsync();
@@ -459,7 +594,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="policyUriString">Unique URI that identifies the access control policy.</param>
         /// <returns>AccessControl Interface from grain.</returns>
-        public static IAccessControl GetAccessControlPolicy(string policyUriString)
+        public IAccessControl GetAccessControlPolicy(string policyUriString)
         {
             Uri uri = new Uri(policyUriString);
             string uriString = uri.ToCanonicalString(false);
@@ -472,7 +607,7 @@ namespace Piraeus.Grains
         /// <param name="policyUriString">Unique URI that identifies the policy.</param>
         /// <param name="policy">CAPL access control policy.</param>
         /// <returns></returns>
-        public static async Task UpsertAcessControlPolicyAsync(string policyUriString, AuthorizationPolicy policy)
+        public async Task UpsertAcessControlPolicyAsync(string policyUriString, AuthorizationPolicy policy)
         {
             IAccessControl accessControl = GetAccessControlPolicy(policyUriString);
             await accessControl.UpsertPolicyAsync(policy);
@@ -483,7 +618,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="policyUriString">Unique URI that identifies the policy.</param>
         /// <returns></returns>
-        public static async Task ClearAccessControlPolicyAsync(string policyUriString)
+        public async Task ClearAccessControlPolicyAsync(string policyUriString)
         {
             IAccessControl accessControl = GetAccessControlPolicy(policyUriString);
             await accessControl.ClearAsync();
@@ -494,7 +629,7 @@ namespace Piraeus.Grains
         /// </summary>
         /// <param name="policyUriString">Unqiue URI that identifies the policy.</param>
         /// <returns>CAPL access control policy.</returns>
-        public static async Task<AuthorizationPolicy> GetAccessControlPolicyAsync(string policyUriString)
+        public async Task<AuthorizationPolicy> GetAccessControlPolicyAsync(string policyUriString)
         {
             IAccessControl accessControl = GetAccessControlPolicy(policyUriString);
             return await accessControl.GetPolicyAsync();
@@ -504,18 +639,18 @@ namespace Piraeus.Grains
 
         #region Static Service Identity
 
-        public static IServiceIdentity GetServiceIdentity(string key)
+        public IServiceIdentity GetServiceIdentity(string key)
         {
             return client.GetGrain<IServiceIdentity>(key);
         }
 
-        public static async Task AddServiceIdentityClaimsAsync(string key, List<KeyValuePair<string,string>> claims)
+        public async Task AddServiceIdentityClaimsAsync(string key, List<KeyValuePair<string, string>> claims)
         {
             IServiceIdentity identity = GetServiceIdentity(key);
             await identity.AddClaimsAsync(claims);
         }
 
-        public static async Task AddServiceIdentityCertificateAsync(string key, string path, string password)
+        public async Task AddServiceIdentityCertificateAsync(string key, string path, string password)
         {
             IServiceIdentity identity = GetServiceIdentity(key);
             X509Certificate2 cert = new X509Certificate2(path, password);
@@ -526,7 +661,7 @@ namespace Piraeus.Grains
             }
         }
 
-        public static async Task AddServiceIdentityCertificateAsync(string key, string store, string location, string thumbprint, string password)
+        public async Task AddServiceIdentityCertificateAsync(string key, string store, string location, string thumbprint, string password)
         {
             IServiceIdentity identity = GetServiceIdentity(key);
             SkunkLab.Storage.LocalFileStorage lfs = SkunkLab.Storage.LocalFileStorage.Create();

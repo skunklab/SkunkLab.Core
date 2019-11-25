@@ -24,7 +24,7 @@ namespace SkunkLab.Security.Tokens
             id = Guid.NewGuid().ToString();
             created = DateTime.UtcNow;
             expires = created.AddMinutes(lifetimeMinutes.HasValue ? lifetimeMinutes.Value : 20);
-            SigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(Convert.FromBase64String(securityKey)); 
+            SigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(Convert.FromBase64String(securityKey));
 
             JwtSecurityTokenHandler jwt = new JwtSecurityTokenHandler();
             SecurityTokenDescriptor msstd = new Microsoft.IdentityModel.Tokens.SecurityTokenDescriptor()
@@ -36,12 +36,12 @@ namespace SkunkLab.Security.Tokens
                 NotBefore = created,
                 Audience = audience,
                 SigningCredentials = new Microsoft.IdentityModel.Tokens.SigningCredentials(SigningKey, Microsoft.IdentityModel.Tokens.SecurityAlgorithms.HmacSha256Signature)
-        };
+            };
 
             JwtSecurityToken jwtToken = jwt.CreateJwtSecurityToken(msstd);
             tokenString = jwt.WriteToken(jwtToken);
         }
-        
+
         public JsonWebToken(Uri address, string securityKey, string issuer, IEnumerable<Claim> claims)
         {
             this.issuer = issuer;
@@ -61,7 +61,7 @@ namespace SkunkLab.Security.Tokens
                 Audience = address.ToString(),
                 SigningCredentials = new Microsoft.IdentityModel.Tokens.SigningCredentials(SigningKey, Microsoft.IdentityModel.Tokens.SecurityAlgorithms.HmacSha256Signature)
             };
-            
+
             JwtSecurityToken jwtToken = jwt.CreateJwtSecurityToken(msstd);
             tokenString = jwt.WriteToken(jwtToken);
         }
@@ -86,7 +86,7 @@ namespace SkunkLab.Security.Tokens
                 SigningCredentials = new Microsoft.IdentityModel.Tokens.SigningCredentials(SigningKey, Microsoft.IdentityModel.Tokens.SecurityAlgorithms.HmacSha256Signature)
             };
 
-            
+
             JwtSecurityToken jwtToken = jwt.CreateJwtSecurityToken(msstd);
             tokenString = jwt.WriteToken(jwtToken);
         }
@@ -145,7 +145,7 @@ namespace SkunkLab.Security.Tokens
                     ValidAudience = audience,
                     ValidateAudience = true,
                     ValidateIssuer = true,
-                    ValidateIssuerSigningKey = true                    
+                    ValidateIssuerSigningKey = true
                 };
 
                 Microsoft.IdentityModel.Tokens.SecurityToken stoken = null;
@@ -164,6 +164,6 @@ namespace SkunkLab.Security.Tokens
                 Trace.TraceError(ex.Message);
             }
         }
-        
+
     }
 }

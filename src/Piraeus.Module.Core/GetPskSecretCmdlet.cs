@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Management.Automation;
-using System.Text;
 
 namespace Piraeus.Module
 {
@@ -27,6 +25,6 @@ namespace Piraeus.Module
             WriteObject(value);
         }
     }
-   
+
 
 }

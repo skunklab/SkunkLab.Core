@@ -163,7 +163,7 @@ namespace SkunkLab.Protocols.Mqtt
             if (dispose && !disposed)
             {
                 disposed = true;
-                if(timer != null)
+                if (timer != null)
                 {
                     timer.Dispose();
                 }

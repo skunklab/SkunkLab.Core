@@ -1,10 +1,10 @@
-﻿using System;
-using Piraeus.Core.Messaging;
+﻿using Piraeus.Core.Messaging;
+using System;
 
 namespace Piraeus.Grains
 {
     [Serializable]
-    public class MessageNotificationArgs : EventArgs
+    public class MessageNotificationArgs 
     {
         public MessageNotificationArgs(EventMessage message)
         {

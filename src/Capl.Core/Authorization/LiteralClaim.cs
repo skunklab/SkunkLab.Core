@@ -13,8 +13,8 @@ namespace Capl.Authorization
     /// A definition of a claim.
     /// </summary>
     [Serializable]
-    public class LiteralClaim 
-    {        
+    public class LiteralClaim
+    {
         /// <summary>
         /// Initializes a new instance of the <see cref="LiteralClaim"/> class.
         /// </summary>
@@ -37,12 +37,12 @@ namespace Capl.Authorization
         /// Gets or sets the claim type.
         /// </summary>
         public string ClaimType { get; set; }
-        
+
 
         /// <summary>
         /// Gets or sets the claim value.
         /// </summary>
         public string ClaimValue { get; set; }
-            
+
     }
 }

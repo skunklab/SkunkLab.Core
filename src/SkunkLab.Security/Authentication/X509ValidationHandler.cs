@@ -23,8 +23,8 @@
 //        {
 
 //            //Microsoft.IdentityModel.Tokens.X509SecurityKey key = new Microsoft.IdentityModel.Tokens.X509SecurityKey(null);
-            
-            
+
+
 //            HttpStatusCode statusCode;
 
 //            try
@@ -32,7 +32,7 @@
 //                X509Certificate2 cert = request.GetClientCertificate();
 //                X509SecurityTokenHandler handler = new X509SecurityTokenHandler(X509CertificateValidator.PeerOrChainTrust);
 //                X509SecurityToken token = new X509SecurityToken(cert);                
-               
+
 //                ReadOnlyCollection<ClaimsIdentity> col = handler.ValidateToken(token);
 //                ClaimsPrincipal principal = new ClaimsPrincipal(col[0]);
 //                Thread.CurrentPrincipal = principal;

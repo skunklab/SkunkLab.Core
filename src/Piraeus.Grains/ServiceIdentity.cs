@@ -1,11 +1,9 @@
 ﻿using Orleans;
 using Orleans.Providers;
+using Piraeus.GrainInterfaces;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Piraeus.GrainInterfaces;
 using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Piraeus.Grains
 {
@@ -42,13 +40,13 @@ namespace Piraeus.Grains
 
         public async Task AddClaimsAsync(List<KeyValuePair<string, string>> claims)
         {
-            if(claims == null || claims.Count == 0)
+            if (claims == null || claims.Count == 0)
             {
                 return;
             }
 
             State.Claims = new List<KeyValuePair<string, string>>();
-            foreach(var claim in claims)
+            foreach (var claim in claims)
             {
                 State.Claims.Add(new KeyValuePair<string, string>(claim.Key, claim.Value));
             }
@@ -56,6 +54,6 @@ namespace Piraeus.Grains
             await Task.CompletedTask;
         }
 
-        
+
     }
 }

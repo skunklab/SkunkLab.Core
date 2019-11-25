@@ -49,7 +49,7 @@ namespace SkunkLab.Channels.Udp
 
         public abstract bool RequireBlocking { get; }
 
-        public abstract string TypeId { get;  }
+        public abstract string TypeId { get; }
 
         public abstract bool IsConnected { get; }
 
@@ -67,7 +67,7 @@ namespace SkunkLab.Channels.Udp
         public abstract event EventHandler<ChannelErrorEventArgs> OnError;
         public abstract event EventHandler<ChannelStateEventArgs> OnStateChange;
 
-     
+
 
         public abstract Task CloseAsync();
 
@@ -78,7 +78,7 @@ namespace SkunkLab.Channels.Udp
         public abstract Task ReceiveAsync();
 
         public abstract Task SendAsync(byte[] message);
-      
+
 
         public abstract Task AddMessageAsync(byte[] message);
     }

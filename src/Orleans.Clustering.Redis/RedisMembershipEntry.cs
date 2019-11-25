@@ -84,15 +84,15 @@ namespace Orleans.Clustering.Redis
         }
 
         public String Hostname { get; set; }
-        
+
         public Int32 ProxyPort { get; set; }
-        
+
         public DateTime StartTime { get; set; }
-        
+
         public SiloStatus Status { get; set; }
-        
+
         public String SiloName { get; set; }
-        
+
         public List<SuspectingSilo> SuspectingSilos { get; set; }
 
         public Tuple<MembershipEntry, String> ToMembershipEntryTuple()

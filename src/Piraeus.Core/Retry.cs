@@ -3,8 +3,6 @@ namespace Piraeus.Core
 {
     using System;
     using System.Diagnostics;
-    using System.Runtime.CompilerServices;
-    using System.Threading;
     using System.Threading.Tasks;
 
     public static class Retry
@@ -15,7 +13,7 @@ namespace Piraeus.Core
             await ExecuteAsync(retryOperation, TimeSpan.FromMilliseconds(250), 3);
         }
 
-      
+
 
         public async static Task ExecuteAsync(Action retryOperation, TimeSpan deltaBackoff, int maxRetries)
         {
@@ -31,11 +29,11 @@ namespace Piraeus.Core
             while (attempt < maxRetries)
             {
                 try
-                {                    
+                {
                     await Task.Run(retryOperation);
                     break;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     if (attempt == maxRetries)
                     {

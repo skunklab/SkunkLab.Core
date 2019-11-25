@@ -28,7 +28,7 @@ namespace Piraeus.Module
             string[] claimTypes = ClaimTypes.Split(";", StringSplitOptions.RemoveEmptyEntries);
             string[] claimValues = ClaimValues.Split(";", StringSplitOptions.RemoveEmptyEntries);
 
-            if(claimTypes.Length != claimValues.Length)
+            if (claimTypes.Length != claimValues.Length)
             {
                 throw new IndexOutOfRangeException("Claim types and values items do not match same length.");
             }

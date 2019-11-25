@@ -8,7 +8,7 @@
 
         public static IAuditFactory CreateSingleton()
         {
-            if(instance == null)
+            if (instance == null)
             {
                 instance = new AuditFactory();
             }
@@ -26,7 +26,7 @@
                 userAuditor = auditor;
             else
                 messageAuditor = auditor;
-                
+
         }
 
         public IAuditor GetAuditor(AuditType type)
@@ -37,7 +37,7 @@
                 return messageAuditor;
         }
 
-        
+
 
 
 

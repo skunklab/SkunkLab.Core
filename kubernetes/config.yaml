@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tcp-services
+  namespace: ingress-nginx
+data:
+  1883: "kube-system/tcp:1883"
+  8883: "kube-system/tcp:8883"
+  5684: "kube-system/tcp:5684"
+  
+  
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: udp-services
+  namespace: ingress-nginx
+data:
+  5683: "kube-system/udp:5683"
+  5883: "kube-system/udp:5883"
+  
+  
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx
+  namespace: ingress-nginx
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+spec:
+  type: LoadBalancer
+  ports:    
+    - name: proxied-tcp-1883
+      port: 1883
+      targetPort: 1883
+      protocol: TCP
+    - name: proxied-tcp-8883
+      port: 8883
+      targetPort: 8883
+      protocol: TCP
+    - name: proxied-tcp-5684
+      port: 5684
+      targetPort: 5684
+      protocol: TCP
+    - name: proxied-tcp-5683
+      port: 5683
+      targetPort: 5683
+      protocol: UDP
+    - name: proxied-tcp-5883
+      port: 5883
+      targetPort: 5883
+      protocol: UDP
+  selector:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx

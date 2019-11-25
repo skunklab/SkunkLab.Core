@@ -10,7 +10,7 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
         }
 
 
-        
+
 
         public override async Task<MqttMessage> ProcessAsync()
         {
@@ -23,7 +23,7 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
             PublishMessage msg = Message as PublishMessage;
             Session.IncrementKeepAlive();
 
-            if(msg.QualityOfServiceLevel == QualityOfServiceLevelType.AtMostOnce)
+            if (msg.QualityOfServiceLevel == QualityOfServiceLevelType.AtMostOnce)
             {
                 Dispatch(msg);
                 return await Task.FromResult<MqttMessage>(null);
@@ -37,11 +37,11 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
             if (!Session.IsQuarantined(msg.MessageId))
             {
                 Session.Quarantine(Message, DirectionType.In);
-                Dispatch(msg);               
+                Dispatch(msg);
             }
-            
+
             return await Task.FromResult<MqttMessage>(response);
-            
+
         }
 
         private void Dispatch(PublishMessage msg)

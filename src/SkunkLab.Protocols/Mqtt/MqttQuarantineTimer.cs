@@ -27,7 +27,6 @@ namespace SkunkLab.Protocols.Mqtt
         private Timer timer;
         private ushort currentId;
         private bool disposed;
-        private object lockObj;
 
         public ushort NewId()
         {
@@ -38,7 +37,7 @@ namespace SkunkLab.Protocols.Mqtt
             {
                 currentId++;
                 currentId = currentId == ushort.MaxValue ? (ushort)1 : currentId;
-            }            
+            }
 
             return currentId;
         }
@@ -63,7 +62,7 @@ namespace SkunkLab.Protocols.Mqtt
                     RetryMessageData amd = new RetryMessageData(message, timeout, 0, direction);
                     container.Add(message.MessageId, amd);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Trace.TraceWarning("MQTT quarantine cannot add message id");
                     Trace.TraceError(ex.Message);
@@ -119,7 +118,7 @@ namespace SkunkLab.Protocols.Mqtt
                 }
             }
             catch { }
-            
+
         }
 
         public void Dispose()
@@ -137,7 +136,7 @@ namespace SkunkLab.Protocols.Mqtt
                 container.Clear();
                 container = null;
 
-                if(timer != null)
+                if (timer != null)
                 {
                     timer.Stop();
                     timer.Dispose();

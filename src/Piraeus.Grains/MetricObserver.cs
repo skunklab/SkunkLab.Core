@@ -1,6 +1,6 @@
-﻿using System;
-using Piraeus.Core.Messaging;
+﻿using Piraeus.Core.Messaging;
 using Piraeus.GrainInterfaces;
+using System;
 
 namespace Piraeus.Grains
 {

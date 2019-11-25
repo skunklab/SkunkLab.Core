@@ -23,6 +23,7 @@ namespace SkunkLab.Channels.Tcp
             this.blockSize = blockSize;
             this.maxBufferSize = maxBufferSize;
             this.token = token;
+            Id = "tcp2-" + Guid.NewGuid().ToString();
             this.queue = new Queue<byte[]>();
         }
 
@@ -37,6 +38,7 @@ namespace SkunkLab.Channels.Tcp
             this.blockSize = blockSize;
             this.maxBufferSize = maxBufferSize;
             this.token = token;
+            Id = "tcp2-" + Guid.NewGuid().ToString();
             this.queue = new Queue<byte[]>();
         }
 
@@ -52,6 +54,7 @@ namespace SkunkLab.Channels.Tcp
             this.blockSize = blockSize;
             this.maxBufferSize = maxBufferSize;
             this.token = token;
+            Id = "tcp2-" + Guid.NewGuid().ToString();
             this.queue = new Queue<byte[]>();
         }
 
@@ -358,7 +361,7 @@ namespace SkunkLab.Channels.Tcp
             {
                 OnError?.Invoke(this, new ChannelErrorEventArgs(Id, ex));
                 return;
-            }            
+            }
 
             try
             {
@@ -558,7 +561,7 @@ namespace SkunkLab.Channels.Tcp
                 error = ex;
             }
             finally
-            {                
+            {
                 OnError?.Invoke(this, new ChannelErrorEventArgs(Id, error != null ? error : new TimeoutException("Receiver closing")));
             }
         }

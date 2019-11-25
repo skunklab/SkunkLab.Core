@@ -1,5 +1,5 @@
-﻿using System;
-using Orleans;
+﻿using Orleans;
+using System;
 
 namespace Piraeus.GrainInterfaces
 {

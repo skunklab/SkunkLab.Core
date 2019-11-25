@@ -13,7 +13,6 @@ namespace Capl.Authorization
     using System.Xml;
     using System.Xml.Schema;
     using System.Xml.Serialization;
-    using Capl.Authorization.Transforms;
 
     /// <summary>
     /// The base class for an authorization policy.
@@ -44,7 +43,7 @@ namespace Capl.Authorization
             {
                 throw new ArgumentNullException("schemaSet");
             }
-            
+
             using (StringReader reader = new StringReader(Capl.Properties.Resources.AuthorizationPolicySchema))
             {
                 XmlSchema schema = XmlSchema.Read(reader, null);

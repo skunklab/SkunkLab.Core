@@ -46,13 +46,13 @@ namespace Piraeus.Grains.Notifications
             ServiceClientCredentials credentials = new TopicCredentials(topicKey);
 
             clients = new EventGridClient[clientCount];
-            for (int i=0;i<clientCount;i++)
+            for (int i = 0; i < clientCount; i++)
             {
                 clients[i] = new EventGridClient(credentials);
             }
         }
 
-        
+
 
 
         public override async Task SendAsync(EventMessage message)
@@ -73,14 +73,14 @@ namespace Piraeus.Grains.Notifications
 
                 EventGridEvent gridEvent = new EventGridEvent(message.MessageId, resourceUriString, payload, resourceUriString, DateTime.UtcNow, "1.0");
                 IList<EventGridEvent> events = new List<EventGridEvent>(new EventGridEvent[] { gridEvent });
-                Task task =  clients[arrayIndex].PublishEventsAsync(topicHostname, events);
+                Task task = clients[arrayIndex].PublishEventsAsync(topicHostname, events);
                 Task innerTask = task.ContinueWith(async (a) => { await FaultTask(message.MessageId, payload, message.ContentType, message.Audit); }, TaskContinuationOptions.OnlyOnFaulted);
                 await Task.WhenAll(task);
 
                 record = new MessageAuditRecord(message.MessageId, uri.Query.Length > 0 ? uri.ToString().Replace(uri.Query, "") : uri.ToString(), "EventGrid", "EventGrid", payload.Length, MessageDirectionType.Out, true, DateTime.UtcNow);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Initial event grid write error {0}", ex.Message);
                 record = new MessageAuditRecord(message.MessageId, uri.Query.Length > 0 ? uri.ToString().Replace(uri.Query, "") : uri.ToString(), "EventGrid", "EventGrid", payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, ex.Message);
@@ -94,7 +94,7 @@ namespace Piraeus.Grains.Notifications
             }
         }
 
-        private async Task FaultTask(string id,  byte[] payload, string contentType, bool canAudit)
+        private async Task FaultTask(string id, byte[] payload, string contentType, bool canAudit)
         {
             AuditRecord record = null;
             try
@@ -106,7 +106,7 @@ namespace Piraeus.Grains.Notifications
                 await clients[arrayIndex].PublishEventsAsync(topicHostname, events);
                 record = new MessageAuditRecord(id, uri.Query.Length > 0 ? uri.ToString().Replace(uri.Query, "") : uri.ToString(), "EventGrid", "EventGrid", payload.Length, MessageDirectionType.Out, true, DateTime.UtcNow);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Retry EventGrid failed.");
                 Trace.TraceError(ex.Message);

@@ -1,20 +1,26 @@
-﻿
-function New-SampleConfig()
+﻿function New-SampleConfig()
 {
-    param([string]$DnsName, [string]$Location, [string]$Key="12345678")
+    param([string]$DnsName, [string]$Location, [string]$Key)
+    $authority = $DnsName.ToLower() + $Location.ToLower() + "cloudapp.azure.com"
     
-    $url = "https://$DnsName.$Location.cloudapp.azure.com"
+    $url = "https://$authority"
     Write-Host "Using $url for management api" -ForegroundColor Yellow
 
-    $importer = Read-Host "Do you need to import the Piraeus Management Powershell Module (Y/N) ? "
-    if($importer.ToLowerInvariant() -eq "y")
-    {
-        Import-Module "../src/Piraeus.Module.Core/bin/Release/netcoreapp2.2/Piraeus.Module.Core.dll"
-        Write-Host "Module imported" -ForegroundColor Yellow
-    }
+    Import-Module "../src/Piraeus.Module.Core/bin/Release/netcoreapp2.2/Piraeus.Module.Core.dll"
+    Write-Host "Module imported" -ForegroundColor Yellow
 
     #get a security token for the management API
+    Write-Host "--- Get security token for Piraeus configuration ---" -Foreground Yellow
     $token = Get-PiraeusManagementToken -ServiceUrl $url -Key $Key
+    while($LASTEXITCODE -ne 0)
+    {
+		Write-Host "--- Try get security token again...waiting 30 seconds" -ForegroundColor Yellow
+		Start-Sleep -Seconds 30
+		$token = Get-PiraeusManagementToken -ServiceUrl $url -Key $Key
+    }
+    
+    Write-Host "--- Got security token, ready to configure Piraeus ---" -ForegroundColor Green
+    
         
     Write-Host "---  INFORMATION ABOUT Sample Config ----" -ForegroundColor White
     Write-Host "The client demos create security tokens based on the selection of a 'Role', i.e., 'A' or 'B'" -ForegroundColor White
@@ -35,7 +41,8 @@ function New-SampleConfig()
     Start-Sleep -Seconds 5              
 
     #define the claim type to match to determines the client's role
-    $matchClaimType = "http://skunklab.io/role"
+    $authority = $DnsName.ToLower() + $Location.ToLower() + "cloudapp.azure.com"
+    $matchClaimType = "http://$authority/role"
 
     #create a match expression of 'Literal' to match the role claim type
     $match = New-CaplMatch -Type Literal -ClaimType $matchClaimType -Required $true  
@@ -47,7 +54,7 @@ function New-SampleConfig()
     $rule_A = New-CaplRule -Evaluates $true -MatchExpression $match -Operation $operation_A
 
     #define a unique identifier (as URI) for the policy
-    $policyId_A = "http://www.skunklab.io/resource-a" 
+    $policyId_A = "http://$authority/policy/resource-a" 
 
     #create the policy for clients in role "A"
     $policy_A = New-CaplPolicy -PolicyID $policyId_A -EvaluationExpression $rule_A
@@ -63,7 +70,7 @@ function New-SampleConfig()
     $rule_B = New-CaplRule -Evaluates $true -MatchExpression $match -Operation $operation_B
 
     #define a unique identifier (as URI) for the policy
-    $policyId_B = "http://www.skunklab.io/resource-b" 
+    $policyId_B = "http://$authority/policy/resource-b" 
 
     #create the policy for users in role "A"
     $policy_B = New-CaplPolicy -PolicyID $policyId_B -EvaluationExpression $rule_B
@@ -79,8 +86,8 @@ function New-SampleConfig()
 
 
     #Uniquely identify Piraeus resources by URI
-    $resource_A = "http://www.skunklab.io/resource-a"
-    $resource_B = "http://www.skunklab.io/resource-b"
+    $resource_A = "http://$authority/resource-a"
+    $resource_B = "http://$authority/resource-b"
 
     #Add the resources to Piraeus
 
@@ -105,9 +112,4 @@ function New-SampleConfig()
 
     Write-Host "----- PI-System $resource_B Metadata ----" -ForegroundColor Green
     Get-PiraeusEventMetadata -ResourceUriString $resource_B -ServiceUrl $url -SecurityToken $token
-
-    Write-Host""
-    Write-Host "Done :-)  Dare Mighty Things" -ForegroundColor Cyan
-
-    
 }

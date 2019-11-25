@@ -12,7 +12,7 @@ namespace SkunkLab.Protocols.Mqtt
         {
             get { return false; }
         }
-        
+
         public override byte[] Encode()
         {
             int index = 0;
@@ -37,7 +37,7 @@ namespace SkunkLab.Protocols.Mqtt
 
             int remainingLength = base.DecodeRemainingLength(message);
 
-            if(remainingLength != 0)
+            if (remainingLength != 0)
             {
                 //fault
             }

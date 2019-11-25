@@ -19,7 +19,7 @@ namespace SkunkLab.Storage
 
         public static LocalFileStorage Create()
         {
-            if(instance == null)
+            if (instance == null)
             {
                 instance = new LocalFileStorage();
             }
@@ -33,12 +33,12 @@ namespace SkunkLab.Storage
         private HashSet<string> container;
         public async Task<byte[]> ReadFileAsync(string path, CancellationToken token)
         {
-            if(string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 throw new ArgumentNullException("path");
             }
 
-            if(!File.Exists(path))
+            if (!File.Exists(path))
             {
                 throw new FileNotFoundException(path);
             }
@@ -116,10 +116,10 @@ namespace SkunkLab.Storage
             {
                 throw new FileNotFoundException(path);
             }
-            
+
             try
             {
-                
+
                 if (container.Contains(path.ToLowerInvariant()))
                 {
                     await AccessWaitAsync(path, TimeSpan.FromSeconds(20.0));
@@ -169,7 +169,7 @@ namespace SkunkLab.Storage
                 container.Remove(path.ToLowerInvariant());
             }
         }
-        
+
         public async Task AppendFileAsync(string path, byte[] source, CancellationToken token = default(CancellationToken))
         {
             if (string.IsNullOrEmpty(path))
@@ -206,13 +206,13 @@ namespace SkunkLab.Storage
                 throw new FileNotFoundException(path);
             }
 
-            if(File.Exists(path))
+            if (File.Exists(path))
             {
                 FileInfo info = new FileInfo(path);
-                if(maxSize > 0 && info.Length >= Convert.ToInt64(maxSize))
+                if (maxSize > 0 && info.Length >= Convert.ToInt64(maxSize))
                 {
                     //copy the file with an epoch
-                    RenameFile(path);                    
+                    RenameFile(path);
                 }
             }
 
@@ -225,7 +225,7 @@ namespace SkunkLab.Storage
             if (existing.Length == 0)
             {
                 buffer = new byte[source.Length];
-                Buffer.BlockCopy(source, 0, buffer, 0, source.Length);                
+                Buffer.BlockCopy(source, 0, buffer, 0, source.Length);
             }
             else
             {
@@ -234,8 +234,8 @@ namespace SkunkLab.Storage
                 Buffer.BlockCopy(crlfBytes, 0, buffer, existing.Length, crlfBytes.Length);
                 Buffer.BlockCopy(source, 0, buffer, existing.Length + crlfBytes.Length, source.Length);
             }
-            
-            
+
+
 
             await WriteFileAsync(path, buffer, token);
         }
@@ -259,24 +259,24 @@ namespace SkunkLab.Storage
         }
         public async Task TruncateFileAsync(string path, int maxBytes, CancellationToken token = default(CancellationToken))
         {
-            if(string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 throw new ArgumentNullException("path");
             }
 
-            if(maxBytes < 0)
+            if (maxBytes < 0)
             {
                 throw new IndexOutOfRangeException("maxBytes");
             }
 
-            if(!File.Exists(path))
+            if (!File.Exists(path))
             {
                 throw new FileNotFoundException("path");
             }
 
             byte[] source = await ReadFileAsync(path, token);
 
-            if(source.Length <= maxBytes)
+            if (source.Length <= maxBytes)
             {
                 return;
             }

@@ -6,10 +6,11 @@ loggerTypes: "Console;Debug"
 loglevel: "Warning"
 
 image1:
+  registry: docker.io
   ## Image location, NOT including the tag
   repository: skunklab/piraeus-mgmt-api
   ## Image tag
-  tag: latest 
+  tag: v3.0 
   pullPolicy: IfNotPresent
   
 

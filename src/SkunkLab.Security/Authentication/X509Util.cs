@@ -16,9 +16,9 @@ namespace SkunkLab.Security.Authentication
             {
                 store.Open(OpenFlags.ReadOnly);
                 X509Certificate2Collection collection = store.Certificates;
-                foreach(var item in collection)
+                foreach (var item in collection)
                 {
-                    if(item.Thumbprint == thumbprint)
+                    if (item.Thumbprint == thumbprint)
                     {
                         return item;
                     }
@@ -37,7 +37,7 @@ namespace SkunkLab.Security.Authentication
         {
             X509Certificate2 chainedCertificate = GetCertificate(name, location, thumbprint);
 
-            if(clientCertificate == null || chainedCertificate == null)
+            if (clientCertificate == null || chainedCertificate == null)
             {
                 return false;
             }
@@ -48,30 +48,30 @@ namespace SkunkLab.Security.Authentication
             try
             {
                 X509Chain chain = new X509Chain();
-                X509ChainPolicy policy = new X509ChainPolicy() { RevocationMode = mode, RevocationFlag = flag };               
+                X509ChainPolicy policy = new X509ChainPolicy() { RevocationMode = mode, RevocationFlag = flag };
                 chain.ChainPolicy = policy;
-                
-                if(!chain.Build(clientCertificate))
+
+                if (!chain.Build(clientCertificate))
                 {
                     return false;
                 }
 
                 store.Open(OpenFlags.ReadOnly);
                 X509Certificate2Collection collection = store.Certificates;
-                
-                foreach(var item in chain.ChainElements)
+
+                foreach (var item in chain.ChainElements)
                 {
                     X509Certificate2Collection certs = collection.Find(X509FindType.FindByThumbprint, item.Certificate.Thumbprint, true);
 
-                    if(certs == null || certs.Count == 0)
+                    if (certs == null || certs.Count == 0)
                     {
                         return false;
                     }
 
-                    foreach(X509Certificate2 cert in certs)
+                    foreach (X509Certificate2 cert in certs)
                     {
 
-                        if(cert.Thumbprint == chainedCertificate.Thumbprint && cert.NotAfter < DateTime.Now && cert.NotBefore > DateTime.Now)
+                        if (cert.Thumbprint == chainedCertificate.Thumbprint && cert.NotAfter < DateTime.Now && cert.NotBefore > DateTime.Now)
                         {
                             return true;
                         }

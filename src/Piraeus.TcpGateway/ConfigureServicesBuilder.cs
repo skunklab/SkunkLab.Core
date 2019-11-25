@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 
 namespace Piraeus.TcpGateway
 {

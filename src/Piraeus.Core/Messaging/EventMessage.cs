@@ -96,6 +96,6 @@ namespace Piraeus.Core.Messaging
 
 
         public string CacheKey { get; set; }
-        
+
     }
 }

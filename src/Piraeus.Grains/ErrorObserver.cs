@@ -1,5 +1,5 @@
-﻿using System;
-using Piraeus.GrainInterfaces;
+﻿using Piraeus.GrainInterfaces;
+using System;
 
 namespace Piraeus.Grains
 {

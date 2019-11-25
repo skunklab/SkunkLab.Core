@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -13,10 +15,16 @@ namespace Piraeus.Core.Utilities
 {
     public class MessageUri : Uri
     {
-        public MessageUri(HttpRequestMessage request)
-            : base(request.RequestUri.ToString())
+        public MessageUri(HttpRequest request)
+            : this(HttpUtility.HtmlDecode(UriHelper.GetEncodedUrl(request)))
         {
-            //items = request.GetQueryNameValuePairs();    
+            if(request.ContentType != null)
+                ContentType = request.ContentType.ToLowerInvariant();
+        }
+
+        public MessageUri(HttpRequestMessage request)
+            : this(request.RequestUri.ToString())
+        {
             var query = QueryHelpers.ParseQuery(request.RequestUri.Query);
             items = query.SelectMany(x => x.Value, (col, value) => new KeyValuePair<string, string>(col.Key, value)).ToList();
             Read(request);
@@ -26,11 +34,11 @@ namespace Piraeus.Core.Utilities
             : base(uriString)
         {
             List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>();
-            NameValueCollection nvc = HttpUtility.ParseQueryString(HttpUtility.UrlDecode(uriString));
-
+            //NameValueCollection nvc = HttpUtility.ParseQueryString(HttpUtility.UrlDecode(uriString));
+            NameValueCollection nvc = HttpUtility.ParseQueryString(HttpUtility.UrlDecode(this.Query));
             for (int i = 0; i < nvc.Count; i++)
             {
-                string key = nvc[i];
+                string key = nvc.Keys[i];
                 string[] values = nvc.GetValues(i);
                 foreach (string val in values)
                 {
@@ -39,7 +47,7 @@ namespace Piraeus.Core.Utilities
             }
 
             items = list.ToArray();
-            Read(uriString);
+            Read();
         }
 
         public string Resource { get; internal set; }
@@ -52,9 +60,9 @@ namespace Piraeus.Core.Utilities
 
         public string CacheKey { get; internal set; }
 
-        private IEnumerable<KeyValuePair<string, string>> items;
+        private readonly IEnumerable<KeyValuePair<string, string>> items;
 
-        private void Read(string uriString)
+        private void Read()
         {
             ContentType = GetSingleParameter(QueryStringConstants.CONTENT_TYPE);
             Resource = GetSingleParameter(QueryStringConstants.RESOURCE);
@@ -89,7 +97,7 @@ namespace Piraeus.Core.Utilities
                 this.MessageId = messageIds.First();
             }
 
-            if(cachekeys != null && cachekeys.Count() == 1)
+            if (cachekeys != null && cachekeys.Count() == 1)
             {
                 this.CacheKey = cachekeys.First();
             }
@@ -101,14 +109,14 @@ namespace Piraeus.Core.Utilities
             string messageId = GetSingleParameter(QueryStringConstants.MESSAGE_ID);
             IEnumerable<string> subscriptions = GetEnumerableParameters(QueryStringConstants.SUBSCRIPTION);
             KeyValuePair<string, string>[] queryStringIndexes = BuildIndexes(GetEnumerableParameters(QueryStringConstants.INDEX));
-           
-            Resource = Resource ?? resource;
-            Indexes = Indexes ?? queryStringIndexes;
-            MessageId = MessageId ?? messageId;
-            Subscriptions = Subscriptions ?? subscriptions;
-            TokenType = TokenType ?? tokenType;
-            SecurityToken = SecurityToken ?? securityToken;
-            ContentType = ContentType ?? contentType;
+
+            Resource ??= resource;
+            Indexes ??= queryStringIndexes;
+            MessageId ??= messageId;
+            Subscriptions ??= subscriptions;
+            TokenType ??= tokenType;
+            SecurityToken ??= securityToken;
+            ContentType ??= contentType;
         }
 
         private void SetResource(IEnumerable<string> resources)
@@ -126,7 +134,7 @@ namespace Piraeus.Core.Utilities
                 this.Resource = resources.First();
             }
         }
-        
+
         private IEnumerable<string> GetEnumerableHeaders(string key, HttpRequestMessage request)
         {
             try
@@ -140,25 +148,25 @@ namespace Piraeus.Core.Utilities
                     return null;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError(ex.Message);
                 throw ex;
             }
         }
-        private IEnumerable<string> GetEnumerableParameters(string key, HttpRequestMessage request)
-        {
-            var query = QueryHelpers.ParseQuery(request.RequestUri.Query);
-            IEnumerable<KeyValuePair<string, string>> kvps = query.SelectMany(x => x.Value, (col, value) => new KeyValuePair<string, string>(col.Key, value)).ToList();
+        //private IEnumerable<string> GetEnumerableParameters(string key, HttpRequestMessage request)
+        //{
+        //    var query = QueryHelpers.ParseQuery(request.RequestUri.Query);
+        //    IEnumerable<KeyValuePair<string, string>> kvps = query.SelectMany(x => x.Value, (col, value) => new KeyValuePair<string, string>(col.Key, value)).ToList();
 
-            //IEnumerable<KeyValuePair<string, string>> kvps = request.GetQueryNameValuePairs();
-            return from kv in kvps where kv.Key.ToLower(CultureInfo.InvariantCulture) == key.ToLower(CultureInfo.InvariantCulture) select kv.Value.ToLower(CultureInfo.InvariantCulture);
-        }
+        //    //IEnumerable<KeyValuePair<string, string>> kvps = request.GetQueryNameValuePairs();
+        //    return from kv in kvps where kv.Key.ToLower(CultureInfo.InvariantCulture) == key.ToLower(CultureInfo.InvariantCulture) select kv.Value.ToLower(CultureInfo.InvariantCulture);
+        //}
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        internal KeyValuePair<string,string>[] BuildIndexes(IEnumerable<string> indexes)
+        internal KeyValuePair<string, string>[] BuildIndexes(IEnumerable<string> indexes)
         {
-            if(indexes == null)
+            if (indexes == null)
             {
                 return null;
             }

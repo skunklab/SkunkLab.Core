@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Orleans;
+﻿using Orleans;
 using Orleans.Providers;
 using Piraeus.GrainInterfaces;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Piraeus.Grains
 {
-    [StorageProvider(ProviderName ="store")]
+    [StorageProvider(ProviderName = "store")]
     [Serializable]
     public class SigmaAlgebra : Grain<SigmaAlgebraState>, ISigmaAlgebra
     {
         public override Task OnActivateAsync()
-        {            
-            if(State.Container == null)
+        {
+            if (State.Container == null)
             {
                 List<string> list = new List<string>();
                 State.Container = list;
@@ -29,7 +29,7 @@ namespace Piraeus.Grains
 
         public async Task AddAsync(string resourceUriString)
         {
-            if(!State.Container.Contains(resourceUriString))
+            if (!State.Container.Contains(resourceUriString))
             {
                 State.Container.Add(resourceUriString);
             }
@@ -44,7 +44,7 @@ namespace Piraeus.Grains
 
         public async Task<bool> Contains(string resourceUriString)
         {
-            return await Task.FromResult<bool>(State.Container.Contains(resourceUriString));            
+            return await Task.FromResult<bool>(State.Container.Contains(resourceUriString));
         }
 
         public async Task<List<string>> GetListAsync()

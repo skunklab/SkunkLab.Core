@@ -15,7 +15,7 @@ namespace SkunkLab.Protocols.Mqtt
         public UnsubscribeMessage(ushort messageId, IEnumerable<string> topics)
         {
             this.MessageId = messageId;
-            this.Topics = new List<string>(topics);           
+            this.Topics = new List<string>(topics);
         }
 
         public List<string> Topics { get; set; }
@@ -26,7 +26,7 @@ namespace SkunkLab.Protocols.Mqtt
         {
             get { return true; }
         }
-        
+
         public override byte[] Encode()
         {
             byte fixedHeader = (byte)((0x0A << Constants.Header.MessageTypeOffset) |
@@ -95,7 +95,7 @@ namespace SkunkLab.Protocols.Mqtt
                 this.Topics.Add(topic);
             }
 
-            return unsubscribeMessage; 
+            return unsubscribeMessage;
         }
     }
 }

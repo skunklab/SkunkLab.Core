@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Piraeus.Core.Messaging;
+﻿using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
+using System;
+using System.Collections.Generic;
 
 namespace Piraeus.GrainInterfaces
 {

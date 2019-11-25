@@ -10,7 +10,7 @@ namespace Piraeus.Adapters
     public class ProtocolTransition
     {
         public static bool IsEncryptedChannel { get; set; }
-        
+
         public static byte[] ConvertToMqtt(MqttSession session, EventMessage message)
         {
             if (message.Protocol == ProtocolType.MQTT)
@@ -31,7 +31,7 @@ namespace Piraeus.Adapters
                 catch (Exception ex)
                 {
                     Trace.TraceWarning("{0} - Fault in ProtocolTransition.ConvertToMqtt", DateTime.UtcNow.ToString());
-                    Trace.TraceError("{0} - {1} - {2}", DateTime.UtcNow.ToString(""), "ProtocolTransition", ex.Message);                    
+                    Trace.TraceError("{0} - {1} - {2}", DateTime.UtcNow.ToString(""), "ProtocolTransition", ex.Message);
                 }
 
                 PublishMessage pub = new PublishMessage(false, qos, false, session.NewId(), curi.Resource, msg.Payload);

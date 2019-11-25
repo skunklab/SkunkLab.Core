@@ -26,7 +26,7 @@ namespace Piraeus.Module
         public string AppId;
 
         [Parameter(HelpMessage = "Secret for access from AAD", Mandatory = true)]
-        public string ClientSecret;        
+        public string ClientSecret;
 
         [Parameter(HelpMessage = "Name of folder to write data.", Mandatory = true)]
         public string Folder;

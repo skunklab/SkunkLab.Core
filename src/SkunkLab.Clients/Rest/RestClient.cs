@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Piraeus.Clients.Rest
 {
     public class RestClient
-    {       
+    {
 
         public RestClient(string endpoint, string securityToken, IEnumerable<Observer> observers = null, CancellationToken token = default(CancellationToken))
         {
@@ -32,11 +32,11 @@ namespace Piraeus.Clients.Rest
             if (observers != null)
             {
                 receiveChannel = ChannelFactory.Create(endpoint, certificate, observers, token);
-                
+
                 Task receiveTask = receiveChannel.ReceiveAsync();
                 Task.WhenAll(receiveTask);
             }
-        }        
+        }
 
         private IChannel receiveChannel;
         private HttpClientChannel sendChannel;
@@ -45,7 +45,7 @@ namespace Piraeus.Clients.Rest
         {
             await sendChannel.SendAsync(resourceUriString, contentType, message, cacheKey, indexes);
         }
-        
+
 
         public async Task ReceiveAsync()
         {

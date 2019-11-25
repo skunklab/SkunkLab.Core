@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,7 +30,7 @@ namespace SkunkLab.Channels.Http
         /// <param name="contentType">HTTP content type of message</param>
         /// <param name="securityToken">Symmetric key security token as string</param>
         /// <param name="indexes">Optional indexes used to filter receivers.</param>
-        public static HttpChannel Create(string endpoint, string resourceUriString, string contentType, string securityToken, string cacheKey = null, List<KeyValuePair<string,string>> indexes = null)
+        public static HttpChannel Create(string endpoint, string resourceUriString, string contentType, string securityToken, string cacheKey = null, List<KeyValuePair<string, string>> indexes = null)
         {
             return new HttpClientChannel(endpoint, resourceUriString, contentType, securityToken, cacheKey, indexes);
         }
@@ -99,18 +98,18 @@ namespace SkunkLab.Channels.Http
 
         public static HttpChannel Create(string endpoint, string resourceUriString, string contentType, X509Certificate2 certificate)
         {
-            
+
             return new HttpServerChannel(endpoint, resourceUriString, contentType, certificate);
         }
 
         #endregion
-        
+
 
         public abstract bool RequireBlocking { get; }
 
         public abstract string TypeId { get; }
         public abstract int Port { get; internal set; }
-        public abstract bool IsConnected { get;  }
+        public abstract bool IsConnected { get; }
         public abstract string Id { get; internal set; }
 
         public abstract bool IsEncrypted { get; internal set; }
@@ -125,7 +124,7 @@ namespace SkunkLab.Channels.Http
         public abstract event EventHandler<ChannelErrorEventArgs> OnError;
         public abstract event EventHandler<ChannelStateEventArgs> OnStateChange;
 
-        
+
         public abstract Task CloseAsync();
 
         public abstract void Dispose();

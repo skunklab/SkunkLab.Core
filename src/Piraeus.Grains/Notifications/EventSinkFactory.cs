@@ -1,10 +1,22 @@
 ﻿using Piraeus.Core.Metadata;
 using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
+
 namespace Piraeus.Grains.Notifications
 {
     public class EventSinkFactory
     {
-        public static EventSink Create(SubscriptionMetadata metadata)
+        private static X509Certificate2 cert;
+        private static List<Claim> claims;
+        private static bool initialized;
+
+        public static bool IsInitialized
+        {
+            get { return initialized; }
+        }
+        public static EventSink Create(SubscriptionMetadata metadata, List<Claim> claimset = null, X509Certificate2 certificate = null)
         {
             if (metadata == null)
             {
@@ -16,7 +28,14 @@ namespace Piraeus.Grains.Notifications
                 throw new NullReferenceException("Subscription metadata has no NotifyAddress for passive event sink.");
             }
 
+            if (!initialized)
+            {
+                cert = cert ?? certificate;
+                claims = claims ?? claimset;
+            }
+
             Uri uri = new Uri(metadata.NotifyAddress);
+            initialized = true;
 
             if (uri.Scheme == "http" || uri.Scheme == "https")
             {
@@ -34,7 +53,7 @@ namespace Piraeus.Grains.Notifications
                 }
                 else
                 {
-                    return new RestWebServiceSink(metadata);
+                    return new RestWebServiceSink(metadata, claims, cert);
                 }
             }
             else if (uri.Scheme == "iothub")
@@ -49,10 +68,6 @@ namespace Piraeus.Grains.Notifications
             {
                 return new ServiceBusTopicSink(metadata);
             }
-            //else if (uri.Scheme == "adl")
-            //{
-            //    return new DataLakeSink(metadata);
-            //}
             else if (uri.Scheme == "eventgrid")
             {
                 return new EventGridSink(metadata);

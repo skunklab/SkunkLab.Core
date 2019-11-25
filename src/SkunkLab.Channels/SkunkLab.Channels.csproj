@@ -1,19 +1,19 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <Version>1.2.0</Version>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Version>3.0.0</Version>
     <RootNamespace>SkunkLab.Channels</RootNamespace>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Description>SkunkLab channel library for netcore v2.2</Description>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/skunklab/piraeus/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/skunklab/piraeus</PackageProjectUrl>
-    <PackageIconUrl>https://avatars2.githubusercontent.com/u/25301165?s=40&amp;amp;u=f8ab917e074351e186df6a41b4d3d764f6b5af96&amp;amp;v=4</PackageIconUrl>
+    <Description>Channel library for dotnet core 3.0.  TCP, UDP, Web socket, HTTP</Description>    
+    <PackageProjectUrl>https://github.com/skunklab/bitrt</PackageProjectUrl>    
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>skunklab.png</PackageIcon>
     <RepositoryUrl>https://github.com/skunklab/piraeus</RepositoryUrl>
-    <PackageTags>SkunkLab Piraeus Storage</PackageTags>
+    <PackageTags>SkunkLab Channels BitRT</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
-    <AssemblyVersion>1.0.16.0</AssemblyVersion>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
     <AssemblyName>SkunkLab.Channels</AssemblyName>
     <PackageId>SkunkLab.Channels</PackageId>
     <Company>SkunkLab</Company>
@@ -21,13 +21,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.1.0" />
+    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.2.1" />    
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="skunklab.png" Pack="true" PackagePath=""/>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SkunkLab.Storage\SkunkLab.Storage.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="skunklab.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

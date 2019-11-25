@@ -93,7 +93,7 @@ namespace Capl.Authorization
         /// </summary>
         /// <param name="reader">An XmlReader for the operation.</param>
         public void ReadXml(XmlReader reader)
-        {   
+        {
             if (reader == null)
             {
                 throw new ArgumentNullException("reader");
@@ -102,11 +102,11 @@ namespace Capl.Authorization
             reader.MoveToRequiredStartElement(AuthorizationConstants.Elements.Operation);
             this._operationType = new Uri(reader.GetRequiredAttribute(AuthorizationConstants.Attributes.Type));
             this._claimValue = reader.GetElementValue(AuthorizationConstants.Elements.Operation);
-            
+
             if (!reader.IsRequiredEndElement(AuthorizationConstants.Elements.Operation))
             {
                 throw new SerializationException("Unexpected element " + reader.LocalName);
-            }            
+            }
         }
 
         /// <summary>
@@ -121,9 +121,9 @@ namespace Capl.Authorization
             }
 
             writer.WriteStartElement(AuthorizationConstants.Elements.Operation, AuthorizationConstants.Namespaces.Xmlns);
-            writer.WriteAttributeString(AuthorizationConstants.Attributes.Type, this._operationType.ToString());            
+            writer.WriteAttributeString(AuthorizationConstants.Attributes.Type, this._operationType.ToString());
             writer.WriteString(this._claimValue);
-            writer.WriteEndElement();            
+            writer.WriteEndElement();
         }
 
         #endregion

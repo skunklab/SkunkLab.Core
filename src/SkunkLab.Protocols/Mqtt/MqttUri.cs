@@ -1,10 +1,10 @@
-﻿using System;
+﻿using SkunkLab.Protocols.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Web;
-using SkunkLab.Protocols.Utilities;
 
 namespace SkunkLab.Protocols.Mqtt
 {
@@ -30,7 +30,7 @@ namespace SkunkLab.Protocols.Mqtt
             }
 
             items = list.ToArray();
-            
+
             MessageId = GetSingleParameter(QueryStringConstants.MESSAGE_ID);
             ContentType = GetSingleParameter(QueryStringConstants.CONTENT_TYPE);
             CacheKey = GetSingleParameter(QueryStringConstants.CACHE_KEY);

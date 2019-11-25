@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Crypto.Tls;
 using Piraeus.Configuration;
+using Piraeus.Core.Logging;
+using Piraeus.Grains;
 using SkunkLab.Channels;
 using SkunkLab.Channels.Psk;
 using SkunkLab.Channels.WebSocket;
@@ -18,18 +19,18 @@ namespace Piraeus.Adapters
     public class ProtocolAdapterFactory
     {
 
-        public static ProtocolAdapter Create(PiraeusConfig config, HttpContext context, WebSocket socket, ILogger logger = null, IAuthenticator authenticator = null, CancellationToken token = default(CancellationToken))
+        public static ProtocolAdapter Create(PiraeusConfig config, GraphManager graphManager, HttpContext context, WebSocket socket, ILog logger = null, IAuthenticator authenticator = null, CancellationToken token = default(CancellationToken))
         {
             WebSocketConfig webSocketConfig = GetWebSocketConfig(config);
             IChannel channel = ChannelFactory.Create(webSocketConfig, context, socket, token);
             string subprotocol = context.WebSockets.WebSocketRequestedProtocols[0];
-            if(subprotocol == "mqtt")
+            if (subprotocol == "mqtt")
             {
-                return new MqttProtocolAdapter(config, authenticator, channel, logger, context);
+                return new MqttProtocolAdapter(config, graphManager, authenticator, channel, logger, context);
             }
-            else if(subprotocol == "coapV1")
+            else if (subprotocol == "coapV1")
             {
-                return new CoapProtocolAdapter(config, authenticator,  channel, logger);
+                return new CoapProtocolAdapter(config, graphManager, authenticator, channel, logger);
             }
             else
             {
@@ -46,52 +47,42 @@ namespace Piraeus.Adapters
         /// <param name="token"></param>
         /// <param name="authenticator"></param>
         /// <returns></returns>
-        public static ProtocolAdapter Create(PiraeusConfig config, HttpContext context, ILogger logger = null, IAuthenticator authenticator = null, CancellationToken token = default(CancellationToken))
+        public static ProtocolAdapter Create(PiraeusConfig config, GraphManager graphManager, HttpContext context, ILog logger = null, IAuthenticator authenticator = null, CancellationToken token = default(CancellationToken))
         {
             IChannel channel = null;
-            //HttpContext context = HttpContext.Current;
-            //if (context.IsWebSocketRequest ||
-            //    context.IsWebSocketRequestUpgrading)
 
-            //if (HttpHelper.HttpContext.WebSockets.IsWebSocketRequest)
             if (context.WebSockets.IsWebSocketRequest)
             {
-                //WebSocketConfig webSocketConfig = GetWebSocketConfig(config);
                 WebSocketConfig webSocketConfig = new WebSocketConfig(config.MaxBufferSize, config.BlockSize, config.BlockSize);
                 channel = ChannelFactory.Create(context, webSocketConfig, token);
-                //channel = ChannelFactory.Create(request, webSocketConfig, token);
-
-                //if (context.WebSocketRequestedProtocols.Contains("mqtt"))
-                if(context.WebSockets.WebSocketRequestedProtocols.Contains("mqtt"))
+                if (context.WebSockets.WebSocketRequestedProtocols.Contains("mqtt"))
                 {
-                    return new MqttProtocolAdapter(config, authenticator, channel, logger);
+                    return new MqttProtocolAdapter(config, graphManager, authenticator, channel, logger);
                 }
                 else if (context.WebSockets.WebSocketRequestedProtocols.Contains("coapv1"))  //(context.WebSocketRequestedProtocols.Contains("coapv1"))
                 {
-                    return new CoapProtocolAdapter(config, authenticator, channel, logger);
+                    return new CoapProtocolAdapter(config, graphManager, authenticator, channel, logger);
                 }
-                //else if (context.WebSocketRequestedProtocols.Count == 0)
-                //{
-                //    //wsn protocol
-                //    //return new WsnProtocolAdapter(config, channel);
-                //}
+                else if (context.WebSockets.WebSocketRequestedProtocols.Count == 0)
+                {
+                    return new WsnProtocolAdapter(config, graphManager, channel, context, logger);
+                }
                 else
                 {
                     throw new InvalidOperationException("invalid web socket subprotocol");
                 }
             }
-
-            //if (request.Method != HttpMethod.Post && request.Method != HttpMethod.Get)
-            if(context.Request.Method.ToUpperInvariant() != "POST" && context.Request.Method.ToUpperInvariant() != "GET")
-            {
-                throw new HttpRequestException("Protocol adapter requires HTTP get or post.");
-            }
             else
             {
-                //channel = ChannelFactory.Create(request);
+                if (context.Request.Method.ToUpperInvariant() != "POST" && context.Request.Method.ToUpperInvariant() != "GET")
+                {
+                    throw new HttpRequestException("Protocol adapter requires HTTP get or post.");
+                }
+
                 channel = ChannelFactory.Create(context);
-                return new RestProtocolAdapter(config, channel, context, logger);
+                return new RestProtocolAdapter(config, graphManager, channel, context, logger);
             }
+
         }
 
         /// <summary>
@@ -100,14 +91,14 @@ namespace Piraeus.Adapters
         /// <param name="client">TCP client initialized by TCP Listener on server.</param>
         /// <param name="token">Cancellation token</param>
         /// <returns></returns>
-        public static ProtocolAdapter Create(PiraeusConfig config, IAuthenticator authenticator, TcpClient client, ILogger logger = null, CancellationToken token = default(CancellationToken))
+        public static ProtocolAdapter Create(PiraeusConfig config, GraphManager graphManager, IAuthenticator authenticator, TcpClient client, ILog logger = null, CancellationToken token = default(CancellationToken))
         {
             IChannel channel = null;
             TlsPskIdentityManager pskManager = null;
 
             if (!string.IsNullOrEmpty(config.PskStorageType))
             {
-                if(config.PskStorageType.ToLowerInvariant() == "redis")
+                if (config.PskStorageType.ToLowerInvariant() == "redis")
                 {
                     pskManager = TlsPskIdentityManagerFactory.Create(config.PskRedisConnectionString);
                 }
@@ -116,8 +107,8 @@ namespace Piraeus.Adapters
                 {
                     pskManager = TlsPskIdentityManagerFactory.Create(config.PskKeyVaultAuthority, config.PskKeyVaultClientId, config.PskKeyVaultClientSecret);
                 }
-                
-                if(config.PskStorageType.ToLowerInvariant() == "environmentvariable")
+
+                if (config.PskStorageType.ToLowerInvariant() == "environmentvariable")
                 {
                     pskManager = TlsPskIdentityManagerFactory.Create(config.PskIdentities, config.PskKeys);
                 }
@@ -125,7 +116,7 @@ namespace Piraeus.Adapters
             }
 
             if (pskManager != null)
-            {    
+            {
                 channel = ChannelFactory.Create(config.UsePrefixLength, client, pskManager, config.BlockSize, config.MaxBufferSize, token);
             }
             else
@@ -138,12 +129,12 @@ namespace Piraeus.Adapters
 
             if (port == 5684) //CoAP over TCP
             {
-                return new CoapProtocolAdapter(config, authenticator, channel, logger);
+                return new CoapProtocolAdapter(config, graphManager, authenticator, channel, logger);
             }
             else if (port == 1883 || port == 8883) //MQTT over TCP
             {
                 //MQTT
-                return new MqttProtocolAdapter(config, authenticator, channel, logger);
+                return new MqttProtocolAdapter(config, graphManager, authenticator, channel, logger);
             }
             else
             {
@@ -152,18 +143,18 @@ namespace Piraeus.Adapters
 
         }
 
-        public static ProtocolAdapter Create(PiraeusConfig config, IAuthenticator authenticator, UdpClient client, IPEndPoint remoteEP, ILogger logger = null, CancellationToken token = default(CancellationToken))
+        public static ProtocolAdapter Create(PiraeusConfig config, GraphManager graphManager, IAuthenticator authenticator, UdpClient client, IPEndPoint remoteEP, ILog logger = null, CancellationToken token = default(CancellationToken))
         {
             IPEndPoint endpoint = client.Client.LocalEndPoint as IPEndPoint;
 
             IChannel channel = ChannelFactory.Create(client, remoteEP, token);
             if (endpoint.Port == 5683)
             {
-                return new CoapProtocolAdapter(config, authenticator, channel, logger);
+                return new CoapProtocolAdapter(config, graphManager, authenticator, channel, logger);
             }
             else if (endpoint.Port == 5883)
             {
-                return new MqttProtocolAdapter(config, authenticator, channel, logger);
+                return new MqttProtocolAdapter(config, graphManager, authenticator, channel, logger);
             }
             else
             {

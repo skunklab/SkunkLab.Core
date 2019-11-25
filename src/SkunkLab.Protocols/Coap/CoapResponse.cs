@@ -3,7 +3,7 @@ namespace SkunkLab.Protocols.Coap
 {
     using System;
     using System.Linq;
-    
+
     public sealed class CoapResponse : CoapMessage
     {
         public CoapResponse()
@@ -33,7 +33,7 @@ namespace SkunkLab.Protocols.Coap
                 this.Token = token;
             }
 
-            if(contentType.HasValue)
+            if (contentType.HasValue)
             {
                 this.ContentType = contentType;
             }
@@ -47,9 +47,9 @@ namespace SkunkLab.Protocols.Coap
 
 
         public ResponseCodeType ResponseCode { get; set; }
-        
+
         public bool Error { get; internal set; }
-                      
+
 
         public override byte[] Encode()
         {
@@ -58,7 +58,7 @@ namespace SkunkLab.Protocols.Coap
 
             byte[] header = new byte[4 + this.TokenLength];
 
-            int index = 0;            
+            int index = 0;
 
             header[index++] = (byte)((byte)(0x01 << 0x06) | (byte)(Convert.ToByte((int)ResponseType) << 0x04) | (byte)(this.TokenLength));
 
@@ -75,13 +75,13 @@ namespace SkunkLab.Protocols.Coap
             {
                 Buffer.BlockCopy(this.Token, 0, header, 4, this.TokenLength);
             }
-           
+
             length += header.Length;
 
             byte[] options = null;
 
             if (this.Options.Count > 0)
-            {                
+            {
                 OptionBuilder builder = new OptionBuilder(this.Options.ToArray());
                 options = builder.Encode();
                 length += options.Length;
@@ -89,12 +89,12 @@ namespace SkunkLab.Protocols.Coap
 
             byte[] buffer = null;
 
-            if(this.Payload != null)
+            if (this.Payload != null)
             {
                 length += this.Payload.Length + 1;
                 buffer = new byte[length];
                 Buffer.BlockCopy(header, 0, buffer, 0, header.Length);
-                if(options != null)
+                if (options != null)
                 {
                     Buffer.BlockCopy(options, 0, buffer, header.Length, options.Length);
                     Buffer.BlockCopy(new byte[] { 0xFF }, 0, buffer, header.Length + options.Length, 1);
@@ -106,7 +106,7 @@ namespace SkunkLab.Protocols.Coap
                     Buffer.BlockCopy(this.Payload, 0, buffer, header.Length + 1, this.Payload.Length);
                 }
 
-                
+
             }
             else
             {

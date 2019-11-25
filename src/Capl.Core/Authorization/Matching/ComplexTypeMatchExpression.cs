@@ -10,10 +10,10 @@ namespace Capl.Authorization.Matching
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Text;
-    using System.Xml.XPath;
     using System.Security.Claims;
+    using System.Text;
     using System.Web;
+    using System.Xml.XPath;
 
     /// <summary>
     ///  Matches the string literal of a claim type and optional XSLT expression to match the claim value.
@@ -39,9 +39,9 @@ namespace Capl.Authorization.Matching
             {
                 throw new ArgumentNullException("claims");
             }
-            
+
             ClaimsIdentity ci = new ClaimsIdentity(claims);
-            IEnumerable<Claim> claimSet = ci.FindAll(delegate(Claim claim)
+            IEnumerable<Claim> claimSet = ci.FindAll(delegate (Claim claim)
             {
                 if (claim.Type == claimType)
                 {

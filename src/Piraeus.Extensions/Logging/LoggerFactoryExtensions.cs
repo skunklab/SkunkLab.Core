@@ -1,10 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
-using Microsoft.Extensions.Logging.Debug;
-
-namespace Piraeus.Extensions.Logging
+﻿namespace Piraeus.Extensions.Logging
 {
     public static class LoggerFactoryExtensions
     {
@@ -16,25 +10,25 @@ namespace Piraeus.Extensions.Logging
         //    builder.SetMinimumLevel(LogLevel.Warning);
 
         //    //IConfigurationRoot root = builder.Build();
-            
+
 
         //    return builder;
         //}
 
-        
-        
-
-        
-        
 
 
-        
 
 
-        
 
-         
 
-        
+
+
+
+
+
+
+
+
+
     }
 }

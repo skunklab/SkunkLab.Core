@@ -1,0 +1,6 @@
+﻿FROM mcr.microsoft.com/dotnet/core/aspnet:3.0 AS runtime
+WORKDIR /app
+EXPOSE 8088
+
+ENTRYPOINT ["dotnet", "Piraeus.HttpGateway.dll"]
+COPY . /app

@@ -26,19 +26,19 @@ namespace Samples.Mqtt.Client
         static bool send;
         static int channelNum;
         static string hostname;
-        static string resourceA = "http://www.skunklab.io/resource-a";
-        static string resourceB = "http://www.skunklab.io/resource-b";
-        static string pubResource;
-        static string subResource;
-        static string issuer = "http://skunklab.io/";
+        static string resourceA = "http://localhost/resource-a";
+        static string resourceB = "http://localhost/resource-b";
+        static readonly string pubResource = null;
+        static readonly string subResource = null;
+        static string issuer = "http://localhost/";
         static string audience = issuer;
-        static string nameClaimType = "http://skunklab.io/name";
-        static string roleClaimType = "http://skunklab.io/role";
+        static string nameClaimType = "http://localhost/name";
+        static string roleClaimType = "http://localhost/role";
         static string symmetricKey = "//////////////////////////////////////////8=";
 
 
         static void Main(string[] args)
-        {           
+        {
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
             cts = new CancellationTokenSource();
 
@@ -78,7 +78,7 @@ namespace Samples.Mqtt.Client
 
             //add some channel events
             channel.OnClose += Channel_OnClose;
-            channel.OnError += Channel_OnError; 
+            channel.OnError += Channel_OnError;
             channel.OnOpen += Channel_OnOpen;
 
             mqttClient = new PiraeusMqttClient(new SkunkLab.Protocols.Mqtt.MqttConfig(180.0), channel);
@@ -98,7 +98,7 @@ namespace Samples.Mqtt.Client
             if (File.Exists("config.json"))
             {
                 Console.Write("Use config.json file [y/n] ? ");
-                if(Console.ReadLine().ToLowerInvariant() == "y")
+                if (Console.ReadLine().ToLowerInvariant() == "y")
                 {
                     JObject jobj = JObject.Parse(Encoding.UTF8.GetString(File.ReadAllBytes("config.json")));
                     string dnsName = jobj.Value<string>("dnsName");
@@ -106,17 +106,21 @@ namespace Samples.Mqtt.Client
                     hostname = String.Format($"{dnsName}.{loc}.cloudapp.azure.com");
                     issuer = String.Format($"http://{hostname}/");
                     audience = issuer;
-                    nameClaimType = jobj.Value<string>("identityClaimType");                                       
+                    nameClaimType = jobj.Value<string>("identityClaimType");
                     roleClaimType = String.Format($"http://{hostname}/role");
                     symmetricKey = jobj.Value<string>("symmetricKey");
                     resourceA = $"http://{hostname}/resource-a";
                     resourceB = $"http://{hostname}/resource-b";
                 }
+                else
+                {
+                    hostname = SelectHostname();
+                }
 
             }
             else
             {
-                hostname = SelectHostname();                
+                hostname = SelectHostname();
             }
 
             name = SelectName();
@@ -141,7 +145,7 @@ namespace Samples.Mqtt.Client
         static void PrintMessage(string message, ConsoleColor color, bool section = false, bool input = false)
         {
             Console.ForegroundColor = color;
-            if(section)
+            if (section)
             {
                 Console.WriteLine($"---   {message} ---");
             }
@@ -169,8 +173,8 @@ namespace Samples.Mqtt.Client
 
         #region MQTT Client
         static async Task StartMqttClientAsync(string token)
-        {            
-            ConnectAckCode code = await MqttConnectAsync(token);          
+        {
+            ConnectAckCode code = await MqttConnectAsync(token);
             if (code != ConnectAckCode.ConnectionAccepted)
                 return;
 
@@ -178,11 +182,11 @@ namespace Samples.Mqtt.Client
             //string observableEvent = role == "A" ? resourceB : resourceA;
 
             try
-            {                
+            {
                 await mqttClient.SubscribeAsync(observableEvent, QualityOfServiceLevelType.AtLeastOnce, ObserveEvent).ContinueWith(SendMessages);
-                
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 PrintMessage("Error", ConsoleColor.Red, true);
                 PrintMessage(ex.Message, ConsoleColor.Red);
@@ -191,7 +195,7 @@ namespace Samples.Mqtt.Client
         }
 
         static void SendMessages(Task task)
-        { 
+        {
             try
             {
                 if (!send)
@@ -240,7 +244,7 @@ namespace Samples.Mqtt.Client
                     SendMessages(task);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 PrintMessage("Error", ConsoleColor.Red, true);
                 PrintMessage(ex.Message, ConsoleColor.Red);
@@ -258,8 +262,8 @@ namespace Samples.Mqtt.Client
 
             return code;
         }
-               
-        
+
+
         static void ObserveEvent(string topic, string contentType, byte[] message)
         {
             long nowTicks = DateTime.Now.Ticks;
@@ -274,10 +278,10 @@ namespace Samples.Mqtt.Client
 
             Console.WriteLine($"Latency {latency.TotalMilliseconds} ms - Received message '{messageText}'");
         }
-               
+
 
         #endregion
-        
+
         #region Channel Events
         private static void Channel_OnOpen(object sender, ChannelOpenEventArgs e)
         {
@@ -286,7 +290,7 @@ namespace Samples.Mqtt.Client
             Console.ResetColor();
         }
 
-      
+
 
         private static void Channel_OnStateChange(object sender, ChannelStateEventArgs e)
         {
@@ -331,7 +335,7 @@ namespace Samples.Mqtt.Client
         {
             Console.Write("Enter hostname, IP, or Enter for localhost ? ");
             string hostname = Console.ReadLine();
-            if(string.IsNullOrEmpty(hostname))
+            if (string.IsNullOrEmpty(hostname))
             {
                 return "localhost";
             }
@@ -357,9 +361,9 @@ namespace Samples.Mqtt.Client
                 return SelectChannel();
         }
 
-        
+
         #endregion
-        
+
         #region Security Token
         static string GetSecurityToken(string name, string role)
         {
@@ -398,13 +402,13 @@ namespace Samples.Mqtt.Client
             if (channelNum == 1)
             {
                 string uriString = hostname == "localhost" ? "ws://localhost:8081/api/connect" : String.Format("wss://{0}/ws/api/connect", hostname);
-              
+
                 Uri uri = new Uri(uriString);
                 return ChannelFactory.Create(uri, token, "mqtt", new WebSocketConfig(), src.Token);
             }
             else
             {
-                if(hostname != "localhost")
+                if (hostname != "localhost")
                 {
                     hostname = String.Format("{0}/tcp", hostname);
                 }

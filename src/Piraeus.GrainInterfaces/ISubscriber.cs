@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Orleans;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Orleans;
 
 namespace Piraeus.GrainInterfaces
 {

@@ -27,7 +27,7 @@ namespace Capl.Authorization.Transforms
         {
             get { return new Uri(AuthorizationConstants.TransformUris.Replace); }
         }
-        
+
 
         /// <summary>
         /// Gets the URI that identifies the replace transform action.
@@ -60,9 +60,9 @@ namespace Capl.Authorization.Transforms
             {
                 throw new ArgumentNullException("targetClaim");
             }
-            
+
             ClaimsIdentity ci = new ClaimsIdentity(claims);
-            IEnumerable<Claim> claimSet = ci.FindAll(delegate(Claim claim)
+            IEnumerable<Claim> claimSet = ci.FindAll(delegate (Claim claim)
             {
                 foreach (Claim c in matchedClaims)
                 {
@@ -80,13 +80,13 @@ namespace Capl.Authorization.Transforms
 
             foreach (Claim claim in claimSet)
             {
-                valueList.Add(claim.Value);                
-                claimList.Remove(claim);                
+                valueList.Add(claim.Value);
+                claimList.Remove(claim);
             }
 
             if (claimList.Count > 0)
             {
-                if (targetClaim.ClaimValue == null)  
+                if (targetClaim.ClaimValue == null)
                 {
                     int index = 0;
                     while (index < valueList.Count)
@@ -101,7 +101,7 @@ namespace Capl.Authorization.Transforms
                 }
             }
 
-            return claimList.ToArray();     
+            return claimList.ToArray();
         }
     }
 }

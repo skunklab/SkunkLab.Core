@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Orleans;
+using Piraeus.Core.Logging;
 using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
 using Piraeus.GrainInterfaces;
@@ -13,7 +16,24 @@ namespace Piraeus.WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class ResourceController : ControllerBase
-    {   
+    {
+        public ResourceController(IClusterClient clusterClient, Logger logger = null)
+        {
+            if (!GraphManager.IsInitialized)
+            {
+                this.graphManager = GraphManager.Create(clusterClient);
+            }
+            else
+            {
+                this.graphManager = GraphManager.Instance;
+            }
+
+            this.logger = logger;
+        }
+
+        private readonly GraphManager graphManager;
+        private readonly ILogger logger;
+
 
         [HttpGet("GetPiSystemMetadata")]
         [Authorize]
@@ -22,11 +42,26 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
-                EventMetadata metadata = await GraphManager.GetPiSystemMetadataAsync(resourceUriString);
+                if (string.IsNullOrEmpty(resourceUriString))
+                {
+                    throw new ArgumentNullException("resourceUriString");
+                }
+
+                EventMetadata metadata = await graphManager.GetPiSystemMetadataAsync(resourceUriString);
+
+                if (metadata == null)
+                {
+                    logger?.LogWarning($"Pi-system metadata '{resourceUriString}' is null.");
+                }
+                else
+                {
+                    logger?.LogInformation($"Return pi-system metadata '{resourceUriString}'");
+                }
                 return StatusCode(200, metadata);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                logger?.LogError(ex, $"Error getting pi-system metadata.");
                 return StatusCode(500, ex.Message);
             }
         }
@@ -38,11 +73,22 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
-                List<string> list = await GraphManager.GetSigmaAlgebraAsync();
+                List<string> list = await graphManager.GetSigmaAlgebraAsync();
+
+                logger?.LogInformation($"Returning sigma algebra");
+                if (list == null || list.Count == 0)
+                {
+                    logger?.LogWarning($"No sigma algebras found.");
+                }
+                else
+                {
+                    logger?.LogInformation("Sigma algebras returned.");
+                }
                 return StatusCode(200, list.ToArray());
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, $"Error getting sigma algebra");
                 return StatusCode(500, ex.Message);
             }
         }
@@ -54,11 +100,26 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
-                CommunicationMetrics metrics = await GraphManager.GetPiSystemMetricsAsync(resourceUriString);
+                if (string.IsNullOrEmpty(resourceUriString))
+                {
+                    throw new ArgumentNullException("resourceUriString");
+                }
+
+                CommunicationMetrics metrics = await graphManager.GetPiSystemMetricsAsync(resourceUriString);
+                logger?.LogInformation($"Returning communication metrics for pi-system '{resourceUriString}'.");
+                if (metrics == null)
+                {
+                    logger?.LogWarning($"Communication metrics for '{resourceUriString}' is null.");
+                }
+                else
+                {
+                    logger?.LogInformation("Communication metrics returned.");
+                }
                 return StatusCode(200, metrics);
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, $"Error getting communications metrics.");
                 return StatusCode(500, ex.Message);
             }
         }
@@ -69,11 +130,18 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
-                await GraphManager.UpsertPiSystemMetadataAsync(metadata);
+                if (metadata == null)
+                {
+                    throw new ArgumentNullException("metadata");
+                }
+
+                await graphManager.UpsertPiSystemMetadataAsync(metadata);
+                logger?.LogInformation($"Upserted pi-system metadata for '{metadata.ResourceUriString}'.");
                 return StatusCode(200);
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, $"Error upserting pi-system metadata.");
                 return StatusCode(500, ex.Message);
             }
         }
@@ -85,11 +153,24 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
-                string subscriptionUriString = await GraphManager.SubscribeAsync(resourceUriString, metadata);
+                if (string.IsNullOrEmpty(resourceUriString))
+                {
+                    throw new ArgumentNullException("resourceUriString");
+                }
+
+                if (metadata == null)
+                {
+                    throw new ArgumentNullException("metadata");
+                }
+
+                string subscriptionUriString = await graphManager.SubscribeAsync(resourceUriString, metadata);
+                logger?.LogInformation($"Subscribe to pi-system '{resourceUriString}' with subscriptionId '{subscriptionUriString}'.");
+
                 return StatusCode(200, subscriptionUriString);
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, $"Error subscribing to pi-system.");
                 return StatusCode(500, ex.Message);
 
             }
@@ -102,13 +183,28 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
-                //IEnumerable<string> list = await GraphManager.GetPiSystemSubscriptionListAsync(resourceUriString);
-                IPiSystem pisystem = GraphManager.GetPiSystem(resourceUriString);
+                if (string.IsNullOrEmpty(resourceUriString))
+                {
+                    throw new ArgumentNullException("resourceUriString");
+                }
+
+                IPiSystem pisystem = graphManager.GetPiSystem(resourceUriString);
+
+                if (pisystem == null)
+                {
+                    logger?.LogWarning($"Pi-system '{resourceUriString}' is null.");
+                }
+                else
+                {
+                    logger?.LogInformation($"Returned pi-system '{resourceUriString}'.");
+                }
+
                 IEnumerable<string> list = await pisystem.GetSubscriptionListAsync();
                 return StatusCode(200, list);
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, $"Error getting subscriptions from pi-system.");
                 return StatusCode(500, ex.Message);
             }
         }
@@ -119,11 +215,18 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
-                await GraphManager.UnsubscribeAsync(subscriptionUriString.ToLowerInvariant());
+                if (string.IsNullOrEmpty(subscriptionUriString))
+                {
+                    throw new ArgumentNullException("subscriptionUriString");
+                }
+
+                await graphManager.UnsubscribeAsync(subscriptionUriString.ToLowerInvariant());
+                logger?.LogInformation($"Unsubscribed subscription '{subscriptionUriString}'.");
                 return StatusCode(200);
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, $"Error unsubscribing.");
                 return StatusCode(500, ex.Message);
             }
         }
@@ -134,16 +237,23 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
-                await GraphManager.ClearPiSystemAsync(resourceUriString);
+                if (string.IsNullOrEmpty(resourceUriString))
+                {
+                    throw new ArgumentNullException("resourceUriString");
+                }
+
+                await graphManager.ClearPiSystemAsync(resourceUriString);
+                logger?.LogInformation($"Deleted pi-system '{resourceUriString}'.");
                 return StatusCode(200);
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, $"Error deleting pi-system.");
                 return StatusCode(500, ex.Message);
             }
         }
 
 
-        
+
     }
 }

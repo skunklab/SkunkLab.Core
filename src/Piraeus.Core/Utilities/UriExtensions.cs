@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Piraeus.Core.Utilities
 {
@@ -22,7 +18,7 @@ namespace Piraeus.Core.Utilities
                 result = GetFromQuery(uriString, uri);
             }
 
-            if(!removeLastSegment)
+            if (!removeLastSegment)
             {
                 return result;
             }

@@ -54,7 +54,7 @@ namespace SkunkLab.Channels.Tcp
                 Console.WriteLine("Exception in TLS protocol connnection '{0}'", ex.Message);
                 throw ex;
             }
-        }      
+        }
 
         public static TlsClientProtocol ConnectPskTlsClientNonBlocking(this TcpClient client, string identity, byte[] psk)
         {

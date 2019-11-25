@@ -24,7 +24,7 @@ namespace Piraeus.Module
 
         [Parameter(HelpMessage = "Name key used for authentication.", Mandatory = true)]
         public string KeyName;
-       
+
         [Parameter(HelpMessage = "SAS token used for authentication.", Mandatory = true)]
         public string Key;
 
@@ -34,7 +34,7 @@ namespace Piraeus.Module
         protected override void ProcessRecord()
         {
             string uriString = String.Format("sb://{0}.servicebus.windows.net?topic={1}&keyname={2}", Account, Topic, KeyName);
-            
+
 
             SubscriptionMetadata metadata = new SubscriptionMetadata()
             {

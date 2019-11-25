@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using SkunkLab.Channels;
+﻿using SkunkLab.Channels;
 using SkunkLab.Protocols.Coap;
 using SkunkLab.Protocols.Coap.Handlers;
 using SkunkLab.Security.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SkunkLab.Clients.Coap
 {
     public class PiraeusCoapClient
-    {        
+    {
         public PiraeusCoapClient(CoapConfig config, IChannel channel, SecurityTokenType tokenType, string securityToken, ICoapRequestDispatch dispatcher = null)
             : this(config, channel, dispatcher)
         {
@@ -24,7 +24,7 @@ namespace SkunkLab.Clients.Coap
             this.config = config;
             this.pingId = new List<ushort>();
             session = new CoapSession(config);
-            
+
             observers = new Dictionary<string, string>();
             this.dispatcher = dispatcher;
             this.channel = channel;
@@ -40,7 +40,7 @@ namespace SkunkLab.Clients.Coap
             queue = new Queue<byte[]>();
         }
 
-        
+
         private SecurityTokenType tokenType;
         private string securityToken;
         private Dictionary<string, string> observers;
@@ -50,14 +50,14 @@ namespace SkunkLab.Clients.Coap
         private ICoapRequestDispatch dispatcher;
         private List<ushort> pingId;
         private Queue<byte[]> queue;
-        
+
         private bool usedToken;
 
         public event System.EventHandler<CoapMessageEventArgs> OnPingResponse;
-        
+
         public async Task PublishAsync(string resourceUriString, string contentType, byte[] payload, bool confirmable, Action<CodeType, string, byte[]> action)
         {
-            if(!channel.IsConnected)
+            if (!channel.IsConnected)
             {
                 await ConnectAsync();
             }
@@ -74,19 +74,19 @@ namespace SkunkLab.Clients.Coap
 
             queue.Enqueue(cr.Encode());
 
-            while(queue.Count > 0)
+            while (queue.Count > 0)
             {
                 byte[] message = queue.Dequeue();
                 Task t = channel.SendAsync(message);
                 await Task.WhenAll(t);
-            }            
+            }
         }
 
-        
+
 
         public Task PublishAsync(string resourceUriString, string contentType, byte[] payload, NoResponseType nrt)
         {
-            if(!channel.IsConnected)
+            if (!channel.IsConnected)
             {
                 Open();
                 Receive();
@@ -98,8 +98,8 @@ namespace SkunkLab.Clients.Coap
             ushort id = session.CoapSender.NewId(token);
             string scheme = channel.IsEncrypted ? "coaps" : "coap";
             string coapUriString = GetCoapUriString(scheme, config.Authority, resourceUriString);
-            
-            
+
+
             CoapRequest cr = new CoapRequest(id, RequestMessageType.NonConfirmable, MethodType.POST, new Uri(coapUriString), MediaTypeConverter.ConvertToMediaType(contentType), payload);
             cr.NoResponse = nrt;
             return channel.SendAsync(cr.Encode());
@@ -107,7 +107,7 @@ namespace SkunkLab.Clients.Coap
 
         public async Task SubscribeAsync(string resourceUriString, bool confirmable, Action<CodeType, string, byte[]> action)
         {
-            if(!channel.IsConnected)
+            if (!channel.IsConnected)
             {
                 await ConnectAsync();
             }
@@ -126,7 +126,7 @@ namespace SkunkLab.Clients.Coap
 
         public async Task SubscribeAsync(string resourceUriString, NoResponseType nrt)
         {
-            if(!channel.IsConnected)
+            if (!channel.IsConnected)
             {
                 await ConnectAsync();
             }
@@ -144,7 +144,7 @@ namespace SkunkLab.Clients.Coap
 
         public async Task UnsubscribeAsync(string resourceUriString, bool confirmable, Action<CodeType, string, byte[]> action)
         {
-            if(!channel.IsConnected)
+            if (!channel.IsConnected)
             {
                 await ConnectAsync();
             }
@@ -162,7 +162,7 @@ namespace SkunkLab.Clients.Coap
 
         public async Task UnsubscribeAsync(string resourceUriString, NoResponseType nrt)
         {
-            if(!channel.IsConnected)
+            if (!channel.IsConnected)
             {
                 await ConnectAsync();
             }
@@ -180,7 +180,7 @@ namespace SkunkLab.Clients.Coap
 
         public async Task ObserveAsync(string resourceUriString, Action<CodeType, string, byte[]> action)
         {
-            if(!channel.IsConnected)
+            if (!channel.IsConnected)
             {
                 await ConnectAsync();
             }
@@ -200,14 +200,14 @@ namespace SkunkLab.Clients.Coap
 
         public async Task UnobserveAsync(string resourceUriString)
         {
-            if(!channel.IsConnected)
+            if (!channel.IsConnected)
             {
                 await ConnectAsync();
             }
 
             session.UpdateKeepAliveTimestamp();
 
-            if(observers.ContainsKey(resourceUriString))
+            if (observers.ContainsKey(resourceUriString))
             {
                 string tokenString = observers[resourceUriString];
                 byte[] token = Convert.FromBase64String(tokenString);
@@ -245,7 +245,7 @@ namespace SkunkLab.Clients.Coap
             //});
 
             //Task.WaitAll(task);
-                
+
         }
 
         private async Task ReceiveAsync(CoapMessageHandler handler)
@@ -275,7 +275,7 @@ namespace SkunkLab.Clients.Coap
 
         private void Channel_OnClose(object sender, ChannelCloseEventArgs args)
         {
-            
+
         }
 
         #endregion
@@ -288,7 +288,7 @@ namespace SkunkLab.Clients.Coap
                 await channel.OpenAsync();
                 Receive();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex.InnerException;
             }
@@ -326,7 +326,7 @@ namespace SkunkLab.Clients.Coap
             if (!usedToken && securityToken != null && (tokenType != SecurityTokenType.NONE || tokenType != SecurityTokenType.X509))
             {
                 usedToken = true;
-                return String.Format("{0}://{1}?r={2}&tt={3}&t={4}", scheme, config.Authority, resourceUriString, tokenType.ToString(), securityToken);                
+                return String.Format("{0}://{1}?r={2}&tt={3}&t={4}", scheme, config.Authority, resourceUriString, tokenType.ToString(), securityToken);
             }
             else
             {

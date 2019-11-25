@@ -17,10 +17,10 @@ namespace SkunkLab.Protocols.Coap
             list = new List<CoapOption>(options);
         }
 
-        
+
         private List<CoapOption> list;
         public int IndexOf(CoapOption item)
-        {            
+        {
             return list.IndexOf(item);
         }
 
@@ -93,9 +93,9 @@ namespace SkunkLab.Protocols.Coap
 
         public bool ContainsContentFormat()
         {
-            foreach(CoapOption item in this.list)
+            foreach (CoapOption item in this.list)
             {
-                if(item.Type == OptionType.ContentFormat)
+                if (item.Type == OptionType.ContentFormat)
                 {
                     return true;
                 }
@@ -123,28 +123,28 @@ namespace SkunkLab.Protocols.Coap
             UriBuilder builder = new UriBuilder();
             StringBuilder pathBuilder = new StringBuilder();
             StringBuilder queryBuilder = new StringBuilder();
-            
 
-            foreach(CoapOption item in this.list)
+
+            foreach (CoapOption item in this.list)
             {
-                if(item.Type == OptionType.UriHost)
+                if (item.Type == OptionType.UriHost)
                 {
                     builder.Scheme = "coaps";
                     builder.Host = item.Value as string;
                 }
 
-                if(item.Type == OptionType.UriPort)
+                if (item.Type == OptionType.UriPort)
                 {
                     builder.Port = Convert.ToInt32(item.Value);
                 }
 
-                if(item.Type == OptionType.UriPath)
+                if (item.Type == OptionType.UriPath)
                 {
                     pathBuilder.Append(item.Value as string);
                     pathBuilder.Append("/");
                 }
 
-                if(item.Type == OptionType.UriQuery)
+                if (item.Type == OptionType.UriQuery)
                 {
                     queryBuilder.Append(item.Value as string);
                     queryBuilder.Append("&");
@@ -154,12 +154,12 @@ namespace SkunkLab.Protocols.Coap
             string path = pathBuilder.ToString();
             string query = queryBuilder.ToString();
 
-            if(path.Length > 0)
+            if (path.Length > 0)
             {
                 builder.Path = "/" + path.Substring(0, path.Length - 1);
             }
 
-            if(query.Length > 0)
+            if (query.Length > 0)
             {
                 builder.Query = query.Substring(0, query.Length - 1);
             }
@@ -167,7 +167,7 @@ namespace SkunkLab.Protocols.Coap
             return builder.Scheme == "http" ? null : builder.Uri;
         }
 
-        
+
 
         public object GetOptionValue(OptionType type)
         {
@@ -186,20 +186,20 @@ namespace SkunkLab.Protocols.Coap
         {
             List<object> options = new List<object>();
 
-            foreach(CoapOption op in this.list)
+            foreach (CoapOption op in this.list)
             {
-                if(op.Type == type)
+                if (op.Type == type)
                 {
                     options.Add(op.Value);
                 }
             }
 
-            if(options.Count > 0)
+            if (options.Count > 0)
             {
                 return options.ToArray();
             }
             else
-            {                
+            {
                 return null;
             }
         }

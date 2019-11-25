@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Piraeus.Core.Metadata;
+using System;
 using System.Management.Automation;
-using Piraeus.Core.Metadata;
 
 namespace Piraeus.Module
 {
@@ -21,7 +21,7 @@ namespace Piraeus.Module
             string url = String.Format("{0}/api/resource/GetPISystemMetadata?ResourceUriString={1}", ServiceUrl, ResourceUriString);
             RestRequestBuilder builder = new RestRequestBuilder("GET", url, RestConstants.ContentType.Json, true, SecurityToken);
             RestRequest request = new RestRequest(builder);
-                       
+
 
             EventMetadata metadata = request.Get<EventMetadata>();
 

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace SkunkLab.Protocols.Coap.Handlers
 {
     public class CoapDeleteHandler : CoapMessageHandler
     {
-        public CoapDeleteHandler(CoapSession session, CoapMessage message, ICoapRequestDispatch dispatcher = null) 
+        public CoapDeleteHandler(CoapSession session, CoapMessage message, ICoapRequestDispatch dispatcher = null)
             : base(session, message, dispatcher)
         {
             session.EnsureAuthentication(message);

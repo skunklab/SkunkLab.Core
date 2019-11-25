@@ -1,9 +1,7 @@
 ﻿namespace SkunkLab.Channels.WebSocket
 {
-   
+
     using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.WebSockets;
-    using System;
     using System.Net.WebSockets;
     using System.Threading.Tasks;
 

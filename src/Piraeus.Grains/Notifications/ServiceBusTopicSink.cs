@@ -57,16 +57,16 @@ namespace Piraeus.Grains.Notifications
                 brokerMessage.ContentType = message.ContentType;
                 brokerMessage.MessageId = message.MessageId;
                 await client.SendAsync(brokerMessage);
-                record = new MessageAuditRecord(message.MessageId, String.Format("sb://{0}/{1}",uri.Authority, topic), "ServiceBus", "ServiceBus", message.Message.Length, MessageDirectionType.Out, true, DateTime.UtcNow);
+                record = new MessageAuditRecord(message.MessageId, String.Format("sb://{0}/{1}", uri.Authority, topic), "ServiceBus", "ServiceBus", message.Message.Length, MessageDirectionType.Out, true, DateTime.UtcNow);
             }
             catch (Exception ex)
             {
-                Trace.TraceError("Service bus failed to send to topic with error {0}",ex.Message);
+                Trace.TraceError("Service bus failed to send to topic with error {0}", ex.Message);
                 record = new MessageAuditRecord(message.MessageId, String.Format("sb://{0}/{1}", uri.Authority, topic), "ServiceBus", "ServiceBus", message.Message.Length, MessageDirectionType.Out, false, DateTime.UtcNow, ex.Message);
             }
             finally
             {
-                if(message.Audit && record != null)
+                if (message.Audit && record != null)
                 {
                     await auditor?.WriteAuditRecordAsync(record);
                 }
@@ -92,7 +92,7 @@ namespace Piraeus.Grains.Notifications
             }
         }
 
-     
+
 
 
     }

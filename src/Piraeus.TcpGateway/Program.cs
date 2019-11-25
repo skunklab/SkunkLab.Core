@@ -1,33 +1,41 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Orleans;
+using Piraeus.Configuration;
+using Piraeus.Core.Logging;
+using Piraeus.Extensions.Configuration;
+using Piraeus.Extensions.Logging;
 
 namespace Piraeus.TcpGateway
 {
     class Program
     {
-       
-        private static ManualResetEventSlim done;
-
-
         static void Main(string[] args)
         {
-            IServiceCollection services = new ServiceCollection();
-            Startup startup = new Startup(null);
-            startup.ConfigureServices(services);
-            
-
-            done = new ManualResetEventSlim(false);
-
-            Console.CancelKeyPress += (sender, eventArgs) =>
-            {
-
-                done.Set();
-                eventArgs.Cancel = true;
-            };
-
-            Console.WriteLine("TCP Gateway is ready...");
-            done.Wait();
+            CreateHostBuilder(args).Build().Run();
         }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureServices((hostContext, services) =>
+                {
+                    //PiraeusConfig config;
+                    services.AddPiraeusConfiguration(out PiraeusConfig config);
+                    if (!string.IsNullOrEmpty(config.AppInsightsKey))
+                    {
+                        services.AddApplicationInsightsTelemetry(op =>
+                        {
+                            op.InstrumentationKey = config.AppInsightsKey;
+                            op.AddAutoCollectedMetricExtractor = true;
+                            op.EnableHeartbeat = true;
+                        });
+                    }
+                    
+                    services.AddOrleansConfiguration(); //add orleans config as singleton
+                    services.AddLogging(builder => builder.AddLogging(config));
+                    services.AddSingleton<Logger>();    //add the logger
+                    services.AddHostedService<TcpGatewayHost>(); //start the service
+                });
     }
 }

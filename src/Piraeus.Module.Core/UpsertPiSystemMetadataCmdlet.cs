@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Piraeus.Core.Metadata;
+using System;
 using System.Management.Automation;
-using Newtonsoft.Json;
-using Piraeus.Core.Metadata;
 
 namespace Piraeus.Module
 {
@@ -14,34 +13,34 @@ namespace Piraeus.Module
         [Parameter(HelpMessage = "Security token used to access the REST service.", Mandatory = true)]
         public string SecurityToken;
 
-        [Parameter(HelpMessage = "Unique URI identifier of resource.", Mandatory =true)]
+        [Parameter(HelpMessage = "Unique URI identifier of resource.", Mandatory = true)]
         public string ResourceUriString;
 
-        [Parameter(HelpMessage ="Text description of resource.", Mandatory = false)]
+        [Parameter(HelpMessage = "Text description of resource.", Mandatory = false)]
         public string Description { get; set; }
 
-        [Parameter(HelpMessage ="Link to additional data about resource.", Mandatory =false)]
+        [Parameter(HelpMessage = "Link to additional data about resource.", Mandatory = false)]
         public string DiscoveryUrl { get; set; }
 
-        [Parameter(HelpMessage ="Enable the resource to receive messages.", Mandatory =true)]
+        [Parameter(HelpMessage = "Enable the resource to receive messages.", Mandatory = true)]
         public bool Enabled { get; set; }
 
-        [Parameter(HelpMessage ="Expiration of the resource.", Mandatory =false)]
+        [Parameter(HelpMessage = "Expiration of the resource.", Mandatory = false)]
         public DateTime? Expires { get; set; }
 
-        [Parameter(HelpMessage ="Maximum duration of a subscription", Mandatory =false)]
+        [Parameter(HelpMessage = "Maximum duration of a subscription", Mandatory = false)]
         public TimeSpan? MaxSubscriptionDuration { get; set; }
 
-        [Parameter(HelpMessage ="Enable audit", Mandatory =false)]
+        [Parameter(HelpMessage = "Enable audit", Mandatory = false)]
         public bool Audit { get; set; }
 
-        [Parameter(HelpMessage ="Require all messages over an encrypted channel.", Mandatory =false)]
+        [Parameter(HelpMessage = "Require all messages over an encrypted channel.", Mandatory = false)]
         public bool RequireEncryptedChannel { get; set; }
 
-        [Parameter(HelpMessage ="CAPL policy URI ID of the access control policy for publishing messages.", Mandatory =true)]
+        [Parameter(HelpMessage = "CAPL policy URI ID of the access control policy for publishing messages.", Mandatory = true)]
         public string PublishPolicyUriString { get; set; }
 
-        [Parameter(HelpMessage ="CAPL policy URI ID of the access control policy for subscribing to messages.", Mandatory =true)]
+        [Parameter(HelpMessage = "CAPL policy URI ID of the access control policy for subscribing to messages.", Mandatory = true)]
         public string SubscribePolicyUriString { get; set; }
 
         protected override void ProcessRecord()

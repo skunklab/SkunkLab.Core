@@ -1,18 +1,15 @@
-﻿using SkunkLab.Channels.Tcp;
+﻿using Microsoft.AspNetCore.Http;
+using Org.BouncyCastle.Crypto.Tls;
+using SkunkLab.Channels.Http;
+using SkunkLab.Channels.Tcp;
 using SkunkLab.Channels.Udp;
 using SkunkLab.Channels.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading;
-using SkunkLab.Channels.Http;
-using Microsoft.AspNetCore.Http;
-using System.Net.WebSockets;
-using Org.BouncyCastle.Crypto.Tls;
 
 namespace SkunkLab.Channels
 {
@@ -296,11 +293,10 @@ namespace SkunkLab.Channels
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        //public static IChannel Create(HttpRequestMessage request)
+
         public static IChannel Create(HttpContext context)
         {
             return HttpChannel.Create(context);
-            //return HttpChannel.Create(request);
         }
 
         /// <summary>

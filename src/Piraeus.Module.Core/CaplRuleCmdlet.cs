@@ -11,7 +11,7 @@ namespace Piraeus.Module
         public bool Evaluates;
 
         [Parameter(HelpMessage = "Name of issuer (optional)", Mandatory = false)]
-        public string Issuer;        
+        public string Issuer;
 
         [Parameter(HelpMessage = "CAPL Operation", Mandatory = true)]
         public EvaluationOperation Operation;
@@ -22,7 +22,7 @@ namespace Piraeus.Module
         protected override void ProcessRecord()
         {
             //Rule rule = new Rule(this.MatchExpression, this.Operation, this.Evaluates);
-           
+
 
             Rule rule = new Rule();
             rule.Evaluates = this.Evaluates;

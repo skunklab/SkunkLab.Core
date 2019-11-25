@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
   <Target Name="ChangeAliasesOfStrongNameAssemblies" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
@@ -19,21 +19,27 @@
     <PackageReference Include="Microsoft.Azure.EventGrid" Version="3.0.0" />
     <PackageReference Include="Microsoft.Azure.EventHubs" Version="2.2.1" />
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="3.2.1" />
-    <PackageReference Include="Microsoft.Orleans.Client" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="2.3.0">
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Orleans.Client" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Orleans.Core" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Orleans.OrleansAzureUtils" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Orleans.OrleansProviders" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Orleans.OrleansRuntime" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Orleans.Core" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Orleans.OrleansAzureUtils" Version="2.4.3" />
+    <PackageReference Include="Microsoft.Orleans.OrleansProviders" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Orleans.OrleansRuntime" Version="3.0.0" />
+    <PackageReference Include="Microsoft.Orleans.OrleansTelemetryConsumers.AI" Version="3.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.0.519" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Orleans.Clustering.Redis\Orleans.Clustering.Redis.csproj" />
+    <ProjectReference Include="..\Orleans.Storage.Redis\Orleans.Storage.Redis.csproj" />
     <ProjectReference Include="..\Piraeus.Auditing\Piraeus.Auditing.csproj" />
+    <ProjectReference Include="..\Piraeus.Configuration\Piraeus.Configuration.csproj" />
     <ProjectReference Include="..\Piraeus.Core\Piraeus.Core.csproj" />
     <ProjectReference Include="..\Piraeus.GrainInterfaces\Piraeus.GrainInterfaces.csproj" />
     <ProjectReference Include="..\SkunkLab.Protocols\SkunkLab.Protocols.csproj" />

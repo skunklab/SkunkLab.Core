@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Orleans.Configuration;
 using Orleans.Runtime;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Binary;
+using System;
 using System.Linq;
-using Microsoft.Extensions.Options;
-using Orleans.Configuration;
-using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Orleans.Clustering.Redis
 {
@@ -24,7 +23,7 @@ namespace Orleans.Clustering.Redis
 
         public RedisMembershipTable(ILogger<RedisMembershipTable> logger, IOptions<RedisClusteringOptions> membershipTableOptions, IOptions<ClusterOptions> clusterOptions)
         {
-            
+
             this.logger = logger;
             ConfigurationOptions configOptions = null;
 
@@ -47,7 +46,7 @@ namespace Orleans.Clustering.Redis
                 };
             }
 
-            if(membershipTableOptions.Value.IsLocalDocker)
+            if (membershipTableOptions.Value.IsLocalDocker)
             {
                 IPAddress address = GetIPAddress(configOptions.EndPoints[0]);
                 EndPoint endpoint = configOptions.EndPoints[0];
@@ -72,7 +71,7 @@ namespace Orleans.Clustering.Redis
             {
                 await database.KeyDeleteAsync(clusterId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger?.LogError(ex, "Redis membership table key '{0}' failed delete table entries.", clusterId);
                 throw ex;
@@ -122,9 +121,9 @@ namespace Orleans.Clustering.Redis
                         break;
                     }
                 }
-                    return ret;
+                return ret;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger?.LogError(ex, "Redis membership table key '{0}' failed insert row.", clusterId);
                 throw ex;
@@ -142,7 +141,7 @@ namespace Orleans.Clustering.Redis
                 {
                     long ticks = DateTime.UtcNow.Ticks;
                     await database.StringSetAsync("locktoken", ticks.ToString(), new TimeSpan(0, 0, 10));
-                    
+
                     var val = await database.StringGetAsync(clusterId);
 
                     if (!val.IsNull)
@@ -168,7 +167,7 @@ namespace Orleans.Clustering.Redis
 
                 return data;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger?.LogError(ex, "Redis membership table key '{0}' failed read all.", clusterId);
                 throw ex;
@@ -211,7 +210,7 @@ namespace Orleans.Clustering.Redis
 
                 return data;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger?.LogError(ex, "Redis membership table key '{0}' failed read row.", clusterId);
                 throw ex;
@@ -234,13 +233,13 @@ namespace Orleans.Clustering.Redis
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger?.LogError(ex, "Redis membership table key '{0}' failed update i-am-alive.", clusterId);
                 throw ex;
             }
 
-            
+
         }
 
         public async Task<bool> UpdateRow(MembershipEntry entry, string etag, TableVersion tableVersion)
@@ -290,7 +289,7 @@ namespace Orleans.Clustering.Redis
 
                 return ret;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger?.LogError(ex, "Redis membership table key '{0}' failed update row.", clusterId);
                 throw ex;
@@ -315,13 +314,13 @@ namespace Orleans.Clustering.Redis
         private IPAddress GetIPAddress(EndPoint endpoint)
         {
             DnsEndPoint dnsEndpoint = endpoint as DnsEndPoint;
-            if(dnsEndpoint != null)
+            if (dnsEndpoint != null)
             {
-                return GetIPAddress(dnsEndpoint.Host);               
+                return GetIPAddress(dnsEndpoint.Host);
             }
 
             IPEndPoint ipEndpoint = endpoint as IPEndPoint;
-            if(ipEndpoint != null)
+            if (ipEndpoint != null)
             {
                 return ipEndpoint.Address;
             }

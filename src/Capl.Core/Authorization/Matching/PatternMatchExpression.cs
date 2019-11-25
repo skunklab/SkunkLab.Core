@@ -9,8 +9,8 @@ namespace Capl.Authorization.Matching
 {
     using System;
     using System.Collections.Generic;
-    using System.Text.RegularExpressions;
     using System.Security.Claims;
+    using System.Text.RegularExpressions;
 
     /// <summary>
     /// Matches the string literal of a claim type and optional regular expression of the claim value.
@@ -36,7 +36,7 @@ namespace Capl.Authorization.Matching
             Regex regex = new Regex(pattern);
 
             ClaimsIdentity ci = new ClaimsIdentity(claims);
-            IEnumerable<Claim> claimSet = ci.FindAll(delegate(Claim claim)
+            IEnumerable<Claim> claimSet = ci.FindAll(delegate (Claim claim)
             {
                 return (claimType == claim.Type);
             });

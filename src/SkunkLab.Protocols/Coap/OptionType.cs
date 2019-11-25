@@ -26,6 +26,6 @@ namespace SkunkLab.Protocols.Coap
         //empty = 5
         //string = 2,8,11,15,20,35,39
         //uint = 7,12,14,17,60
-      
+
     }
 }

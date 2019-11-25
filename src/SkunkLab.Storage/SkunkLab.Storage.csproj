@@ -1,22 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <RootNamespace>SkunkLab.Storage</RootNamespace>
     <AssemblyName>SkunkLab.Storage</AssemblyName>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
-    <Version>1.2.0</Version>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Description>SkunkLab storage library for netcore v2.2</Description>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/skunklab/piraeus/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/skunklab/piraeus</PackageProjectUrl>
-    <PackageIconUrl>https://avatars2.githubusercontent.com/u/25301165?s=40&amp;amp;u=f8ab917e074351e186df6a41b4d3d764f6b5af96&amp;amp;v=4</PackageIconUrl>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
+    <Version>3.0.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Storage library for netcore v3.0. Blob, Table, Queue, File.</Description>    
+    <PackageProjectUrl>https://github.com/skunklab/bitrt</PackageProjectUrl>    
     <RepositoryUrl>https://github.com/skunklab/piraeus</RepositoryUrl>
-    <PackageTags>SkunkLab Piraeus Storage</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>skunklab.png</PackageIcon>
+    <PackageTags>SkunkLab Storage BitRT</PackageTags>
     <Authors>theskunklab@gmail.com</Authors>
     <Company>SkunkLab</Company>
+    <Product>SkunkLab storage library</Product>
   </PropertyGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.0" />
@@ -25,6 +27,16 @@
     <PackageReference Include="StackExchange.Redis.Extensions.Binary" Version="4.0.5" />
     <PackageReference Include="System.ServiceModel.Primitives" Version="4.5.3" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.2" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="skunklab.png" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="skunklab.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

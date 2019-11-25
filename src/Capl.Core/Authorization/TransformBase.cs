@@ -7,12 +7,12 @@ MIT License
 
 namespace Capl.Authorization
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Security.Claims;
     using System.Xml;
     using System.Xml.Schema;
     using System.Xml.Serialization;
-    using System.Security.Claims;
-    using System.Collections.Generic;
-    using System;
 
     [Serializable]
     public abstract class TransformBase : IXmlSerializable

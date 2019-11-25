@@ -25,7 +25,7 @@ namespace Piraeus.Module
         [Parameter(HelpMessage = "(Optional) Audience to include in security token sent to Web service for symmetric key tokens.", Mandatory = false)]
         public string Audience;
 
-        [Parameter(HelpMessage ="Type of security token to be used when sending to Web service.", Mandatory =true)]
+        [Parameter(HelpMessage = "Type of security token to be used when sending to Web service.", Mandatory = true)]
         public SecurityTokenType TokenType;
 
         [Parameter(HelpMessage = "(Optional) Symmetric key used to build security token for authentication with Web service when TokenType is JWT or SWT.", Mandatory = false)]
@@ -40,8 +40,8 @@ namespace Piraeus.Module
 
             Uri uri = new Uri(uriString);
 
-            string query = !String.IsNullOrEmpty(Issuer) && !String.IsNullOrEmpty(Audience) ? String.Format("issuer={0}&audience={1}", Issuer, Audience) : 
-                           !String.IsNullOrEmpty(Issuer) ? String.Format("issuer={0}", Issuer) : 
+            string query = !String.IsNullOrEmpty(Issuer) && !String.IsNullOrEmpty(Audience) ? String.Format("issuer={0}&audience={1}", Issuer, Audience) :
+                           !String.IsNullOrEmpty(Issuer) ? String.Format("issuer={0}", Issuer) :
                            !String.IsNullOrEmpty(Audience) ? String.Format("audience={0}", Audience) : null;
 
 

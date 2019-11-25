@@ -14,7 +14,7 @@ namespace Piraeus.Module
         private RestRequestBuilder requestBuilder;
 
         public override T Get<T>()
-        {            
+        {
             string contentType = requestBuilder.ContentType.ToLowerInvariant();
             HttpWebRequest request = requestBuilder.BuildRequest();
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
@@ -25,7 +25,7 @@ namespace Piraeus.Module
             }
 
             byte[] buffer = new byte[16384];
-            byte[] msg  = null;
+            byte[] msg = null;
             int bytesRead = 0;
             using (Stream stream = response.GetResponseStream())
             {

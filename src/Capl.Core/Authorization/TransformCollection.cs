@@ -10,11 +10,9 @@ namespace Capl.Authorization
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Xml;
-    using System.Xml.Schema;
-    using System.Xml.Serialization;
     using System.Security.Claims;
-    using Capl.Authorization;
+    using System.Xml;
+    using System.Xml.Serialization;
 
     [Serializable]
     [XmlSchemaProvider(null, IsAny = true)]
@@ -130,7 +128,7 @@ namespace Capl.Authorization
             {
                 claims = transform.TransformClaims(claims);
             }
-            
+
 
             return claims;
         }
@@ -146,7 +144,7 @@ namespace Capl.Authorization
             {
                 throw new ArgumentNullException("reader");
             }
-            
+
             reader.MoveToRequiredStartElement(AuthorizationConstants.Elements.Transforms);
 
             while (reader.Read())
@@ -160,7 +158,7 @@ namespace Capl.Authorization
                 {
                     break;
                 }
-            }            
+            }
         }
 
         public override void WriteXml(XmlWriter writer)
@@ -174,7 +172,7 @@ namespace Capl.Authorization
             {
                 return;
             }
-            
+
             writer.WriteStartElement(AuthorizationConstants.Elements.Transforms, AuthorizationConstants.Namespaces.Xmlns);
 
             foreach (ClaimTransform transform in this)
@@ -182,7 +180,7 @@ namespace Capl.Authorization
                 transform.WriteXml(writer);
             }
 
-            writer.WriteEndElement();            
+            writer.WriteEndElement();
         }
 
         #endregion

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Timers;
 using System.Linq;
+using System.Timers;
 
 namespace SkunkLab.Protocols.Coap
 {
@@ -17,7 +17,7 @@ namespace SkunkLab.Protocols.Coap
             retryContainer = new Dictionary<ushort, Tuple<DateTime, int, CoapMessage>>();
             container = new Dictionary<ushort, Tuple<string, DateTime, Action<CodeType, string, byte[]>>>();
             observeContainer = new Dictionary<string, Action<CodeType, string, byte[]>>();
-        }        
+        }
 
         private double lifetimeMilliseconds;
         private double retryMilliseconds;
@@ -25,7 +25,7 @@ namespace SkunkLab.Protocols.Coap
         private ushort currentId;
         private Timer timer;
         private bool disposedValue;
-        
+
         private Dictionary<string, Action<CodeType, string, byte[]>> observeContainer;
         private Dictionary<ushort, Tuple<string, DateTime, Action<CodeType, string, byte[]>>> container;
         private Dictionary<ushort, Tuple<DateTime, int, CoapMessage>> retryContainer;
@@ -34,15 +34,15 @@ namespace SkunkLab.Protocols.Coap
         public void Unobserve(byte[] token)
         {
             string tokenString = Convert.ToBase64String(token);
-            if(observeContainer.ContainsKey(tokenString))
+            if (observeContainer.ContainsKey(tokenString))
             {
                 observeContainer.Remove(tokenString);
             }
         }
-        
+
         public ushort NewId(byte[] token, bool? observe = null, Action<CodeType, string, byte[]> action = null)
         {
-            if(observe.HasValue && observe.Value && action == null)
+            if (observe.HasValue && observe.Value && action == null)
             {
                 throw new ArgumentNullException("action");
             }
@@ -50,7 +50,7 @@ namespace SkunkLab.Protocols.Coap
             currentId++;
             currentId = currentId == ushort.MaxValue ? (ushort)1 : currentId;
 
-            while(container.ContainsKey(currentId))
+            while (container.ContainsKey(currentId))
             {
                 currentId++;
                 currentId = currentId == ushort.MaxValue ? (ushort)1 : currentId;
@@ -71,7 +71,7 @@ namespace SkunkLab.Protocols.Coap
 
         public void AddMessage(CoapMessage message)
         {
-            if(message.MessageType == CoapMessageType.Confirmable)
+            if (message.MessageType == CoapMessageType.Confirmable)
             {
                 if (!retryContainer.ContainsKey(message.MessageId))
                 {
@@ -84,16 +84,16 @@ namespace SkunkLab.Protocols.Coap
         {
             var observeQuery = observeContainer.Where((c) => c.Key == Convert.ToBase64String(message.Token));
 
-            foreach(var item in observeQuery)
+            foreach (var item in observeQuery)
             {
                 item.Value(message.Code, MediaTypeConverter.ConvertFromMediaType(message.ContentType), message.Payload);
             }
-            
-            if(observeQuery.Count() == 0)
+
+            if (observeQuery.Count() == 0)
             {
                 var query = container.Where((c) => c.Value.Item1 == Convert.ToBase64String(message.Token));
                 KeyValuePair<ushort, Tuple<string, DateTime, Action<CodeType, string, byte[]>>>[] kvps = query.ToArray();
-                foreach(var kvp in kvps)
+                foreach (var kvp in kvps)
                 {
                     kvp.Value.Item3(message.Code, MediaTypeConverter.ConvertFromMediaType(message.ContentType), message.Payload);
                     container.Remove(kvp.Key);
@@ -104,7 +104,7 @@ namespace SkunkLab.Protocols.Coap
             //if(observeQuery.Count() == 0 && query.Count() >= 1)
             //{
             //    query.First().Value.Item3(message.Code, MediaTypeConverter.ConvertFromMediaType(message.ContentType), message.Payload);
-                
+
             //    Remove(query.First().Key);
 
             //    container.Remove(query.First().Key);
@@ -135,16 +135,16 @@ namespace SkunkLab.Protocols.Coap
             List<ushort> list = new List<ushort>();
             if (query != null && query.Count() > 0)
             {
-                foreach(var item in query)
+                foreach (var item in query)
                 {
                     list.Add(item.Key);
                 }
             }
 
-            foreach(var item in list)
+            foreach (var item in list)
             {
                 container.Remove(item);
-                if(retryContainer.ContainsKey(item))
+                if (retryContainer.ContainsKey(item))
                 {
                     retryContainer.Remove(item);
                 }
@@ -202,7 +202,7 @@ namespace SkunkLab.Protocols.Coap
             {
                 if (disposing)
                 {
-                    if(timer != null)
+                    if (timer != null)
                     {
                         timer.Stop();
                         timer.Dispose();

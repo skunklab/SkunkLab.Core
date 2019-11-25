@@ -16,10 +16,10 @@ namespace SkunkLab.Channels.Udp
             this.client = listener;
             this.remoteEP = remoteEP;
             this.token = token;
-            
+
         }
 
-        
+
         private IPEndPoint remoteEP;
         private UdpClient client;
         private ChannelState _state;
@@ -64,7 +64,7 @@ namespace SkunkLab.Channels.Udp
             }
             internal set
             {
-                if(value != _state)
+                if (value != _state)
                 {
                     OnStateChange?.Invoke(this, new ChannelStateEventArgs(Id, value));
                 }
@@ -76,12 +76,12 @@ namespace SkunkLab.Channels.Udp
         public override async Task OpenAsync()
         {
             try
-            {                
+            {
                 State = ChannelState.Open; //the channel is already open by the listener
 
                 OnOpen?.Invoke(this, new ChannelOpenEventArgs(Id, null));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceError("UDP server channel {0} open error {1}", Id, ex.Message);
                 State = ChannelState.Aborted;
@@ -89,7 +89,7 @@ namespace SkunkLab.Channels.Udp
             }
 
             await Task.CompletedTask;
-            
+
         }
 
         public override async Task ReceiveAsync()
@@ -137,11 +137,11 @@ namespace SkunkLab.Channels.Udp
         public override async Task SendAsync(byte[] message)
         {
             try
-            {               
+            {
                 await client.SendAsync(message, message.Length, remoteEP);
             }
-            catch(Exception ex)
-            {             
+            catch (Exception ex)
+            {
                 Trace.TraceError("UDP server channel {0} send error {1}", Id, ex.Message);
                 OnError?.Invoke(this, new ChannelErrorEventArgs(Id, ex));
             }

@@ -8,11 +8,10 @@ MIT License
 namespace Capl.Authorization
 {
     using System;
-    using System.Collections.ObjectModel;
+    using System.Collections.Generic;
+    using System.Security.Claims;
     using System.Xml;
     using System.Xml.Serialization;
-    using System.Security.Claims;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Performs a logical conjunction (Logical AND) on a collection of objects implementing IEvaluate.
@@ -39,17 +38,17 @@ namespace Capl.Authorization
 
             return lac;
 
-            
-          
-                //Adds an object to the end of the Capl.Authorization.LogicalAndCollection
-                //Removes all element from the Capl.Authorization.LogicalAndCollection
-                //Determines whether an element in the Capl.Authorization.LogicalAndCollection
-                //Copies the entire Capl.Authorization.LogicalAndCollection to a compatible one-dimensional array System.Array, starting at the specified index of the target array.
-                //Gets the number of element actually contained in the Capl.Authorization.LogicalAndCollection
-                //Returns an enumerator that iterates through the Capl.Authorization.LogicalAndCollection
-                // Inserts an elmenent into the Capl.Authorization.LogicalAndCollection at the specified location.
-                //Remmoves the first occurrence of a specifed object from the Capl.Authorization.LogicalAndCollection
-                //Removes the element at a specified index from the Capl.Authorization.LogicalAndCollection
+
+
+            //Adds an object to the end of the Capl.Authorization.LogicalAndCollection
+            //Removes all element from the Capl.Authorization.LogicalAndCollection
+            //Determines whether an element in the Capl.Authorization.LogicalAndCollection
+            //Copies the entire Capl.Authorization.LogicalAndCollection to a compatible one-dimensional array System.Array, starting at the specified index of the target array.
+            //Gets the number of element actually contained in the Capl.Authorization.LogicalAndCollection
+            //Returns an enumerator that iterates through the Capl.Authorization.LogicalAndCollection
+            // Inserts an elmenent into the Capl.Authorization.LogicalAndCollection at the specified location.
+            //Remmoves the first occurrence of a specifed object from the Capl.Authorization.LogicalAndCollection
+            //Removes the element at a specified index from the Capl.Authorization.LogicalAndCollection
         }
 
         /// <summary>
@@ -65,7 +64,7 @@ namespace Capl.Authorization
             }
 
             bool eval = false;
-            
+
             foreach (Term item in this)
             {
                 eval = item.Evaluate(claims);
@@ -85,7 +84,7 @@ namespace Capl.Authorization
 
             return this.Evaluates;
         }
-        
+
 
         /// <summary>
         /// Reads the Xml of a logical AND.
@@ -97,7 +96,7 @@ namespace Capl.Authorization
             {
                 throw new ArgumentNullException("reader");
             }
-            
+
             reader.MoveToRequiredStartElement(AuthorizationConstants.Elements.LogicalAnd);
             string evaluates = reader.GetOptionalAttribute(AuthorizationConstants.Attributes.Evaluates);
             string termId = reader.GetOptionalAttribute(AuthorizationConstants.Attributes.TermId);
@@ -127,11 +126,12 @@ namespace Capl.Authorization
                 if (reader.IsRequiredStartElement(AuthorizationConstants.Elements.Rule))
                 {
                     this.Add(Rule.Load(reader));
-                }               
+                }
 
                 if (reader.IsRequiredEndElement(AuthorizationConstants.Elements.LogicalAnd))
                 {
-                    break;
+                    return;
+                    //break;
                 }
             }
 
@@ -163,7 +163,7 @@ namespace Capl.Authorization
                 eval.WriteXml(writer);
             }
 
-            writer.WriteEndElement();            
+            writer.WriteEndElement();
         }
     }
 }

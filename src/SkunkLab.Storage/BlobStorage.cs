@@ -48,14 +48,14 @@ namespace SkunkLab.Storage
             client.DefaultRequestOptions.SingleBlobUploadThresholdInBytes = 1048576;
             client.DefaultRequestOptions.RetryPolicy = new ExponentialRetry(TimeSpan.FromMilliseconds(10000), 8);
             client.DefaultRequestOptions.MaximumExecutionTime = TimeSpan.FromMinutes(3.0);
-            
+
 
             if (bufferManager != null)
             {
                 client.BufferManager = bufferManager;
             }
         }
-        
+
         public static BlobStorage CreateSingleton(string connectionString)
         {
             if (instance == null)
@@ -72,10 +72,10 @@ namespace SkunkLab.Storage
             bufferManager = new SkunkLabBufferManager(manager, defaultBufferSize);
             return CreateSingleton(connectionString);
         }
-        
+
         public static BlobStorage New(string connectionString, long maxBufferPoolSize = 0, int defaultBufferSize = 0)
         {
-            if(maxBufferPoolSize > 0)
+            if (maxBufferPoolSize > 0)
             {
                 BufferManager manager = BufferManager.CreateBufferManager(maxBufferPoolSize, defaultBufferSize);
                 bufferManager = new SkunkLabBufferManager(manager, defaultBufferSize);
@@ -83,7 +83,7 @@ namespace SkunkLab.Storage
 
             return new BlobStorage(connectionString);
         }
-        
+
         public static BlobStorage New(string connectionString, string sasToken, long maxBufferPoolSize = 0, int defaultBufferSize = 0)
         {
             if (maxBufferPoolSize > 0)
@@ -94,7 +94,7 @@ namespace SkunkLab.Storage
 
             return new BlobStorage(connectionString, sasToken);
         }
-        
+
         #region Blob Writers
 
         #region Block Blob Writers
@@ -135,8 +135,8 @@ namespace SkunkLab.Storage
 
                 await blob.UploadFromStreamAsync(source, default(AccessCondition), default(BlobRequestOptions), default(OperationContext), progressHandler, token);
             }
-            catch(Exception ex)
-            {                
+            catch (Exception ex)
+            {
                 if (ex.InnerException is TaskCanceledException)
                 {
                     source = null;
@@ -152,12 +152,12 @@ namespace SkunkLab.Storage
                 watch.Stop();
                 OnUploadCompleted?.Invoke(this, new BlobCompleteEventArgs(containerName, filename, token.IsCancellationRequested, error));
             }
-            
+
         }
-       
+
         public async Task WriteBlockBlobAsync(string containerName, string filename, byte[] source, string contentType = "application/octet-stream", CancellationToken token = default(CancellationToken))
         {
-            if(string.IsNullOrEmpty(filename))
+            if (string.IsNullOrEmpty(filename))
             {
                 throw new ArgumentNullException("filename");
             }
@@ -191,7 +191,7 @@ namespace SkunkLab.Storage
 
                 await blob.UploadFromByteArrayAsync(source, 0, source.Length, default(AccessCondition), default(BlobRequestOptions), default(OperationContext), progressHandler, token);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (ex.InnerException is TaskCanceledException)
                 {
@@ -212,7 +212,7 @@ namespace SkunkLab.Storage
         #endregion
 
         #region Page Blob Writers
-                
+
         public async Task WritePageBlobAsync(string containerName, string filename, Stream source, string contentType = "application/octet-stream", CancellationToken token = default(CancellationToken))
         {
             if (string.IsNullOrEmpty(filename))
@@ -249,7 +249,7 @@ namespace SkunkLab.Storage
                 blob.Properties.ContentType = contentType;
                 await blob.UploadFromStreamAsync(source, null, default(AccessCondition), default(BlobRequestOptions), default(OperationContext), progressHandler, token);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (ex.InnerException is TaskCanceledException)
                 {
@@ -327,7 +327,7 @@ namespace SkunkLab.Storage
 
         #region Append Blob Writers
 
-      
+
         public async Task WriteAppendBlobAsync(string containerName, string filename, Stream source, string contentType = "application/octet-stream", CancellationToken token = default(CancellationToken))
         {
             if (string.IsNullOrEmpty(filename))
@@ -362,7 +362,7 @@ namespace SkunkLab.Storage
                 CloudAppendBlob blob = container.GetAppendBlobReference(filename);
                 await blob.UploadFromStreamAsync(source, default(AccessCondition), default(BlobRequestOptions), default(OperationContext), progressHandler, token);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 if (ex.InnerException is TaskCanceledException)
                 {
@@ -378,10 +378,10 @@ namespace SkunkLab.Storage
             {
                 watch.Stop();
                 OnUploadCompleted?.Invoke(this, new BlobCompleteEventArgs(containerName, filename, token.IsCancellationRequested, error));
-            }           
-            
+            }
+
         }
-                        
+
         public async Task WriteAppendBlobAsync(string containerName, string filename, byte[] source, string contentType = "application/octet-stream", CancellationToken token = default(CancellationToken))
         {
             if (string.IsNullOrEmpty(filename))
@@ -441,14 +441,14 @@ namespace SkunkLab.Storage
 
 
         #endregion
-        
+
         #endregion
 
         #region Blob Readers
 
         #region Block Blob Readers
 
-    
+
         public async Task<byte[]> ReadBlockBlobAsync(string containerName, string filename)
         {
             if (string.IsNullOrEmpty(filename))
@@ -464,7 +464,7 @@ namespace SkunkLab.Storage
         #endregion
 
         #region Page Blob Readers
-        
+
 
         public async Task<byte[]> ReadPageBlobAsync(string containerName, string filename)
         {
@@ -504,8 +504,8 @@ namespace SkunkLab.Storage
             CloudBlobContainer container = await GetContainerReferenceAsync(containerName);
             return await container.ListBlobsSegmentedAsync(token);
         }
-        
-     
+
+
         public async Task<BlobResultSegment> ListBlobsSegmentedAsync(string containerName, BlobContinuationToken token)
         {
             try
@@ -660,13 +660,13 @@ namespace SkunkLab.Storage
                     await stream.FlushAsync();
                     stream.Close();
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Trace.TraceWarning("Blob upload failed with {0}", ex.Message);
                     throw ex;
                 }
             }
-            
+
         }
 
         private async Task UploadAsync(ICloudBlob blob, Stream stream)
@@ -676,14 +676,14 @@ namespace SkunkLab.Storage
                 await blob.UploadFromStreamAsync(stream);
             }
             catch (Exception ex)
-            {                
+            {
                 stream.Close();
                 Trace.TraceWarning("Blob write failed.");
                 Trace.TraceError(ex.Message);
                 throw ex;
             }
         }
-       
+
         private async Task AppendAsync(CloudAppendBlob blob, Stream stream)
         {
             try
@@ -692,14 +692,14 @@ namespace SkunkLab.Storage
                 await stream.FlushAsync();
                 stream.Close();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Blob append failed.");
                 Trace.TraceError(ex.Message);
                 throw ex;
             }
         }
-              
+
         public async Task<byte[]> DownloadAsync(ICloudBlob blob)
         {
             byte[] buffer = null;
@@ -710,7 +710,7 @@ namespace SkunkLab.Storage
             }
 
             return buffer;
-        }      
+        }
 
         public async Task<CloudBlobContainer> GetContainerReferenceAsync(string containerName)
         {

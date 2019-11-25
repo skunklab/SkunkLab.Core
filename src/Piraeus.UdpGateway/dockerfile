@@ -1,0 +1,7 @@
+﻿FROM mcr.microsoft.com/dotnet/core/runtime:3.0 AS runtime
+WORKDIR /app
+EXPOSE 5683
+EXPOSE 5883
+
+ENTRYPOINT ["dotnet", "Piraeus.UdpGateway.dll"]
+COPY . /app

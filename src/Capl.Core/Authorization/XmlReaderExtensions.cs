@@ -95,7 +95,7 @@ namespace Capl.Authorization
                 {
                     return;
                 }
-            }            
+            }
         }
 
         public static bool IsRequiredStartElement(this XmlReader reader, string localName)
@@ -110,7 +110,7 @@ namespace Capl.Authorization
 
         public static void MoveToRequiredStartElement(this XmlReader reader, string localName)
         {
-            MoveToRequiredStartElement(reader,localName, DefaultNamespace);
+            MoveToRequiredStartElement(reader, localName, DefaultNamespace);
         }
 
         /// <summary>
@@ -126,20 +126,20 @@ namespace Capl.Authorization
                 throw new ArgumentNullException("reader");
             }
 
-            if ((reader.IsEmptyElement && reader.LocalName == localName && reader.NamespaceURI == namespaceUri) || (reader.NodeType == XmlNodeType.Element && reader.LocalName == localName && reader.NamespaceURI == namespaceUri))           
+            if ((reader.IsEmptyElement && reader.LocalName == localName && reader.NamespaceURI == namespaceUri) || (reader.NodeType == XmlNodeType.Element && reader.LocalName == localName && reader.NamespaceURI == namespaceUri))
             {
                 return;
             }
 
             reader.MoveToElement();
-            
+
             while (reader.Read())
             {
                 if ((reader.IsEmptyElement && reader.LocalName == localName && reader.NamespaceURI == namespaceUri) || (reader.NodeType == XmlNodeType.Element && reader.LocalName == localName && reader.NamespaceURI == namespaceUri))
                 {
                     return;
                 }
-            }            
+            }
 
             throw new SerializationException(String.Format(CultureInfo.InvariantCulture, "Required element {0} in namespace {1} not found", localName, namespaceUri));
         }
@@ -207,6 +207,6 @@ namespace Capl.Authorization
         }
 
 
-        
+
     }
 }

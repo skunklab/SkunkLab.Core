@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Orleans;
+﻿using Orleans;
+using Orleans.Concurrency;
+using Orleans.Providers;
 using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
 using Piraeus.GrainInterfaces;
-using System.Linq;
-using Orleans.Providers;
 using Piraeus.Grains.Notifications;
-using Orleans.Concurrency;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 
 namespace Piraeus.Grains
 {
@@ -34,25 +36,25 @@ namespace Piraeus.Grains
 
         public override Task OnActivateAsync()
         {
-            if(State.ErrorLeases == null)
+            if (State.ErrorLeases == null)
             {
                 Dictionary<string, IErrorObserver> errorLeases = new Dictionary<string, IErrorObserver>();
                 State.ErrorLeases = errorLeases;
             }
 
-            if(State.LeaseExpiry == null)
+            if (State.LeaseExpiry == null)
             {
                 Dictionary<string, Tuple<DateTime, string>> leaseExpiry = new Dictionary<string, Tuple<DateTime, string>>();
                 State.LeaseExpiry = leaseExpiry;
             }
 
-            if(State.MessageLeases == null)
+            if (State.MessageLeases == null)
             {
                 Dictionary<string, IMessageObserver> messageLeases = new Dictionary<string, IMessageObserver>();
                 State.MessageLeases = messageLeases;
             }
 
-            if(State.MessageQueue == null)
+            if (State.MessageQueue == null)
             {
                 Queue<EventMessage> queueEvents = new Queue<EventMessage>();
                 State.MessageQueue = queueEvents;
@@ -90,7 +92,7 @@ namespace Piraeus.Grains
         #region ID
         public async Task<string> GetIdAsync()
         {
-            if(State.Metadata == null)
+            if (State.Metadata == null)
             {
                 return null;
             }
@@ -134,6 +136,21 @@ namespace Piraeus.Grains
 
         #region Notification
 
+        private List<Claim> GetClaims(List<KeyValuePair<string, string>> kvps)
+        {
+            List<Claim> list = null;
+            if (kvps != null)
+            {
+                list = new List<Claim>();
+                foreach (var kvp in kvps)
+                {
+                    list.Add(new Claim(kvp.Key, kvp.Value));
+                }
+            }
+
+            return list;
+        }
+
         public async Task NotifyAsync(EventMessage message)
         {
             Exception error = null;
@@ -148,7 +165,20 @@ namespace Piraeus.Grains
                 {
                     if (sink == null)
                     {
-                        sink = EventSinkFactory.Create(State.Metadata);
+                        if (!EventSinkFactory.IsInitialized)
+                        {
+                            IServiceIdentity identity = GrainFactory.GetGrain<IServiceIdentity>("PiraeusIdentity");
+                            byte[] certBytes = await identity.GetCertificateAsync();
+                            List<KeyValuePair<string, string>> kvps = await identity.GetClaimsAsync();
+                            X509Certificate2 certificate = certBytes == null ? null : new X509Certificate2(certBytes);
+                            List<Claim> claims = GetClaims(kvps);
+
+                            sink = EventSinkFactory.Create(State.Metadata, claims, certificate);
+                        }
+                        else
+                        {
+                            sink = EventSinkFactory.Create(State.Metadata);
+                        }
                     }
 
                     await sink.SendAsync(message);
@@ -173,7 +203,7 @@ namespace Piraeus.Grains
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Subscription publish failed to complete.");
                 Trace.TraceError("Subscription publish error {0}", ex.Message);
@@ -183,7 +213,7 @@ namespace Piraeus.Grains
 
             await NotifyMetricsAsync();
 
-            if(error != null)
+            if (error != null)
             {
                 await NotifyErrorAsync(error);
             }
@@ -199,8 +229,6 @@ namespace Piraeus.Grains
                     return;
                 }
 
-                
-                //var query = indexes.Where((c) => State.Metadata.Indexes.Contains(new KeyValuePair<string, string>(c.Key, c.Value)));
                 var query = indexes.Where((c) => (c.Value.First() != '~' && State.Metadata.Indexes.Contains(new KeyValuePair<string, string>(c.Key, c.Value))) || (c.Value.First() == '~' && !State.Metadata.Indexes.Contains(new KeyValuePair<string, string>(c.Key, c.Value.TrimStart('~')))));
 
                 if (indexes.Count == query.Count())
@@ -214,7 +242,7 @@ namespace Piraeus.Grains
                     State.LastMessageTimestamp = DateTime.UtcNow;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Subscription publish with indexes failed to complete.");
                 Trace.TraceError("Subscription publish with indexes error {0}", ex.Message);
@@ -273,7 +301,7 @@ namespace Piraeus.Grains
         }
         public async Task<string> AddObserverAsync(TimeSpan lifetime, IErrorObserver observer)
         {
-            if(observer == null)
+            if (observer == null)
             {
                 Exception ex = new ArgumentNullException("subscription error observer");
                 await NotifyErrorAsync(ex);
@@ -303,8 +331,8 @@ namespace Piraeus.Grains
             if (messageQuery.Count() == 1)
             {
                 State.MessageLeases.Remove(leaseKey);
-                
-               
+
+
                 if (State.MessageLeases.Count == 0 && State.Metadata.IsEphemeral)
                 {
                     //leaseTimer.Dispose();
@@ -375,7 +403,7 @@ namespace Piraeus.Grains
                     item.NotifyError(State.Metadata.SubscriptionUriString, ex);
                 }
             }
-            catch(Exception ex1)
+            catch (Exception ex1)
             {
                 Trace.TraceWarning("Subscription notify error failed to complete.");
                 Trace.TraceError("Subscription notify error with error {0}", ex1.Message);
@@ -397,7 +425,7 @@ namespace Piraeus.Grains
                     item.NotifyMetrics(new CommunicationMetrics(State.Metadata.SubscriptionUriString, State.MessageCount, State.ByteCount, State.ErrorCount, State.LastMessageTimestamp.Value, State.LastErrorTimestamp));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Subscription notify metrics failed to complete.");
                 Trace.TraceError("Subscription notify metrics with error {0}", ex.Message);
@@ -441,7 +469,7 @@ namespace Piraeus.Grains
                     State.LeaseExpiry.Remove(item);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Subscription check lease expiry failed.");
                 Trace.TraceError("Subscription check lease expiry with error {0}", ex.Message);
@@ -469,7 +497,7 @@ namespace Piraeus.Grains
                     messageQueueTimer = RegisterTimer(CheckQueueAsync, null, TimeSpan.FromSeconds(1.0), TimeSpan.FromSeconds(5.0));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Subscription queue durable message failed.");
                 Trace.TraceError("Subscription queue durable message with error {0}", ex.Message);
@@ -491,7 +519,7 @@ namespace Piraeus.Grains
 
                 DelayDeactivation(TimeSpan.FromSeconds(60.0));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Subscription queue in-memorty message failed.");
                 Trace.TraceError("Subscription queue in-memory message with error {0}", ex.Message);
@@ -523,7 +551,7 @@ namespace Piraeus.Grains
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Subscription check queue failed.");
                 Trace.TraceError("Subscription check queue with error {0}", ex.Message);
@@ -554,7 +582,7 @@ namespace Piraeus.Grains
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Subscription dequeue failed.");
                 Trace.TraceError("Subscription dequeue with error {0}", ex.Message);

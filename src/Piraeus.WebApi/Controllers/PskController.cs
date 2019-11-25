@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Piraeus.Core.Logging;
 using SkunkLab.Storage;
+using System;
 using System.Threading.Tasks;
 
 namespace Piraeus.WebApi.Controllers
@@ -9,13 +12,14 @@ namespace Piraeus.WebApi.Controllers
     [ApiController]
     public class PskController : ControllerBase
     {
-        public PskController(PskStorageAdapter adapter)
+        public PskController(PskStorageAdapter adapter, Logger logger = null)
         {
             this.adapter = adapter;
+            this.logger = logger;
         }
 
-        private PskStorageAdapter adapter;
-
+        private readonly PskStorageAdapter adapter;
+        private readonly ILogger logger;
 
         [HttpPost("SetSecret")]
         [Authorize]
@@ -24,11 +28,22 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty("key"))
+                {
+                    throw new ArgumentNullException("key");
+                }
+
+                if (string.IsNullOrEmpty("value"))
+                {
+                    throw new ArgumentNullException("value");
+                }
                 await adapter.SetSecretAsync(key, value);
+                logger?.LogInformation("Set PSK secret.");
                 return StatusCode(200);
             }
-            catch
+            catch (Exception ex)
             {
+                logger?.LogError(ex, "Error setting PSK secret.");
                 return StatusCode(500);
             }
         }
@@ -40,11 +55,26 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty("key"))
+                {
+                    throw new ArgumentNullException("key");
+                }
+
                 string secret = await adapter.GetSecretAsync(key);
+                if (string.IsNullOrEmpty(secret))
+                {
+                    logger?.LogWarning("PSK secret not found.");
+                }
+                else
+                {
+                    logger?.LogInformation("Return PSK secret.");
+                }
+
                 return StatusCode(200, secret);
             }
-            catch
+            catch (Exception ex)
             {
+                logger?.LogError(ex, "Error getting PSK secret.");
                 return StatusCode(500);
             }
         }
@@ -56,11 +86,18 @@ namespace Piraeus.WebApi.Controllers
         {
             try
             {
+                if (string.IsNullOrEmpty("key"))
+                {
+                    throw new ArgumentNullException("key");
+                }
+
                 await adapter.RemoveSecretAsync(key);
+                logger?.LogInformation("Deleted PSK secret.");
                 return StatusCode(200);
             }
-            catch
+            catch (Exception ex)
             {
+                logger?.LogError(ex, "Error deleting PSK secret.");
                 return StatusCode(500);
             }
         }
@@ -72,12 +109,21 @@ namespace Piraeus.WebApi.Controllers
         public async Task<ActionResult<string[]>> GetKeys()
         {
             try
-            { 
-                string[] keys = await adapter.GetKeys();
-                return StatusCode(200,keys);
-            }
-            catch
             {
+                string[] keys = await adapter.GetKeys();
+                if (keys == null)
+                {
+                    logger?.LogWarning("PSK keys not found.");
+                }
+                else
+                {
+                    logger?.LogInformation("Returned PSK keys.");
+                }
+                return StatusCode(200, keys);
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex, "Error getting PSK keys.");
                 return StatusCode(500);
             }
         }

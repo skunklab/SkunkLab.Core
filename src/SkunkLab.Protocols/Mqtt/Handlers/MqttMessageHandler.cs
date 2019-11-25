@@ -7,8 +7,8 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
     {
         public static MqttMessageHandler Create(MqttSession session, MqttMessage message, IMqttDispatch dispatcher = null)
         {
-            
-            switch(message.MessageType)
+
+            switch (message.MessageType)
             {
                 case MqttMessageType.CONNACK:
                     return new MqttConnackHandler(session, message);
@@ -19,7 +19,7 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
                 case MqttMessageType.PINGREQ:
                     return new MqttPingReqHandler(session, message);
                 case MqttMessageType.PINGRESP:
-                    return new MqttPingRespHandler(session,  message);
+                    return new MqttPingRespHandler(session, message);
                 case MqttMessageType.PUBACK:
                     return new MqttPubAckHandler(session, message);
                 case MqttMessageType.PUBCOMP:
@@ -41,12 +41,12 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
                 default:
                     throw new InvalidCastException("MqttMessageType");
             }
-            
+
         }
 
         protected MqttMessageHandler(MqttSession session, MqttMessage message, IMqttDispatch dispatcher = null)
         {
-            Session = session;            
+            Session = session;
             Message = message;
             Dispatcher = dispatcher;
         }

@@ -2,29 +2,25 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Orleans;
-using Orleans.Configuration;
-using Orleans.Hosting;
 using Piraeus.Configuration;
-using Piraeus.GrainInterfaces;
+using Piraeus.Core.Logging;
+using Piraeus.Extensions.Configuration;
+using Piraeus.Extensions.Logging;
+using Piraeus.Extensions.Orleans;
 using Piraeus.WebSocketGateway.Middleware;
 using System;
-using System.Threading.Tasks;
 
 namespace Piraeus.WebSocketGateway
 {
     public class Startup
     {
-        private OrleansConfig config;
-        private PiraeusConfig pconfig;
 
-        public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider)
+
+        public void Configure(IApplicationBuilder app)
         {
-         
+
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -35,104 +31,54 @@ namespace Piraeus.WebSocketGateway
             app.UseWebSockets();
             app.UseMiddleware<PiraeusWebSocketMiddleware>();
 
-            app.UseMvc();
+            //app.UseMvc();
 
         }
 
         public void ConfigureServices(IServiceCollection services)
         {
-            pconfig = GetPiraeusConfig();
-            config = GetOrleansConfig();
+            //PiraeusConfig config = null;
+            //OrleansConfig orleansConfig = null;
+            services.AddPiraeusConfiguration(out PiraeusConfig config);
+            services.AddOrleansConfiguration(out OrleansConfig orleansConfig);
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransientOrleansClusterClient(orleansConfig);
+            LoggerType loggers = config.GetLoggerTypes();
+
+            if (loggers.HasFlag(Piraeus.Configuration.LoggerType.AppInsights))
+            {
+                services.AddApplicationInsightsTelemetry(op =>
+                {
+                    op.InstrumentationKey = config.AppInsightsKey;
+                    op.AddAutoCollectedMetricExtractor = true;
+                    op.EnableHeartbeat = true;
+                });
+            }
+            services.AddLogging(builder => builder.AddLogging(config));
+            services.AddSingleton<Logger>();            
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = !string.IsNullOrEmpty(pconfig.ClientIssuer),
-                        ValidateAudience = !string.IsNullOrEmpty(pconfig.ClientAudience),
+                        ValidateIssuer = !string.IsNullOrEmpty(config.ClientIssuer),
+                        ValidateAudience = !string.IsNullOrEmpty(config.ClientAudience),
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-
-                       
-                        ValidIssuer = pconfig.ClientIssuer,
-                        ValidAudience = pconfig.ClientAudience,
+                        ValidIssuer = config.ClientIssuer,
+                        ValidAudience = config.ClientAudience,
                         ClockSkew = TimeSpan.FromMinutes(5.0),
-                        IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(pconfig.ClientSymmetricKey))
+                        IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(config.ClientSymmetricKey))
                     };
                 });
-            services.AddSingleton<PiraeusConfig>(pconfig);
-            services.AddSingleton<IClusterClient>(CreateClusterClient);
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            
+
+            services.AddMvc(option => option.EnableEndpointRouting = true);
+
             services.AddRouting();
             services.AddMvcCore();
-
         }
 
-        private OrleansConfig GetOrleansConfig()
-        {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("./orleansconfig.json")
-                .AddEnvironmentVariables("OR_");
 
-            IConfigurationRoot root = builder.Build();
-            OrleansConfig config = new OrleansConfig();
-            ConfigurationBinder.Bind(root, config);
-
-            return config;
-        }
-
-        
-
-        private PiraeusConfig GetPiraeusConfig()
-        {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("./piraeusconfig.json")
-                .AddEnvironmentVariables("PI_");
-
-            IConfigurationRoot root = builder.Build();
-            PiraeusConfig pc = new PiraeusConfig();
-            ConfigurationBinder.Bind(root, pc);
-
-            return pc;
-        }
-
-        private IClusterClient CreateClusterClient(IServiceProvider serviceProvider)
-        {
-            var log = serviceProvider.GetService<ILogger<Startup>>();
-            if (!config.Dockerized)
-            {
-                var localClient = new ClientBuilder()
-                .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly))
-                .UseLocalhostClustering()
-                .Build();
-
-                localClient.Connect(RetryFilter);
-                return localClient;
-            }
-            else
-            {
-                var client = new ClientBuilder()
-                    .ConfigureApplicationParts(parts => parts.AddApplicationPart(typeof(IPiSystem).Assembly))
-                    .Configure<ClusterOptions>(options =>
-                    {
-                        options.ClusterId = config.ClusterId;
-                        options.ServiceId = config.ServiceId;
-                    })
-                    .UseAzureStorageClustering(options => options.ConnectionString = config.DataConnectionString)
-                    .Build();
-
-                client.Connect(RetryFilter).GetAwaiter().GetResult();
-                log?.LogWarning("Web Socket Gateway client connected.");
-                return client;
-            }
-            async Task<bool> RetryFilter(Exception exception)
-            {
-                log?.LogWarning("Exception while attempting to connect to Orleans cluster: {Exception}", exception);
-                await Task.Delay(TimeSpan.FromSeconds(10));
-                return true;
-            }
-        }
     }
 }

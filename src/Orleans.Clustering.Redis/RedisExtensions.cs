@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Messaging;
 using System;
@@ -15,7 +14,7 @@ namespace Orleans.Clustering.Redis
         #region Membership Table
         public static ISiloHostBuilder UseRedisMembership(this ISiloHostBuilder builder, ILogger<RedisMembershipTable> logger,
            Action<RedisClusteringOptions> configureOptions)
-        {            
+        {
             return builder.ConfigureServices(services => services.UseRedisMembership(configureOptions));
         }
 
@@ -36,7 +35,7 @@ namespace Orleans.Clustering.Redis
             return builder.ConfigureServices(services =>
             {
                 services.AddOptions<RedisClusteringOptions>();
-                services.AddSingleton<IMembershipTable, RedisMembershipTable>();               
+                services.AddSingleton<IMembershipTable, RedisMembershipTable>();
                 services.TryAddSingleton<ILogger<RedisMembershipTable>>(logger);
             });
         }
@@ -58,31 +57,30 @@ namespace Orleans.Clustering.Redis
 
         #region Gateway List Provider
 
-        
 
 
-        public static IClientBuilder UseRedisGatewayListProvider(this IClientBuilder builder, ILogger<RedisGatewayListProvider> logger, Action<RedisClusteringOptions> configureOptions)
+
+        public static IClientBuilder UseRedisGatewayListProvider(this IClientBuilder builder, Action<RedisClusteringOptions> configureOptions)
         {
             return builder.ConfigureServices(services => services.UseRedisGatewayListProvider(configureOptions));
         }
 
-        public static IClientBuilder UseRedisGatewayListProvider(this IClientBuilder builder, ILogger<RedisGatewayListProvider> logger)
+        public static IClientBuilder UseRedisGatewayListProvider(this IClientBuilder builder)
         {
             return builder.ConfigureServices(services =>
             {
                 services.AddOptions<RedisClusteringOptions>();
                 services.AddSingleton<IGatewayListProvider, RedisGatewayListProvider>();
-                services.TryAddSingleton<ILogger<RedisGatewayListProvider>>(logger);
+
             });
         }
 
-        public static IClientBuilder UseRedisGatewayListProvider(this IClientBuilder builder, ILogger<RedisGatewayListProvider> logger,  
-            Action<OptionsBuilder<RedisClusteringOptions>> configureOptions)
+        public static IClientBuilder UseRedisGatewayListProvider(this IClientBuilder builder, Action<OptionsBuilder<RedisClusteringOptions>> configureOptions)
         {
             return builder.ConfigureServices(services => services.UseRedisGatewayListProvider(configureOptions));
         }
 
-        
+
         public static IServiceCollection UseRedisGatewayListProvider(this IServiceCollection services,
             Action<RedisClusteringOptions> configureOptions)
         {

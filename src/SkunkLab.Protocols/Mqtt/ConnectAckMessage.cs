@@ -34,8 +34,8 @@ namespace SkunkLab.Protocols.Mqtt
                    (byte)(0x00) |
                    (byte)(0x00));
 
-          
-            
+
+
             buffer[index++] = (byte)0x02; //2 remaining bytes
 
             //byte[] remainingLengthBytes = base.EncodeRemainingLength(2);
@@ -44,7 +44,7 @@ namespace SkunkLab.Protocols.Mqtt
 
             //Buffer.BlockCopy(remainingLengthBytes, 0, buffer, 2, remainingLengthBytes.Length);
 
-           
+
             return buffer;
         }
 
@@ -85,7 +85,7 @@ namespace SkunkLab.Protocols.Mqtt
             byte code = buffer[index++];
 
             this.ReturnCode = (ConnectAckCode)code;
-            
+
 
             return connackMessage;
         }

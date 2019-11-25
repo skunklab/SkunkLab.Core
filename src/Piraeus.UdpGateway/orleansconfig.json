@@ -1,0 +1,10 @@
+{
+    "dockerized": false,
+    "clusterId": "myclusterid",
+    "serviceId": "myserviceid",
+    "dataConnectionString": null,
+    "servicePointFactor": 24,
+    "loggerTypes": "Console",
+    "logLevel": "Warning",
+    "appInsightsKey": ""
+}

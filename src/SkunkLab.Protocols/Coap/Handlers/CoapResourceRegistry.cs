@@ -55,9 +55,9 @@ namespace SkunkLab.Protocols.Coap.Handlers
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public Action<string,string,byte[]> GetTokenReference(string token)
+        public Action<string, string, byte[]> GetTokenReference(string token)
         {
-            if(tokenReference.ContainsKey(token) && registry.ContainsKey(tokenReference[token]))
+            if (tokenReference.ContainsKey(token) && registry.ContainsKey(tokenReference[token]))
             {
                 return registry[tokenReference[token]];
             }
@@ -74,7 +74,7 @@ namespace SkunkLab.Protocols.Coap.Handlers
         /// <param name="parameter"></param>
         /// <param name="value"></param>
         /// <param name="action"></param>
-        public void Register(string verb, string parameter, string value, Action<string,string,byte[]> action)
+        public void Register(string verb, string parameter, string value, Action<string, string, byte[]> action)
         {
             string key = GetKey(verb, parameter, value);
             registry.Add(key, action);
@@ -93,10 +93,10 @@ namespace SkunkLab.Protocols.Coap.Handlers
         /// <param name="parameter"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public Action<string,string,byte[]> GetAction(string verb, string parameter, string value)
+        public Action<string, string, byte[]> GetAction(string verb, string parameter, string value)
         {
             string key = GetKey(verb, parameter, value);
-            if(registry.ContainsKey(key))
+            if (registry.ContainsKey(key))
             {
                 return registry[key];
             }

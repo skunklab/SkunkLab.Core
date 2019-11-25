@@ -7,7 +7,7 @@ namespace SkunkLab.Channels.Tcp
 {
     public class PskIdentityManager : TlsPskIdentityManager
     {
-        
+
         public PskIdentityManager(Dictionary<string, byte[]> psks)
         {
             container = psks;
@@ -29,7 +29,7 @@ namespace SkunkLab.Channels.Tcp
         public byte[] GetPsk(byte[] identity)
         {
             string identityString = Encoding.UTF8.GetString(identity);
-            if(container.ContainsKey(identityString))
+            if (container.ContainsKey(identityString))
             {
                 return container[identityString];
             }

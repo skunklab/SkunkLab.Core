@@ -19,7 +19,7 @@ namespace SkunkLab.Protocols.Mqtt
             public const byte Pingreq = 0x0B;
             public const byte Pingresp = 0x0C;
             public const byte Disconnect = 0x0E;
-       
+
         }
         internal static class Header
         {
@@ -28,6 +28,6 @@ namespace SkunkLab.Protocols.Mqtt
             public const byte QosLevelOffset = 0x01;
         }
 
-        
+
     }
 }

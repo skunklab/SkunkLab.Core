@@ -1,13 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
-using SkunkLab.Channels.Http;
 using System;
-using System.ComponentModel;
 using System.Net.WebSockets;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.WebSockets;
 
 namespace SkunkLab.Channels.WebSocket
 {
@@ -35,7 +30,7 @@ namespace SkunkLab.Channels.WebSocket
             this.token = token;
             this.IsEncrypted = context.Request.Scheme == "wss";
             this.IsAuthenticated = context.User.Identity.IsAuthenticated;
-            
+
             this.handler = new WebSocketHandler(config, token);
             this.handler.OnReceive += Handler_OnReceive;
             this.handler.OnError += Handler_OnError;
@@ -57,7 +52,7 @@ namespace SkunkLab.Channels.WebSocket
             Id = "ws-" + Guid.NewGuid().ToString();
             this.config = config;
             this.token = token;
-            
+
             this.IsEncrypted = context.Request.Scheme == "wss";
             this.IsAuthenticated = context.User.Identity.IsAuthenticated;
 
@@ -67,15 +62,14 @@ namespace SkunkLab.Channels.WebSocket
             this.handler.OnOpen += Handler_OnOpen;
             this.handler.OnClose += Handler_OnClose;
             this.socket = socket;
-            //this.handler.ProcessWebSocketRequestAsync(socket);
         }
-        
 
-        private WebSocketHandler handler;
-        private WebSocketConfig config;
-        private CancellationToken token;
+
+        private readonly WebSocketHandler handler;
+        private readonly WebSocketConfig config;
+        private readonly CancellationToken token;
         private System.Net.WebSockets.WebSocket socket;
-        
+
         private readonly TaskQueue _sendQueue = new TaskQueue();
         private bool disposed;
 
@@ -169,20 +163,20 @@ namespace SkunkLab.Channels.WebSocket
 
             //Task.WaitAll(task);
 
-            
+
         }
 
         public override async Task AddMessageAsync(byte[] message)
         {
             OnReceive?.Invoke(this, new ChannelReceivedEventArgs(Id, message));
-             await Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         public override async Task CloseAsync()
         {
             if (IsConnected)
             {
-                State = ChannelState.ClosedReceived;                
+                State = ChannelState.ClosedReceived;
             }
 
             if (socket != null && (socket.State == WebSocketState.Open || socket.State == WebSocketState.Connecting))
@@ -190,7 +184,7 @@ namespace SkunkLab.Channels.WebSocket
                 try
                 {
                     await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Normal", CancellationToken.None);
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -202,7 +196,7 @@ namespace SkunkLab.Channels.WebSocket
 
             OnClose?.Invoke(this, new ChannelCloseEventArgs(Id));
             await Task.CompletedTask;
-            
+
         }
 
         protected void Disposing(bool dispose)
@@ -210,13 +204,13 @@ namespace SkunkLab.Channels.WebSocket
             if (dispose & !disposed)
             {
                 disposed = true;
-                
-                if(State == ChannelState.Open)
+
+                if (State == ChannelState.Open)
                 {
                     this.handler.Close();
                 }
 
-                if(socket != null)
+                if (socket != null)
                 {
                     socket.Dispose();
                 }
@@ -230,23 +224,23 @@ namespace SkunkLab.Channels.WebSocket
         }
 
         public override async Task OpenAsync()
-        {           
+        {
             await this.handler.ProcessWebSocketRequestAsync(this.socket);
         }
 
         public override async Task ReceiveAsync()
         {
-             await Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         public override async Task SendAsync(byte[] message)
         {
-            await  this.handler.SendAsync(message, WebSocketMessageType.Binary);
+            await this.handler.SendAsync(message, WebSocketMessageType.Binary);
         }
 
         //private static bool IsFatalException(Exception ex)
         //{
-            
+
         //    COMException exception = ex as COMException;
         //    if (exception != null)
         //    {

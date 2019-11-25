@@ -1,13 +1,12 @@
-﻿using Capl.Authorization;
-using System;
+﻿using System;
 
 namespace Piraeus.GrainInterfaces
 {
     [Serializable]
- 
+
     public class AccessControlState
     {
 
-        public AuthorizationPolicy Policy { get; set; }
+        public byte[] Policy { get; set; }
     }
 }

@@ -1,39 +1,35 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Piraeus.Configuration;
+using Piraeus.Extensions.Configuration;
 using System;
 using System.Security.Cryptography.X509Certificates;
+
 
 namespace Piraeus.HttpGateway
 {
     public class Program
     {
+        private static PiraeusConfig config;
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            //CreateWebHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        private static PiraeusConfig GetPiraeusConfig()
-        {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile(Environment.CurrentDirectory + "\\piraeusconfig.json")
-                .AddEnvironmentVariables("PI_");
-
-            IConfigurationRoot root = builder.Build();
-            PiraeusConfig config = new PiraeusConfig();
-            ConfigurationBinder.Bind(root, config);
-
-            return config;
-        }
-
-        private static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .UseKestrel(options =>
+        private static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+            .ConfigureServices((hostContext, services) =>
+            {
+                services.AddPiraeusConfiguration(out config);
+            })
+            .ConfigureWebHost((options) =>
+            {
+                options.UseStartup<Startup>();
+                options.UseKestrel();
+                options.ConfigureKestrel(options =>
                 {
-                    PiraeusConfig config = GetPiraeusConfig();
                     options.Limits.MaxConcurrentConnections = config.MaxConnections;
                     options.Limits.MaxConcurrentUpgradedConnections = config.MaxConnections;
                     options.Limits.MaxRequestBodySize = config.MaxBufferSize;
@@ -44,18 +40,23 @@ namespace Piraeus.HttpGateway
 
                     X509Certificate2 cert = config.GetServerCerticate();
                     int[] ports = config.GetPorts();
-
-                    foreach(int port in ports)
+                    
+                    foreach (int port in ports)
                     {
                         if (cert != null)
                         {
-                             options.ListenAnyIP(port, (a) => a.UseHttps(cert));
+                            Console.WriteLine($"Listening on {port} using certificate.");
+                            options.ListenAnyIP(port, (a) => a.UseHttps(cert));
                         }
                         else
                         {
+                            Console.WriteLine($"Listening on {port}.");
                             options.ListenAnyIP(port);
                         }
-                    }
+                    }                    
                 });
+            });
+
+        
     }
 }

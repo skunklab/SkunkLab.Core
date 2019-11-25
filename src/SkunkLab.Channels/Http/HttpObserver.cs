@@ -16,6 +16,6 @@ namespace SkunkLab.Channels.Http
         {
             OnNotify?.Invoke(this, new ObserverEventArgs(resourceUri, contentType, message));
         }
-        
+
     }
 }

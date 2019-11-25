@@ -24,15 +24,15 @@ namespace Piraeus.Module
         {
             Uri uri = null;
 
-            if(this.Type == TransformType.Add)
+            if (this.Type == TransformType.Add)
             {
                 uri = new Uri(AuthorizationConstants.TransformUris.Add);
             }
-            else if(this.Type == TransformType.Remove)
+            else if (this.Type == TransformType.Remove)
             {
                 uri = new Uri(AuthorizationConstants.TransformUris.Remove);
             }
-            else if(this.Type == TransformType.Replace)
+            else if (this.Type == TransformType.Replace)
             {
                 uri = new Uri(AuthorizationConstants.TransformUris.Replace);
             }

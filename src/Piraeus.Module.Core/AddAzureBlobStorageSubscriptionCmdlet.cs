@@ -57,7 +57,7 @@ namespace Piraeus.Module
                 NotifyAddress = uriString,
                 SymmetricKey = Key,
                 Description = this.Description
-                
+
             };
 
 
@@ -69,7 +69,7 @@ namespace Piraeus.Module
 
             WriteObject(subscriptionUriString);
 
-            
+
         }
     }
 }

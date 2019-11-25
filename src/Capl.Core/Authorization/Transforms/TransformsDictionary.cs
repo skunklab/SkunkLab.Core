@@ -29,7 +29,7 @@ namespace Capl.Authorization.Transforms
         {
             get
             {
-                if(defaultInstance != null)
+                if (defaultInstance != null)
                 {
                     return defaultInstance;
                 }

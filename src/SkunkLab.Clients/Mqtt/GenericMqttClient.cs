@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using SkunkLab.Channels;
+﻿using SkunkLab.Channels;
 using SkunkLab.Protocols;
 using SkunkLab.Protocols.Mqtt;
 using SkunkLab.Protocols.Mqtt.Handlers;
-using SkunkLab.Protocols.Utilities;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Piraeus.Clients.Mqtt
 {
@@ -57,9 +55,9 @@ namespace Piraeus.Clients.Mqtt
 
             if (!channel.IsConnected)
             {
-                await channel.OpenAsync();                
+                await channel.OpenAsync();
                 Task task = channel.ReceiveAsync();
-                await Task.WhenAll(task);                
+                await Task.WhenAll(task);
             }
 
             await channel.SendAsync(msg.Encode());

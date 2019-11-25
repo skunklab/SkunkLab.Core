@@ -29,7 +29,7 @@ namespace Piraeus.Module
         public string Key;
 
         [Parameter(HelpMessage = "Number of blob storage clients to use.", Mandatory = false)]
-        public int NumClients;       
+        public int NumClients;
 
         [Parameter(HelpMessage = "Description of the subscription.", Mandatory = false)]
         public string Description;

@@ -12,14 +12,14 @@ namespace SkunkLab.Storage
     {
         protected QueueStorage(string connectionString)
         {
-            CloudStorageAccount account = Microsoft.WindowsAzure.Storage.CloudStorageAccount.Parse(connectionString);           
+            CloudStorageAccount account = Microsoft.WindowsAzure.Storage.CloudStorageAccount.Parse(connectionString);
             StorageCredentials credentials = new StorageCredentials(account.Credentials.AccountName, Convert.ToBase64String(account.Credentials.ExportKey()));
-     
+
             client = new CloudQueueClient(account.QueueStorageUri, credentials);
-            
+
             container = new Dictionary<string, CloudQueue>();
 
-            if(bufferManager != null)
+            if (bufferManager != null)
             {
                 client.BufferManager = bufferManager;
             }
@@ -50,7 +50,7 @@ namespace SkunkLab.Storage
             return new QueueStorage(connectionString);
         }
 
-      
+
         public static QueueStorage New(string connectionString, long maxBufferPoolSize, int defaultBufferSize)
         {
             BufferManager manager = BufferManager.CreateBufferManager(maxBufferPoolSize, defaultBufferSize);
@@ -72,7 +72,7 @@ namespace SkunkLab.Storage
                 queue = container[queueName];
             }
             else
-            {               
+            {
                 queue = client.GetQueueReference(queueName);
                 container.Add(queueName, queue);
             }
@@ -82,7 +82,7 @@ namespace SkunkLab.Storage
         public async Task CreateQueueAsync(string queueName)
         {
             CloudQueue queue = GetQueue(queueName);
-            await queue.CreateIfNotExistsAsync();            
+            await queue.CreateIfNotExistsAsync();
         }
 
         public async Task DeleteQueueAsync(string queueName)
@@ -101,10 +101,10 @@ namespace SkunkLab.Storage
 
         public async Task EnqueueAsync(string queueName, byte[] source, TimeSpan? ttl = null, TimeSpan? initialVisibilityDelay = null)
         {
-            
+
             CloudQueue queue = GetQueue(queueName);
-            
-            if(! await queue.ExistsAsync())
+
+            if (!await queue.ExistsAsync())
             {
                 throw new InvalidOperationException("Cloud queue does not exist.");
             }
@@ -113,12 +113,12 @@ namespace SkunkLab.Storage
             await queue.AddMessageAsync(message, ttl, initialVisibilityDelay, new QueueRequestOptions(), null);
         }
 
-        
+
         public async Task<List<CloudQueueMessage>> DequeueAsync(string queueName, int? numberOfMessages)
         {
             CloudQueue queue = GetQueue(queueName);
 
-            if (! await queue.ExistsAsync())
+            if (!await queue.ExistsAsync())
             {
                 throw new InvalidOperationException("Cloud queue does not exist.");
             }
@@ -127,7 +127,7 @@ namespace SkunkLab.Storage
 
             List<CloudQueueMessage> list = approxMessageCount.HasValue ? new List<CloudQueueMessage>() : null;
 
-            if(list == null)
+            if (list == null)
             {
                 return null;
             }
@@ -135,7 +135,7 @@ namespace SkunkLab.Storage
             if (!numberOfMessages.HasValue)
             {
                 CloudQueueMessage message = await queue.GetMessageAsync();
-                if(message != null)
+                if (message != null)
                 {
                     list.Add(message);
                 }
@@ -148,6 +148,6 @@ namespace SkunkLab.Storage
             return list;
         }
 
-        
+
     }
 }

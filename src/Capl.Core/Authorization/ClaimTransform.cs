@@ -7,14 +7,12 @@ MIT License
 
 namespace Capl.Authorization
 {
-    using System;
-    using System.Xml;
-    using System.Xml.Schema;
-    using System.Xml.Serialization;
-    using System.Security.Claims;
-    using Capl.Authorization.Transforms;
-    using System.Collections.Generic;
     using Capl.Authorization.Matching;
+    using Capl.Authorization.Transforms;
+    using System;
+    using System.Collections.Generic;
+    using System.Security.Claims;
+    using System.Xml;
 
     /// <summary>
     /// The abstract scope of a transform.
@@ -62,7 +60,7 @@ namespace Capl.Authorization
         public override Match MatchExpression { get; set; }
 
         public override LiteralClaim TargetClaim { get; set; }
-        
+
         public static ClaimTransform Load(XmlReader reader)
         {
             ClaimTransform trans = new ClaimTransform();
@@ -72,7 +70,7 @@ namespace Capl.Authorization
         }
 
         #region ITransform Members
-                
+
 
         /// <summary>
         /// Executes the transform.
@@ -86,11 +84,11 @@ namespace Capl.Authorization
                 throw new ArgumentNullException("claims");
             }
 
-            TransformAction action = null;            
+            TransformAction action = null;
             IList<Claim> matchedClaims = null;
-            IEnumerable<Claim> transformedClaims = null;            
+            IEnumerable<Claim> transformedClaims = null;
             bool eval = false;
-            
+
             action = TransformAction.Create(this.Type, null);
 
             if (this.MatchExpression != null)
@@ -172,7 +170,7 @@ namespace Capl.Authorization
                 {
                     break;
                 }
-            }            
+            }
         }
 
         /// <summary>
@@ -192,10 +190,10 @@ namespace Capl.Authorization
             {
                 writer.WriteAttributeString(AuthorizationConstants.Attributes.TransformId, this.TransformID.ToString());
             }
-            
+
             writer.WriteAttributeString(AuthorizationConstants.Attributes.Type, this.Type.ToString());
 
-            
+
 
             if (this.MatchExpression != null)
             {
@@ -221,7 +219,7 @@ namespace Capl.Authorization
             }
 
             writer.WriteEndElement();
-        }    
+        }
 
         #endregion
 

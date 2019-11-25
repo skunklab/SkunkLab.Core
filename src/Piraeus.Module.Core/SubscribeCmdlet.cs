@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Piraeus.Core.Metadata;
+using System;
 using System.Collections.Generic;
 using System.Management.Automation;
-using Piraeus.Core.Metadata;
 
 namespace Piraeus.Module
 {
@@ -46,10 +46,10 @@ namespace Piraeus.Module
 
         [Parameter(HelpMessage = "Durably persist messages for the TTL when the subsystem is disconnected.", Mandatory = false)]
         public bool DurableMessaging;
-               
+
 
         protected override void ProcessRecord()
-        {            
+        {
             SubscriptionMetadata metadata = new SubscriptionMetadata()
             {
                 Identity = this.Identity,

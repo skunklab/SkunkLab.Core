@@ -36,7 +36,7 @@ namespace Piraeus.Module
         {
             string uriString = TTL.HasValue ? String.Format("https://{0}.queue.core.windows.net?queue={1}&ttl={2}", Account, Queue, TTL.Value.ToString()) :
                 String.Format("https://{0}.queue.core.windows.net?queue={1}", Account, Queue);
-            
+
             SubscriptionMetadata metadata = new SubscriptionMetadata()
             {
                 IsEphemeral = false,

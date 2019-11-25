@@ -1,6 +1,6 @@
-﻿using System;
+﻿using SkunkLab.Security.Authentication;
+using System;
 using System.Collections.Generic;
-using SkunkLab.Security.Authentication;
 
 namespace SkunkLab.Protocols.Coap
 {
@@ -8,13 +8,13 @@ namespace SkunkLab.Protocols.Coap
     /// CoAP configuration parameters
     /// </summary>
     public sealed class CoapConfig
-    {       
+    {
 
-        public CoapConfig(IAuthenticator authenticator, string authority, 
-                        CoapConfigOptions configOptions, bool autoRetry = false, 
-                        double keepAliveSeconds = 180, 
-                        double ackTimeout = 2.0, double ackRandomFactor = 1.5, 
-                        int maxRetransmit = 4, int nstart = 1, double defaultLeisure = 4.0, 
+        public CoapConfig(IAuthenticator authenticator, string authority,
+                        CoapConfigOptions configOptions, bool autoRetry = false,
+                        double keepAliveSeconds = 180,
+                        double ackTimeout = 2.0, double ackRandomFactor = 1.5,
+                        int maxRetransmit = 4, int nstart = 1, double defaultLeisure = 4.0,
                         double probingRate = 1.0, double maxLatency = 100.0)
         {
             Authenticator = authenticator;
@@ -41,7 +41,7 @@ namespace SkunkLab.Protocols.Coap
         public string Authority { get; internal set; }
         public string DoNotRetainNonconfirmableResponse { get; internal set; }
         public CoapConfigOptions ConfigOptions { get; internal set; }
-        
+
         public TimeSpan AckTimeout { get; internal set; }
         public double AckRandomFactor { get; internal set; }
 

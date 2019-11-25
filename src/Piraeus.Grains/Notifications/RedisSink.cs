@@ -17,18 +17,18 @@ namespace Piraeus.Grains.Notifications
 {
     public class RedisSink : EventSink
     {
-        private string connectionString;
-        private string cacheClaimType;
+        private readonly string connectionString;
+        private readonly string cacheClaimType;
         private ConnectionMultiplexer connection;
         private IDatabase database;
         private int dbNumber;
-        private TimeSpan? expiry;
-        private IAuditor auditor;
-        private Uri uri;
-        private TaskQueue tqueue;
-        private ConcurrentQueueManager cqm;
+        private readonly TimeSpan? expiry;
+        private readonly IAuditor auditor;
+        private readonly Uri uri;
+        private readonly TaskQueue tqueue;
+        private readonly ConcurrentQueueManager cqm;
 
-        public RedisSink(SubscriptionMetadata metadata) 
+        public RedisSink(SubscriptionMetadata metadata)
             : base(metadata)
         {
             tqueue = new TaskQueue();
@@ -37,23 +37,23 @@ namespace Piraeus.Grains.Notifications
             auditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.Message);
 
             uri = new Uri(metadata.NotifyAddress);
-            
+
             connectionString = String.Format("{0}:6380,password={1},ssl=True,abortConnect=False", uri.Authority, metadata.SymmetricKey);
 
             NameValueCollection nvc = HttpUtility.ParseQueryString(uri.Query);
 
-            if(!int.TryParse(nvc["db"], out dbNumber))
+            if (!int.TryParse(nvc["db"], out dbNumber))
             {
                 dbNumber = -1;
             }
 
-            TimeSpan expiration = TimeSpan.MaxValue;
-            if(TimeSpan.TryParse(nvc["expiry"], out expiration))
+            TimeSpan expiration;
+            if (TimeSpan.TryParse(nvc["expiry"], out expiration))
             {
                 expiry = expiration;
             }
 
-            if(string.IsNullOrEmpty(metadata.ClaimKey))
+            if (string.IsNullOrEmpty(metadata.ClaimKey))
             {
                 cacheClaimType = metadata.ClaimKey;
             }
@@ -116,7 +116,7 @@ namespace Piraeus.Grains.Notifications
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Initial Redis write error {0}", ex.Message);
                 record = new MessageAuditRecord(msg.MessageId, uri.Query.Length > 0 ? uri.ToString().Replace(uri.Query, "") : uri.ToString(), String.Format("Redis({0})", dbNumber), String.Format("Redis({0})", dbNumber), payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, ex.Message);
@@ -142,7 +142,7 @@ namespace Piraeus.Grains.Notifications
                 string cacheKey = GetKey(message);
 
                 conn = await NewConnection();
-                
+
                 if (dbNumber < 1)
                 {
                     db = connection.GetDatabase();
@@ -165,7 +165,7 @@ namespace Piraeus.Grains.Notifications
 
                 record = new MessageAuditRecord(message.MessageId, uri.Query.Length > 0 ? uri.ToString().Replace(uri.Query, "") : uri.ToString(), String.Format("Redis({0})", db.Database), String.Format("Redis({0})", db.Database), payload.Length, MessageDirectionType.Out, true, DateTime.UtcNow);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceError(ex.Message);
                 record = new MessageAuditRecord(message.MessageId, uri.Query.Length > 0 ? uri.ToString().Replace(uri.Query, "") : uri.ToString(), String.Format("Redis({0})", db.Database), String.Format("Redis({0})", db.Database), payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, ex.Message);
@@ -177,7 +177,7 @@ namespace Piraeus.Grains.Notifications
                     await auditor?.WriteAuditRecordAsync(record);
                 }
 
-                if(conn != null)
+                if (conn != null)
                 {
                     conn.Dispose();
                 }
@@ -188,11 +188,11 @@ namespace Piraeus.Grains.Notifications
         public string GetKey(EventMessage message)
         {
             //if the cache key is sent on the message URI use it.  Otherwise, look for a matching claim type and return the value.
-            if(!string.IsNullOrEmpty(message.CacheKey))
+            if (!string.IsNullOrEmpty(message.CacheKey))
             {
                 return message.CacheKey;
             }
-            else if(!string.IsNullOrEmpty(cacheClaimType))
+            else if (!string.IsNullOrEmpty(cacheClaimType))
             {
                 var principal = Thread.CurrentPrincipal as ClaimsPrincipal;
                 var identity = new ClaimsIdentity(principal.Claims);
@@ -252,7 +252,7 @@ namespace Piraeus.Grains.Notifications
                 else
                 {
                     database = connection.GetDatabase(dbNumber);
-                }               
+                }
             }
         }
 

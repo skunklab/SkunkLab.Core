@@ -24,7 +24,7 @@ namespace Orleans.Storage.Redis
         }
 
         public static IServiceCollection AddRedisGrainStorage(this IServiceCollection services, string name, ILogger logger, Action<RedisStorageOptions> configureOptions)
-        {          
+        {
             return services.AddRedisGrainStorage(name, logger, ob => ob.Configure(configureOptions));
         }
 
@@ -36,7 +36,7 @@ namespace Orleans.Storage.Redis
         public static IServiceCollection AddRedisGrainStorage(this IServiceCollection services, string name, ILogger logger,
             Action<OptionsBuilder<RedisStorageOptions>> configureOptions = null)
         {
-            configureOptions?.Invoke(services.AddOptions<RedisStorageOptions>(name));            
+            configureOptions?.Invoke(services.AddOptions<RedisStorageOptions>(name));
             services.ConfigureNamedOptionForLogging<RedisStorageOptions>(name);
             services.TryAddSingleton<IGrainStorage>(sp => sp.GetServiceByName<IGrainStorage>(DEFAULT_STORAGE_PROVIDER_NAME));
             services.TryAddSingleton<ILogger>(logger);
@@ -45,7 +45,7 @@ namespace Orleans.Storage.Redis
                            .AddSingletonNamedService<ILifecycleParticipant<ISiloLifecycle>>(name, (s, n) => (ILifecycleParticipant<ISiloLifecycle>)s.GetRequiredServiceByName<IGrainStorage>(n));
         }
 
-        public static IServiceCollection AddRedisGrainStorage(this IServiceCollection services, string name, 
+        public static IServiceCollection AddRedisGrainStorage(this IServiceCollection services, string name,
             Action<OptionsBuilder<RedisStorageOptions>> configureOptions = null)
         {
             configureOptions?.Invoke(services.AddOptions<RedisStorageOptions>(name));

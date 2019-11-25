@@ -29,12 +29,12 @@ namespace SkunkLab.Protocols.Mqtt
 
         public void Add(ushort id)
         {
-            if(!container.ContainsKey(id))
+            if (!container.ContainsKey(id))
             {
                 container.Add(id, DateTime.UtcNow.AddMilliseconds(lifetime.TotalMilliseconds));
             }
 
-            if(!timer.Enabled)
+            if (!timer.Enabled)
             {
                 timer.Enabled = true;
             }
@@ -44,7 +44,7 @@ namespace SkunkLab.Protocols.Mqtt
         {
             container.Remove(id);
 
-            if(container.Count == 0)
+            if (container.Count == 0)
             {
                 timer.Enabled = false;
             }
@@ -67,11 +67,11 @@ namespace SkunkLab.Protocols.Mqtt
                     }
                 }
 
-                ushort[] ids = list.ToArray();                
-                
+                ushort[] ids = list.ToArray();
+
                 foreach (var item in list)
                 {
-                    container.Remove(item);                    
+                    container.Remove(item);
                 }
 
                 if (ids != null && ids.Length > 0)
@@ -79,10 +79,10 @@ namespace SkunkLab.Protocols.Mqtt
                     //signal to remove items.
                     OnExpired?.Invoke(this, new LifetimeEventArgs(ids));
                 }
-                
+
             }
 
-            if(container.Count == 0)
+            if (container.Count == 0)
             {
                 timer.Enabled = false;
             }

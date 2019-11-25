@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Piraeus.Core.Logging;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -15,6 +16,20 @@ namespace Piraeus.Core
                 {
                     Trace.TraceError(exception.Message);
                     Console.WriteLine(exception.Message);
+                }
+
+            },
+            TaskContinuationOptions.OnlyOnFaulted);
+        }
+
+        public static Task LogExceptions(this Task task, ILog log = null)
+        {
+            return task.ContinueWith(t =>
+            {
+                var aggException = t.Exception.Flatten();
+                foreach (var exception in aggException.InnerExceptions)
+                {
+                    log?.LogErrorAsync(exception, exception.Message);
                 }
 
             },

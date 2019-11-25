@@ -1,53 +1,57 @@
-﻿using Piraeus.Core.Messaging;
+﻿using Capl.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Piraeus.Adapters.Utilities;
+using Piraeus.Auditing;
+using Piraeus.Core;
+using Piraeus.Core.Logging;
+using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
 using Piraeus.GrainInterfaces;
 using Piraeus.Grains;
-using Piraeus.Grains.Notifications;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Linq;
-using Capl.Authorization;
 using System.Security.Claims;
 using System.Threading;
-using System.Diagnostics;
-using Piraeus.Core;
-using Microsoft.AspNetCore.Http;
-using Piraeus.Auditing;
-using System.Threading.Tasks.Dataflow;
+using System.Threading.Tasks;
 
 namespace Piraeus.Adapters
 {
     public class OrleansAdapter
     {
-        public OrleansAdapter(string identity, string channelType, string protocolType, HttpContext context = null)
+        public OrleansAdapter(string identity, string channelType, string protocolType, GraphManager graphManager, ILog logger = null)
         {
 
             auditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.Message);
             this.identity = identity;
             this.channelType = channelType;
             this.protocolType = protocolType;
-            this.context = context;
+            this.graphManager = graphManager;
+            this.logger = logger;
+            //this.context = context;
 
             container = new Dictionary<string, Tuple<string, string>>();
             ephemeralObservers = new Dictionary<string, IMessageObserver>();
-            durableObservers = new Dictionary<string, IMessageObserver>();            
+            durableObservers = new Dictionary<string, IMessageObserver>();
         }
 
         public event EventHandler<ObserveMessageEventArgs> OnObserve;   //signal protocol adapter
 
-        private HttpContext context;
-        private IAuditor auditor;
+        private readonly GraphManager graphManager;
+        //private readonly HttpContext context;
+        private readonly IAuditor auditor;
         private string identity;
-        private string channelType;
-        private string protocolType;
-        private Dictionary<string, Tuple<string, string>> container;  //resource, subscription + leaseKey
-        private Dictionary<string, IMessageObserver> ephemeralObservers; //subscription, observer
-        private Dictionary<string, IMessageObserver> durableObservers;   //subscription, observer
+        private readonly string channelType;
+        private readonly string protocolType;
+        private readonly Dictionary<string, Tuple<string, string>> container;  //resource, subscription + leaseKey
+        private readonly Dictionary<string, IMessageObserver> ephemeralObservers; //subscription, observer
+        private readonly Dictionary<string, IMessageObserver> durableObservers;   //subscription, observer
         private System.Timers.Timer leaseTimer; //timer for leases
         private bool disposedValue = false; // To detect redundant calls
-        
+        private readonly ILog logger;
+
 
 
         public string Identity
@@ -59,7 +63,7 @@ namespace Piraeus.Adapters
         {
             List<string> list = new List<string>();
 
-            IEnumerable<string> subscriptionUriStrings = await GraphManager.GetSubscriberSubscriptionsListAsync(identity);
+            IEnumerable<string> subscriptionUriStrings = await graphManager.GetSubscriberSubscriptionsListAsync(identity);
 
             if (subscriptionUriStrings == null || subscriptionUriStrings.Count() == 0)
             {
@@ -76,14 +80,15 @@ namespace Piraeus.Adapters
                     //set the observer in the subscription with the lease lifetime
                     TimeSpan leaseTime = TimeSpan.FromSeconds(20.0);
 
-                    string leaseKey = await GraphManager.AddSubscriptionObserverAsync(item, leaseTime, observer);
+                    string leaseKey = await graphManager.AddSubscriptionObserverAsync(item, leaseTime, observer);
 
                     //add the lease key to the list of ephemeral observers
                     durableObservers.Add(item, observer);
+                    Console.WriteLine($"Durable observer added - '{item}' - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
 
                     //get the resource from the subscription
                     Uri uri = new Uri(item);
-                    string resourceUriString = item.Replace(uri.Segments[uri.Segments.Length - 1], "");
+                    string resourceUriString = item.Replace(uri.Segments[^1], "");
 
                     list.Add(resourceUriString); //add to list to return
 
@@ -92,6 +97,7 @@ namespace Piraeus.Adapters
                     if (!container.ContainsKey(resourceUriString))
                     {
                         container.Add(resourceUriString, new Tuple<string, string>(item, leaseKey));
+                        Console.WriteLine($"Resource, subscriptioon and lease key added to container {resourceUriString}, {item}, and {leaseKey} - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
                     }
                 }
             }
@@ -104,105 +110,125 @@ namespace Piraeus.Adapters
             return list.Count == 0 ? null : list;
         }
 
-        public async Task<bool> CanPublishAsync(EventMetadata metadata, bool channelEncrypted)
-        {
-            if (metadata == null)
-            {
-                Trace.TraceWarning("{0} - Cannot publish to Orleans resource with null metadata.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"));
-                return false;
-            }
+        //public async Task<bool> CanPublishAsync(EventMetadata metadata, bool channelEncrypted)
+        //{
+        //    if (metadata == null)
+        //    {
+        //        await logger?.LogWarningAsync($"Cannot publish to Orleans resource with null metadata");
+                
+        //        return false;
+        //    }
 
-            if (!metadata.Enabled)
-            {
-                Trace.TraceWarning("{0} - Publish resource '{1}' is disabled.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
-                return false;
-            }
+        //    if (!metadata.Enabled)
+        //    {
+        //        Console.WriteLine($"Publish resource '{metadata.ResourceUriString}' is disabled - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Publish resource '{1}' is disabled.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
+        //        return false;
+        //    }
 
-            if (metadata.Expires.HasValue && metadata.Expires.Value < DateTime.UtcNow)
-            {
-                Trace.TraceWarning("{0} - Publish resource '{1}' has expired.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
-                return false;
-            }
+        //    if (metadata.Expires.HasValue && metadata.Expires.Value < DateTime.UtcNow)
+        //    {
+        //        Console.WriteLine($"Publish resource '{metadata.ResourceUriString}' has expired - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Publish resource '{1}' has expired.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
+        //        return false;
+        //    }
 
-            if (metadata.RequireEncryptedChannel && !channelEncrypted)
-            {
-                Trace.TraceWarning("{0} - Publish resource '{1}' requires an encrypted channel.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
-                return false;
-            }
+        //    if (metadata.RequireEncryptedChannel && !channelEncrypted)
+        //    {
+        //        Console.WriteLine($"Publish resource '{metadata.ResourceUriString}' required encrypted channel - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Publish resource '{1}' requires an encrypted channel.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
+        //        return false;
+        //    }
 
-            AuthorizationPolicy policy = await GraphManager.GetAccessControlPolicyAsync(metadata.PublishPolicyUriString);
+        //    AuthorizationPolicy policy = await graphManager.GetAccessControlPolicyAsync(metadata.PublishPolicyUriString);
 
-            if (policy == null)
-            {
-                Trace.TraceWarning("{0} - Publish policy URI {1} did not return an authorization policy.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.PublishPolicyUriString);
-                return false;
-            }
+        //    if (policy == null)
+        //    {
+        //        Console.WriteLine($"Publish resource '{metadata.ResourceUriString}' has no publish authorization policy - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Publish policy URI {1} did not return an authorization policy.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.PublishPolicyUriString);
+        //        return false;
+        //    }
 
-            ClaimsIdentity identity = context == null ? Thread.CurrentPrincipal.Identity as ClaimsIdentity : new ClaimsIdentity(context.User.Claims);
+        //    ClaimsIdentity identity = context == null ? Thread.CurrentPrincipal.Identity as ClaimsIdentity : new ClaimsIdentity(context.User.Claims);
+
+        //    bool authz = policy.Evaluate(identity);
+
+        //    if (!authz)
+        //    {
+        //        Console.WriteLine($"Publish resource '{metadata.ResourceUriString}' authorization is denied for {this.identity} - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Identity '{1}' is not authorized to publish to resource '{2}'", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), this.identity, metadata.ResourceUriString);
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine($"Publish resource '{metadata.ResourceUriString}' authorization is allowed for {this.identity} - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //    }
+
+        //    return authz;
+        //}
+
+        //public async Task<bool> CanSubscribeAsync(string resourceUriString, bool channelEncrypted)
+        //{
+        //    EventMetadata metadata = await graphManager.GetPiSystemMetadataAsync(resourceUriString);
             
-            bool authz = policy.Evaluate(identity);
 
-            if (!authz)
-            {
-                Trace.TraceWarning("{0} - Identity '{1}' is not authorized to publish to resource '{2}'", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), this.identity, metadata.ResourceUriString);
-            }
+        //    if (metadata == null)
+        //    {
+        //        Console.WriteLine($"Cannot subscribe to Orleans resource '{resourceUriString}' with null metadata - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Cannot subscribe to Orleans resource will null metadata.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"));
+        //        return false;
+        //    }
 
-            return authz;
-        }
+        //    if (!metadata.Enabled)
+        //    {
+        //        Console.WriteLine($"Subscrbe resource '{resourceUriString}' is disabled - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Subscribe resource '{1}' is disabled.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
+        //        return false;
+        //    }
 
-        public async Task<bool> CanSubscribeAsync(string resourceUriString, bool channelEncrypted)
-        {
-            EventMetadata metadata = await GraphManager.GetPiSystemMetadataAsync(resourceUriString);
+        //    if (metadata.Expires.HasValue && metadata.Expires.Value < DateTime.UtcNow)
+        //    {
+        //        Console.WriteLine($"Subscribe resource '{resourceUriString}' has expired - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Subscribe resource '{1}' has expired.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
+        //        return false;
+        //    }
 
-            if (metadata == null)
-            {
-                Trace.TraceWarning("{0} - Cannot subscribe to Orleans resource will null metadata.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"));
-                return false;
-            }
+        //    if (metadata.RequireEncryptedChannel && !channelEncrypted)
+        //    {
+        //        Console.WriteLine($"Subscribe resource '{resourceUriString}' required encrypted channel - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Subscribe resource '{1}' requires an encrypted channel.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
+        //        return false;
+        //    }
 
-            if (!metadata.Enabled)
-            {
-                Trace.TraceWarning("{0} - Subscribe resource '{1}' is disabled.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
-                return false;
-            }
+        //    AuthorizationPolicy policy = await graphManager.GetAccessControlPolicyAsync(metadata.SubscribePolicyUriString);
 
-            if (metadata.Expires.HasValue && metadata.Expires.Value < DateTime.UtcNow)
-            {
-                Trace.TraceWarning("{0} - Subscribe resource '{1}' has expired.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
-                return false;
-            }
+        //    if (policy == null)
+        //    {
+        //        Console.WriteLine($"Subscribe resource '{resourceUriString}' has no subscribe authorization policy - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Subscribe policy URI did not return an authorization policy", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.SubscribePolicyUriString);
+        //        return false;
+        //    }
 
-            if (metadata.RequireEncryptedChannel && !channelEncrypted)
-            {
-                Trace.TraceWarning("{0} - Subscribe resource '{1}' requires an encrypted channel.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.ResourceUriString);
-                return false;
-            }
+        //    //ClaimsIdentity identity = Thread.CurrentPrincipal.Identity as ClaimsIdentity;
+        //    ClaimsIdentity identity = context == null ? Thread.CurrentPrincipal.Identity as ClaimsIdentity : new ClaimsIdentity(context.User.Claims);
 
-            AuthorizationPolicy policy = await GraphManager.GetAccessControlPolicyAsync(metadata.SubscribePolicyUriString);
+        //    bool authz = policy.Evaluate(identity);
 
-            if (policy == null)
-            {
-                Trace.TraceWarning("{0} - Subscribe policy URI did not return an authorization policy", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), metadata.SubscribePolicyUriString);
-                return false;
-            }
+        //    if (!authz)
+        //    {
+        //        Console.WriteLine($"Subscribe resource '{metadata.ResourceUriString}' authorization is denied for {this.identity} - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //        Trace.TraceWarning("{0} - Identity '{1}' is not authorized to subscribe/unsubcribe to resource '{2}'", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), this.identity, metadata.ResourceUriString);
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine($"Subscribe resource '{metadata.ResourceUriString}' authorization is allowed for {this.identity} - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+        //    }
 
-            //ClaimsIdentity identity = Thread.CurrentPrincipal.Identity as ClaimsIdentity;
-            ClaimsIdentity identity = context == null ? Thread.CurrentPrincipal.Identity as ClaimsIdentity : new ClaimsIdentity(context.User.Claims);
+        //    return authz;
+        //}
 
-            bool authz = policy.Evaluate(identity);
 
-            if (!authz)
-            {
-                Trace.TraceWarning("{0} - Identity '{1}' is not authorized to subscribe/unsubcribe to resource '{2}'", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), this.identity, metadata.ResourceUriString);                
-            }
-
-            return authz;
-        }
-
-        
         public async Task PublishAsync(EventMessage message, List<KeyValuePair<string, string>> indexes = null)
         {
-           
             AuditRecord record = null;
             DateTime receiveTime = DateTime.UtcNow;
 
@@ -212,15 +238,18 @@ namespace Piraeus.Adapters
 
                 if (indexes == null || indexes.Count == 0)
                 {
-                    await GraphManager.PublishAsync(message.ResourceUri, message);
+                    await graphManager.PublishAsync(message.ResourceUri, message);
+                    await logger?.LogDebugAsync($"Published to '{message.ResourceUri}' by {identity} without indexes.");
                 }
                 else
                 {
-                    await GraphManager.PublishAsync(message.ResourceUri, message, indexes);
+                    await graphManager.PublishAsync(message.ResourceUri, message, indexes);
+                    await logger?.LogDebugAsync($"Published to '{message.ResourceUri}' by {identity} with indexes.");
                 }
             }
             catch (Exception ex)
             {
+                await logger?.LogErrorAsync(ex, $"Error during publish to '{message.ResourceUri}' for {identity}");
                 record = new MessageAuditRecord(message.MessageId, identity, channelType, protocolType.ToUpperInvariant(), message.Message.Length, MessageDirectionType.In, false, receiveTime, ex.Message);
             }
             finally
@@ -234,46 +263,66 @@ namespace Piraeus.Adapters
 
         public async Task<string> SubscribeAsync(string resourceUriString, SubscriptionMetadata metadata)
         {
-            metadata.IsEphemeral = true;
-            string subscriptionUriString = await GraphManager.SubscribeAsync(resourceUriString, metadata);
-
-            //create and observer and wire up event to receive notifications
-            MessageObserver observer = new MessageObserver();
-            observer.OnNotify += Observer_OnNotify;
-
-            //set the observer in the subscription with the lease lifetime
-            TimeSpan leaseTime = TimeSpan.FromSeconds(20.0);
-
-            string leaseKey = await GraphManager.AddSubscriptionObserverAsync(subscriptionUriString, leaseTime, observer);
-
-            //add the lease key to the list of ephemeral observers
-            ephemeralObservers.Add(subscriptionUriString, observer);
-
-            //add the resource, subscription, and lease key the container
-            if (!container.ContainsKey(resourceUriString))
+            try
             {
-                container.Add(resourceUriString, new Tuple<string, string>(subscriptionUriString, leaseKey));
+                metadata.IsEphemeral = true;
+                string subscriptionUriString = await graphManager.SubscribeAsync(resourceUriString, metadata);
+
+                //create and observer and wire up event to receive notifications
+                MessageObserver observer = new MessageObserver();
+                observer.OnNotify += Observer_OnNotify;
+
+                //set the observer in the subscription with the lease lifetime
+                TimeSpan leaseTime = TimeSpan.FromSeconds(20.0);
+
+                string leaseKey = await graphManager.AddSubscriptionObserverAsync(subscriptionUriString, leaseTime, observer);
+
+                //add the lease key to the list of ephemeral observers
+                ephemeralObservers.Add(subscriptionUriString, observer);
+
+                //add the resource, subscription, and lease key the container
+                if (!container.ContainsKey(resourceUriString))
+                {
+                    container.Add(resourceUriString, new Tuple<string, string>(subscriptionUriString, leaseKey));
+                }
+
+                //ensure the lease timer is running
+                EnsureLeaseTimer();
+                logger?.LogDebugAsync($"Subscribed to '{resourceUriString}' with '{subscriptionUriString}' for {identity}.");
+                return subscriptionUriString;
             }
-
-            //ensure the lease timer is running
-            EnsureLeaseTimer();
-
-            return subscriptionUriString;
+            catch (Exception ex)
+            {
+                await logger?.LogErrorAsync(ex, $"Error during subscribe to '{resourceUriString}' for {identity}");
+                throw ex;
+            }
         }
 
         public async Task UnsubscribeAsync(string resourceUriString)
         {
-            //unsubscribe from resource
-            if (container.ContainsKey(resourceUriString))
+            try
             {
-                if (ephemeralObservers.ContainsKey(container[resourceUriString].Item1))
-                {
-                    await GraphManager.RemoveSubscriptionObserverAsync(container[resourceUriString].Item1, container[resourceUriString].Item2);
-                    await GraphManager.UnsubscribeAsync(container[resourceUriString].Item1);
-                    ephemeralObservers.Remove(container[resourceUriString].Item1);
-                }
 
-                container.Remove(resourceUriString);
+                //unsubscribe from resource
+                if (container.ContainsKey(resourceUriString))
+                {
+                    Console.WriteLine($"Container has '{resourceUriString}' needed to unsubscribe - {DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff")}");
+
+                    if (ephemeralObservers.ContainsKey(container[resourceUriString].Item1))
+                    {
+                        await graphManager.RemoveSubscriptionObserverAsync(container[resourceUriString].Item1, container[resourceUriString].Item2);
+                        await graphManager.UnsubscribeAsync(container[resourceUriString].Item1);
+                        ephemeralObservers.Remove(container[resourceUriString].Item1);
+                    }
+
+                    container.Remove(resourceUriString);
+                    await logger?.LogDebugAsync($"Unsubscribed '{resourceUriString}'.");
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger?.LogErrorAsync(ex, $"Error during unsubscribe to '{resourceUriString}' for {identity}.");
+                throw ex;
             }
         }
 
@@ -281,8 +330,7 @@ namespace Piraeus.Adapters
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
-            {
-                Trace.TraceInformation("Orleans Adapter disposing on Protocol '{0}' with Channel Type '{1}' for identity '{2}'", protocolType, channelType, identity);
+            {                
                 if (disposing)
                 {
                     if (leaseTimer != null)
@@ -292,12 +340,7 @@ namespace Piraeus.Adapters
                     }
 
                     RemoveDurableObserversAsync().GetAwaiter();
-                    //Task t0 = RemoveDurableObserversAsync();
-                    //Task.WaitAll(t0);
-
                     RemoveEphemeralObserversAsync().GetAwaiter();
-                    //Task t1 = RemoveEphemeralObserversAsync();
-                    //Task.WaitAll(t1);
                 }
 
                 disposedValue = true;
@@ -351,7 +394,7 @@ namespace Piraeus.Adapters
                 {
                     foreach (var kvp in kvps)
                     {
-                        await GraphManager.RenewObserverLeaseAsync(kvp.Value.Item1, kvp.Value.Item2, TimeSpan.FromSeconds(60.0));
+                        await graphManager.RenewObserverLeaseAsync(kvp.Value.Item1, kvp.Value.Item2, TimeSpan.FromSeconds(60.0));
                     }
                 }
             });
@@ -367,6 +410,7 @@ namespace Piraeus.Adapters
             int cnt = durableObservers.Count;
             if (durableObservers.Count > 0)
             {
+                Console.WriteLine($"Durable subscription observers found to remove for {identity} - {DateTime.UtcNow.ToString("yyyy - MM - ddTHH - MM - ss.fffff")}");
                 List<Task> taskList = new List<Task>();
                 KeyValuePair<string, IMessageObserver>[] kvps = durableObservers.ToArray();
                 foreach (var item in kvps)
@@ -378,7 +422,7 @@ namespace Piraeus.Adapters
 
                         if (durableObservers.ContainsKey(lease.Value.Item1))
                         {
-                            Task task = GraphManager.RemoveSubscriptionObserverAsync(lease.Value.Item1, lease.Value.Item2);
+                            Task task = graphManager.RemoveSubscriptionObserverAsync(lease.Value.Item1, lease.Value.Item2);
                             taskList.Add(task);
                         }
                     }
@@ -391,10 +435,12 @@ namespace Piraeus.Adapters
 
                 durableObservers.Clear();
                 RemoveFromContainer(list);
+                Console.WriteLine($"Durable subscription observers removed for {identity} - {DateTime.UtcNow.ToString("yyyy - MM - ddTHH - MM - ss.fffff")}");
                 Trace.TraceInformation("'{0}' - Durable observers removed by Orleans Adapter for identity '{1}'", cnt, identity);
             }
             else
             {
+                Console.WriteLine($"No durable subscription observers found to remove for {identity} - {DateTime.UtcNow.ToString("yyyy - MM - ddTHH - MM - ss.fffff")}");
                 Trace.TraceInformation("No Durable observers found by Orleans Adapter to be removed for identity '{0}'", identity);
             }
         }
@@ -406,6 +452,7 @@ namespace Piraeus.Adapters
 
             if (ephemeralObservers.Count > 0)
             {
+                Console.WriteLine($"Ephemeral subscription observers found to remove for {identity} - {DateTime.UtcNow.ToString("yyyy - MM - ddTHH - MM - ss.fffff")}");
                 KeyValuePair<string, IMessageObserver>[] kvps = ephemeralObservers.ToArray();
                 List<Task> unobserveTaskList = new List<Task>();
                 foreach (var item in kvps)
@@ -417,7 +464,7 @@ namespace Piraeus.Adapters
                         list.Add(lease.Value.Item1);
                         if (ephemeralObservers.ContainsKey(lease.Value.Item1))
                         {
-                            Task unobserveTask = GraphManager.RemoveSubscriptionObserverAsync(lease.Value.Item1, lease.Value.Item2);
+                            Task unobserveTask = graphManager.RemoveSubscriptionObserverAsync(lease.Value.Item1, lease.Value.Item2);
                             unobserveTaskList.Add(unobserveTask);
                         }
                     }
@@ -431,10 +478,12 @@ namespace Piraeus.Adapters
 
                 ephemeralObservers.Clear();
                 RemoveFromContainer(list);
+                Console.WriteLine($"Ephemeral subscription observers removed for {identity} - {DateTime.UtcNow.ToString("yyyy - MM - ddTHH - MM - ss.fffff")}");
                 Trace.TraceInformation("'{0}' - Ephemeral observers removed by Orleans Adapter for identity '{1}'", cnt, identity);
             }
             else
             {
+                Console.WriteLine($"No ephemeral subscription observers found to remove for {identity} - {DateTime.UtcNow.ToString("yyyy - MM - ddTHH - MM - ss.fffff")}");
                 Trace.TraceInformation("No Ephemeral observers found by Orleans Adapter to be removed for identity '{0}'", identity);
             }
 

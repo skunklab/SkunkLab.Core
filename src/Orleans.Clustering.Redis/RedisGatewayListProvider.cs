@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Orleans.Configuration;
 using Orleans.Messaging;
 using Orleans.Runtime;
+using Piraeus.Core.Logging;
 using StackExchange.Redis;
 using StackExchange.Redis.Extensions.Binary;
 using System;
@@ -17,27 +17,13 @@ namespace Orleans.Clustering.Redis
     public class RedisGatewayListProvider : IGatewayListProvider
     {
 
-        //public RedisGatewayListProvider(ILogger<RedisGatewayListProvider> logger, IOptions<RedisClusteringOptions> membershipTableOptions, IOptions<ClusterOptions> clusterOptions)
-        //{
-        //    this.logger = logger;
-        //    this.options = membershipTableOptions.Value;
-        //    ConfigurationOptions configOptions = GetRedisConfiguration();
-
-
-
-        //    clusterId = clusterOptions.Value.ClusterId;
-        //    connection = ConnectionMultiplexer.Connect(configOptions);
-        //    database = connection.GetDatabase();
-        //    serializer = new BinarySerializer();
-        //}
-
-        public RedisGatewayListProvider(ILogger<RedisGatewayListProvider> logger, IOptions<RedisClusteringOptions> membershipTableOptions, IOptions<ClusterOptions> clusterOptions)
+        public RedisGatewayListProvider(IOptions<RedisClusteringOptions> membershipTableOptions, IOptions<ClusterOptions> clusterOptions, ILog logger = null)
         {
             this.logger = logger;
             this.options = membershipTableOptions.Value;
             ConfigurationOptions configOptions = GetRedisConfiguration();
 
-           
+
 
             clusterId = clusterOptions.Value.ClusterId;
             connection = ConnectionMultiplexer.Connect(configOptions);
@@ -46,7 +32,7 @@ namespace Orleans.Clustering.Redis
         }
 
 
-        private readonly ILogger<RedisGatewayListProvider> logger;
+        private readonly ILog logger;
         private readonly TimeSpan maxStaleness = TimeSpan.FromMinutes(1.0);
         private readonly ConnectionMultiplexer connection;
         private readonly IDatabase database;
@@ -66,7 +52,7 @@ namespace Orleans.Clustering.Redis
 
         public Task<IList<Uri>> GetGateways()
         {
-            if(database.KeyExists(clusterId))
+            if (database.KeyExists(clusterId))
             {
                 var val = database.StringGet(clusterId);
                 RedisMembershipCollection collection = serializer.Deserialize<RedisMembershipCollection>(val);
@@ -82,7 +68,7 @@ namespace Orleans.Clustering.Redis
                 }
                 catch
                 {
-                    
+
                     return Task.FromResult<IList<Uri>>(null);
                 }
             }
@@ -104,7 +90,7 @@ namespace Orleans.Clustering.Redis
             if (!String.IsNullOrEmpty(options.ConnectionString))
             {
                 configOptions = ConfigurationOptions.Parse(options.ConnectionString);
-                if(options.DatabaseNo == null)
+                if (options.DatabaseNo == null)
                 {
                     configOptions.DefaultDatabase = 2;
                 }

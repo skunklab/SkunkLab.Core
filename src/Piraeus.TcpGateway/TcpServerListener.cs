@@ -1,24 +1,23 @@
-﻿using Microsoft.Extensions.Logging;
-using Piraeus.Adapters;
+﻿using Piraeus.Adapters;
 using Piraeus.Configuration;
 using Piraeus.Core;
+using Piraeus.Core.Logging;
+using Piraeus.Grains;
 using SkunkLab.Security.Authentication;
 using SkunkLab.Security.Tokens;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging.Configuration;
 
 namespace Piraeus.TcpGateway
 {
     public class TcpServerListener
     {
-        public TcpServerListener(IPEndPoint localEP, PiraeusConfig config, ILogger logger = null, CancellationToken token = default(CancellationToken))
+        public TcpServerListener(IPEndPoint localEP, PiraeusConfig config, OrleansConfig orleansConfig, ILog logger = null, CancellationToken token = default)
         {
             serverIP = localEP.Address;
             serverPort = localEP.Port;
@@ -26,6 +25,7 @@ namespace Piraeus.TcpGateway
             this.token = token;
             dict = new Dictionary<string, ProtocolAdapter>();
             this.config = config;
+            this.orleansConfig = orleansConfig;
             this.logger = logger;
 
             if (config.ClientTokenType != null && config.ClientSymmetricKey != null)
@@ -37,15 +37,18 @@ namespace Piraeus.TcpGateway
             }
         }
 
-        public TcpServerListener(IPAddress address, int port, PiraeusConfig config, ILogger logger = null, CancellationToken token = default(CancellationToken))
+        public TcpServerListener(IPAddress address, int port, PiraeusConfig config, OrleansConfig orleansConfig, ILog logger = null, CancellationToken token = default)
         {
             serverIP = address;
             serverPort = port;
-            listener = new TcpListener(address, port);
-            listener.ExclusiveAddressUse = false;
+            listener = new TcpListener(address, port)
+            {
+                ExclusiveAddressUse = false
+            };
             this.token = token;
             dict = new Dictionary<string, ProtocolAdapter>();
             this.config = config;
+            this.orleansConfig = orleansConfig;
             this.logger = logger;
 
 
@@ -59,22 +62,22 @@ namespace Piraeus.TcpGateway
         }
 
         public event EventHandler<ServerFailedEventArgs> OnError;
-        private IPAddress serverIP;
+        private readonly IPAddress serverIP;
         private readonly int serverPort;
-        private TcpListener listener;
-        private CancellationToken token;
-        private Dictionary<string, ProtocolAdapter> dict;
+        private readonly TcpListener listener;
+        private readonly CancellationToken token;
+        private readonly Dictionary<string, ProtocolAdapter> dict;
         private readonly PiraeusConfig config;
         private readonly IAuthenticator authn;
-        private readonly ILogger logger;
+        private readonly ILog logger;
+        private readonly OrleansConfig orleansConfig;
 
         public async Task StartAsync()
-        {   
-            Trace.TraceInformation("<----- TCP Listener staring on Address {0} and Port {1} ----->", serverIP.ToString(), serverPort);
+        {
             listener.ExclusiveAddressUse = false;
             listener.Start();
 
-            Console.WriteLine("Listener started on IP {0} Port {1}", serverIP.ToString(), serverPort);
+            await logger?.LogInformationAsync($"<----- TCP Listener started on Address {serverIP.ToString()} and Port {serverPort} ----->");
 
             while (!token.IsCancellationRequested)
             {
@@ -90,15 +93,15 @@ namespace Piraeus.TcpGateway
                 catch (Exception ex)
                 {
                     OnError?.Invoke(this, new ServerFailedEventArgs("TCP", serverPort));
-                    logger?.LogError("TCP server listener failed to start '{0}'", ex.Message);
+                    logger?.LogErrorAsync(ex, "TCP server listener failed to start '{ex.Message}'");
                 }
             }
         }
 
         public async Task StopAsync()
         {
-            logger?.LogInformation("TCP Listener stopping on Address {0} and Port {1}", serverIP.ToString(), serverPort);
-            //dispose all adapters first
+            await logger?.LogInformationAsync($"TCP Listener stopping on Address {serverIP.ToString()} and Port {serverPort}");
+
             if (dict != null & dict.Count > 0)
             {
                 var keys = dict.Keys;
@@ -116,47 +119,62 @@ namespace Piraeus.TcpGateway
                                 try
                                 {
                                     adapter.Dispose();
-                                    logger.LogWarning("TCP Listener stopping and dispose Protcol adapter {0}", key);
+                                    await logger.LogWarningAsync($"TCP Listener stopping and dispose Protcol adapter {key}");
 
                                 }
                                 catch (Exception ex)
                                 {
-                                    logger.LogError("Fault dispose protcol adaper while Stopping TCP Listener - {0}",ex.Message);
+                                    await logger.LogErrorAsync(ex, "Fault dispose protcol adaper while Stopping TCP Listener");
                                 }
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError("{TCP Listener fault during stop '{0}'", ex.Message);
+                        await logger.LogErrorAsync(ex, $"TCP Listener fault during stop.");
                     }
                 }
             }
             else
             {
-                logger.LogWarning("No protocol adapters in TCP Listener dictionary to dispose and remove");
+                await logger.LogWarningAsync($"No protocol adapters in TCP Listener dictionary to dispose and remove");
             }
 
             listener.Stop();
-
-            await Task.CompletedTask;
         }
 
         private void ManageConnection(TcpClient client)
         {
-            
-            ProtocolAdapter adapter = ProtocolAdapterFactory.Create(config, authn, client, logger, token);
+            GraphManager graphManager = new GraphManager(orleansConfig);
+            ProtocolAdapter adapter = ProtocolAdapterFactory.Create(config, graphManager, authn, client, logger, token);
             dict.Add(adapter.Channel.Id, adapter);
             adapter.OnError += Adapter_OnError;
             adapter.OnClose += Adapter_OnClose;
             adapter.Init();
-            adapter.Channel.OpenAsync().LogExceptions();
-            adapter.Channel.ReceiveAsync().LogExceptions();
+            adapter.Channel.OpenAsync().LogExceptions(logger);
+            adapter.Channel.ReceiveAsync().LogExceptions(logger);
         }
 
-        private void Adapter_OnClose(object sender, ProtocolAdapterCloseEventArgs args)
+        private async void Adapter_OnClose(object sender, ProtocolAdapterCloseEventArgs args)
         {
-            //Trace.TraceWarning("{0} - Protocol adapter on channel {1} closing.", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), args.ChannelId);
+            try
+            {
+                if (dict.ContainsKey(args.ChannelId))
+                {
+                    ProtocolAdapter adapter = dict[args.ChannelId];
+                    dict.Remove(args.ChannelId);
+                    adapter.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogErrorAsync(ex, "Disposing adapter.");
+            }
+        }
+
+        private async void Adapter_OnError(object sender, ProtocolAdapterErrorEventArgs args)
+        {
+            await logger.LogErrorAsync(args.Error, "Adapter exception.");
 
             try
             {
@@ -169,44 +187,7 @@ namespace Piraeus.TcpGateway
             }
             catch (Exception ex)
             {
-                Console.WriteLine("{0} - Exception disposing adapter Listener_OnClose - {1}", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), ex.Message);
-                //Trace.TraceWarning("{0} - TCP Listener exception disposing adapter Listener_OnClose", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"));
-                //Trace.TraceError("{0} - Adapter dispose exception Listener_OnClose - '{1}'", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"),ex.Message);
-                //Trace.TraceError("{0} - Adapter dispose stack trace Listener_OnClose - {1}", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), ex.StackTrace);
-            }
-        }
-
-        private void Adapter_OnError(object sender, ProtocolAdapterErrorEventArgs args)
-        {
-            //Trace.TraceError("{0} - Protocol Adapter on channel {1} threw error {2}", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), args.ChannelId, args.Error.Message);
-            Console.WriteLine("{0} - Adpater exception - {1}", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), args.Error.Message);
-
-            Exception inner = args.Error.InnerException;
-            while (inner != null)
-            {
-                Console.WriteLine("{0} - Adapter Exception Inner - {1}", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), inner.Message);
-                inner = inner.InnerException;
-            }
-
-            //Trace.WriteLine("------ Stack Trace -------");
-            //Trace.TraceError(args.Error.StackTrace);
-            //Trace.WriteLine("------ End Stack Trace -------");
-
-            try
-            {
-                if (dict.ContainsKey(args.ChannelId))
-                {
-                    ProtocolAdapter adapter = dict[args.ChannelId];
-                    dict.Remove(args.ChannelId);
-                    adapter.Dispose();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("{0} - Exception disposing adapter Listener_OnError - {1}", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), ex.Message);
-                //Trace.TraceWarning("{0} - TCP Listener exception disposing adapter Listener_OnError", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"));
-                //Trace.TraceError("{0} - Adapter dispose exception Listener_OnError - '{1}'", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"),ex.Message);
-                //Trace.TraceError("{0} - Adapter dispose stack trace Listener_OnError - {1}", DateTime.UtcNow.ToString("yyyy-MM-ddTHH-MM-ss.fffff"), ex.StackTrace);
+                await logger.LogErrorAsync(ex, "Adapter disposing");
             }
         }
     }

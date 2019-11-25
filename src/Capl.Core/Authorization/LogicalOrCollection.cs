@@ -8,11 +8,10 @@ MIT License
 namespace Capl.Authorization
 {
     using System;
-    using System.Collections.ObjectModel;
+    using System.Collections.Generic;
+    using System.Security.Claims;
     using System.Xml;
     using System.Xml.Serialization;
-    using System.Security.Claims;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Performs a logical disjunction (Logical OR) on a collection of objects implementing IEvaluate.
@@ -76,7 +75,7 @@ namespace Capl.Authorization
             return !this.Evaluates;
         }
 
-      
+
 
         /// <summary>
         /// Reads the Xml of a logical OR.
@@ -119,11 +118,12 @@ namespace Capl.Authorization
                 if (reader.IsRequiredStartElement(AuthorizationConstants.Elements.Rule))
                 {
                     this.Add(Rule.Load(reader));
-                }               
+                }
 
                 if (reader.IsRequiredEndElement(AuthorizationConstants.Elements.LogicalOr))
                 {
-                    break;
+                    return;
+                    //break;
                 }
             }
 
@@ -155,7 +155,7 @@ namespace Capl.Authorization
                 eval.WriteXml(writer);
             }
 
-            writer.WriteEndElement();            
+            writer.WriteEndElement();
         }
     }
 }

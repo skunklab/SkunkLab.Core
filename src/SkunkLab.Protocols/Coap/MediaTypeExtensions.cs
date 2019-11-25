@@ -7,8 +7,8 @@ namespace SkunkLab.Protocols.Coap
     public static class MediaTypeExtensions
     {
         public static string ConvertToContentType(this MediaType mediaType)
-        {            
-            switch(mediaType)
+        {
+            switch (mediaType)
             {
                 case MediaType.Xml:
                     return "text/xml";
@@ -25,7 +25,7 @@ namespace SkunkLab.Protocols.Coap
 
         public static MediaType ConvertFromContentType(this MediaType mediaType, string contentType)
         {
-            switch(contentType.ToLower(CultureInfo.InvariantCulture))
+            switch (contentType.ToLower(CultureInfo.InvariantCulture))
             {
                 case "text/xml":
                     return MediaType.Xml;
@@ -43,6 +43,6 @@ namespace SkunkLab.Protocols.Coap
             }
         }
 
-        
+
     }
 }

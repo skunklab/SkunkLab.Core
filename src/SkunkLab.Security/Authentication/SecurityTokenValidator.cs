@@ -14,15 +14,15 @@ namespace SkunkLab.Security.Authentication
 
     public static class SecurityTokenValidator
     {
-        
+
         public static bool Validate(string tokenString, SecurityTokenType tokenType, string securityKey, string issuer = null, string audience = null, HttpContext context = null)
-        {           
-            if(tokenType == SecurityTokenType.NONE)
+        {
+            if (tokenType == SecurityTokenType.NONE)
             {
                 return false;
             }
 
-            if(tokenType == SecurityTokenType.JWT)
+            if (tokenType == SecurityTokenType.JWT)
             {
                 return ValidateJwt(tokenString, securityKey, issuer, audience, context);
             }
@@ -50,7 +50,7 @@ namespace SkunkLab.Security.Authentication
                     ValidateIssuerSigningKey = true
                 };
 
-                Microsoft.IdentityModel.Tokens.SecurityToken stoken = null;                
+                Microsoft.IdentityModel.Tokens.SecurityToken stoken = null;
 
                 ClaimsPrincipal prin = tokenHandler.ValidateToken(tokenString, validationParameters, out stoken);
                 if (context == null)
@@ -76,14 +76,14 @@ namespace SkunkLab.Security.Authentication
         //private static bool ValidateSwt(string tokenString, string securityKey, string issuer = null, string audience = null)
         //{
         //    bool result = false;
-           
+
 
         //    try
         //    {
         //        SimpleWebToken token = SimpleWebToken.FromString(tokenString);
         //        if(!token.SignVerify(Convert.FromBase64String(securityKey)))
         //        {
-                    
+
         //            throw new System.Security.SecurityException("SWT cannot be verified.");
         //        }
 
@@ -128,7 +128,7 @@ namespace SkunkLab.Security.Authentication
                     ClaimsIdentity ci = new ClaimsIdentity(claimset);
                     ClaimsPrincipal prin = new ClaimsPrincipal(ci);
 
-                    if(context == null)
+                    if (context == null)
                     {
                         Thread.CurrentPrincipal = prin;
                     }
@@ -146,7 +146,7 @@ namespace SkunkLab.Security.Authentication
                     return false;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceError(String.Format("X509 validation exception '{0}'", ex.Message));
                 return false;

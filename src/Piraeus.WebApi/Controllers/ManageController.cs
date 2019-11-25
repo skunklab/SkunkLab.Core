@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Orleans;
+using Microsoft.Extensions.Logging;
 using Piraeus.Configuration;
-using Piraeus.Grains;
+using Piraeus.Core.Logging;
 using SkunkLab.Security.Tokens;
 using System;
 using System.Collections.Generic;
@@ -16,39 +16,50 @@ namespace Piraeus.WebApi.Controllers
     [ApiController]
     public class ManageController : ControllerBase
     {
-        public ManageController(PiraeusConfig config, IClusterClient client)
+        public ManageController(PiraeusConfig config, Logger logger = null)
         {
             this.config = config;
-            if (!GraphManager.IsInitialized)
-            {
-                GraphManager.Initialize(client);
-            }
+            this.logger = logger;
         }
 
-        private PiraeusConfig config;
+        private readonly ILogger logger;
+        private readonly PiraeusConfig config;
 
         [HttpGet]
         [Produces("application/json")]
         [AllowAnonymous]
         public ActionResult<string> Get(string code)
         {
-            string codeString = HttpUtility.UrlDecode(code);
-            string[] codes = config.GetSecurityCodes();
+            try
+            {
+                if (string.IsNullOrEmpty(code))
+                {
+                    throw new ArgumentNullException("code");
+                }
 
-            if(codes.Contains(codeString))
-            {
-                List<Claim> claims = new List<Claim>();
-                claims.Add(new Claim("http://www.skunklab.io/name", Guid.NewGuid().ToString()));
-                claims.Add(new Claim("http://www.skunklab.io/role", "manage"));
-                //build the JWT token
-                //JsonWebToken jwt = new JsonWebToken(new Uri(), config.Security.WebApi.SymmetricKey, config.Security.WebApi.Issuer, claims, 120.0);
-                JsonWebToken jwt = new JsonWebToken(config.ManagmentApiSymmetricKey, claims, 120.0, config.ManagementApiIssuer, config.ManagementApiAudience);
-                return jwt.ToString();
+                string codeString = HttpUtility.UrlDecode(code);
+                string[] codes = config.GetSecurityCodes();
+
+                if (codes.Contains(codeString))
+                {
+                    List<Claim> claims = new List<Claim>();
+                    claims.Add(new Claim($"{config.ManagementApiIssuer}/name", Guid.NewGuid().ToString()));
+                    claims.Add(new Claim($"{config.ManagementApiIssuer}/role", "manage"));
+                    JsonWebToken jwt = new JsonWebToken(config.ManagmentApiSymmetricKey, claims, 120.0, config.ManagementApiIssuer, config.ManagementApiAudience);
+                    logger?.LogInformation("Returning security token.");
+
+                    return StatusCode(200, jwt.ToString());
+                }
+                else
+                {
+                    logger?.LogWarning("Security code mismatch attempting to acquire security token.");
+                    throw new IndexOutOfRangeException("Invalid code");
+                }
             }
-            else
+            catch (Exception ex)
             {
-               
-                throw new IndexOutOfRangeException("Invalid code");
+                logger?.LogError(ex, "Error obtaining security token.");
+                return StatusCode(500, ex.Message);
             }
         }
     }

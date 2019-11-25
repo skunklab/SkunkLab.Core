@@ -10,7 +10,7 @@ namespace SkunkLab.Storage
 
         public static RedisPskStorage CreateSingleton(string connectionString)
         {
-            if(instance == null)
+            if (instance == null)
             {
                 instance = new RedisPskStorage(connectionString);
             }
@@ -49,7 +49,7 @@ namespace SkunkLab.Storage
         public override async Task<string[]> GetKeys()
         {
             EndPoint[] endpoints = connection.GetEndPoints();
-            if(endpoints != null && endpoints.Length > 0)
+            if (endpoints != null && endpoints.Length > 0)
             {
                 var server = connection.GetServer(endpoints[0]);
                 int dbNum = id.HasValue ? id.Value : 0;

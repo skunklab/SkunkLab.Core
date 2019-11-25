@@ -22,11 +22,11 @@ namespace SkunkLab.Protocols.Coap
         }
         public static CoapToken Create()
         {
-            byte[] buffer = new byte[8];            
+            byte[] buffer = new byte[8];
             ran.NextBytes(buffer);
             return new CoapToken(buffer);
         }
-        
+
         public byte[] TokenBytes { get; set; }
 
         public string TokenString

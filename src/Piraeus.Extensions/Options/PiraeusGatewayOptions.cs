@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Piraeus.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Piraeus.Extensions.Options
 {
@@ -42,7 +40,7 @@ namespace Piraeus.Extensions.Options
 
         private OrleansStorageType SetStorageType()
         {
-            if(string.IsNullOrEmpty(DataConnectionString))
+            if (string.IsNullOrEmpty(DataConnectionString))
             {
                 return default(OrleansStorageType);
             }

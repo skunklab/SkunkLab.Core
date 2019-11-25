@@ -25,7 +25,7 @@ namespace Piraeus.SiloHost
             configBuilder.AddOrleansConfiguration(out oconfig);
             ServiceDescriptor sd = new ServiceDescriptor(typeof(Host), new Host());
             services.Add(sd);
-            
+
             IServiceProvider sp = services.BuildServiceProvider();
 
             host = sp.GetRequiredService<Host>();

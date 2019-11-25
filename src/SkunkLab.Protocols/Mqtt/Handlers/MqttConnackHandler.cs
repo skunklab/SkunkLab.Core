@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace SkunkLab.Protocols.Mqtt.Handlers
 {
@@ -14,10 +10,10 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
 
         }
 
-        public override async  Task<MqttMessage> ProcessAsync()
+        public override async Task<MqttMessage> ProcessAsync()
         {
             //the connection has been accepted
-            ConnectAckMessage msg = Message as ConnectAckMessage;            
+            ConnectAckMessage msg = Message as ConnectAckMessage;
             Session.IsConnected = msg.ReturnCode == ConnectAckCode.ConnectionAccepted;
             Session.Connect(msg.ReturnCode);
             Session.IncrementKeepAlive();

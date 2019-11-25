@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SkunkLab.Security.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -6,9 +7,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
-using Microsoft.AspNetCore.Http;
-using SkunkLab.Security.Tokens;
 
 namespace SkunkLab.Security.Authentication
 {
@@ -53,7 +51,7 @@ namespace SkunkLab.Security.Authentication
             try
             {
 
-                if(SecurityTokenValidator.Validate(token, SecurityTokenType.SWT, signingKey, issuer, audience))
+                if (SecurityTokenValidator.Validate(token, SecurityTokenType.SWT, signingKey, issuer, audience))
                 {
                     //HttpContext.Current.User = Thread.CurrentPrincipal;
                 }

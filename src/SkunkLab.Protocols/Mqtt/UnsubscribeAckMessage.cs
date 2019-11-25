@@ -74,7 +74,7 @@ namespace SkunkLab.Protocols.Mqtt
             this.MessageId = messageId;
 
 
-            return unsubackMessage; 
+            return unsubackMessage;
         }
     }
 }

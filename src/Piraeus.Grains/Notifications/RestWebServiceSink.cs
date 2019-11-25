@@ -1,8 +1,6 @@
-﻿using Orleans;
-using Piraeus.Auditing;
+﻿using Piraeus.Auditing;
 using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
-using Piraeus.GrainInterfaces;
 using SkunkLab.Protocols.Coap;
 using SkunkLab.Protocols.Mqtt;
 using SkunkLab.Security.Tokens;
@@ -22,12 +20,13 @@ namespace Piraeus.Grains.Notifications
 {
     public class RestWebServiceSink : EventSink
     {
-        public RestWebServiceSink(SubscriptionMetadata metadata)
+        public RestWebServiceSink(SubscriptionMetadata metadata, List<Claim> claimset = null, X509Certificate2 certificate = null)
             : base(metadata)
-        {            
+        {
             auditor = AuditFactory.CreateSingleton().GetAuditor(AuditType.Message);
-            tokenType = metadata.TokenType;
-            symmetricKey = metadata.SymmetricKey;
+            //tokenType = metadata.TokenType;
+            //symmetricKey = metadata.SymmetricKey;
+            this.certificate = certificate;
 
             Uri uri = new Uri(metadata.NotifyAddress);
 
@@ -54,52 +53,20 @@ namespace Piraeus.Grains.Notifications
             }
 
             address = builder.ToString();
-            
-
-            SetCertificateAsync().Ignore();
-
-            SetClaimsAsync().Ignore();
+            claims = claimset;
         }
 
-        private Piraeus.Core.Metadata.SecurityTokenType? tokenType;
-        private readonly string symmetricKey;
+        //private readonly Piraeus.Core.Metadata.SecurityTokenType? tokenType;
+        //private readonly string symmetricKey;
         private readonly string issuer;
         private readonly string audience;
         private readonly string address;
-        private DateTime tokenExpiration;
+        //private DateTime tokenExpiration;
         private string token;
-        private X509Certificate2 certificate;
-        private List<Claim> claims;
+        private readonly X509Certificate2 certificate;
+        private readonly List<Claim> claims;
         private readonly IAuditor auditor;
 
-
-        private async Task SetCertificateAsync()
-        {
-            IServiceIdentity identity = GraphManager.GetServiceIdentity("PiraeusIdentity");
-            byte[] certBytes = await identity.GetCertificateAsync();
-            if(certBytes != null)
-            {
-                certificate = new X509Certificate2(certBytes);
-            }
-        }
-
-        private async Task SetClaimsAsync()
-        {
-            tokenExpiration = DateTime.UtcNow.AddDays(1.0);
-            IServiceIdentity identity = GraphManager.GetServiceIdentity("PiraeusIdentity");
-            List<KeyValuePair<string,string>> kvps = await identity.GetClaimsAsync();
-
-            if(kvps != null)
-            {
-                List<Claim> list = new List<Claim>();
-                foreach(var kvp in kvps)
-                {
-                    list.Add(new Claim(kvp.Key, kvp.Value));
-                }
-
-                claims = list;
-            }
-        }
 
         private void SetSecurityToken(HttpWebRequest request)
         {
@@ -108,20 +75,20 @@ namespace Piraeus.Grains.Notifications
 
             if (metadata.TokenType.Value == Piraeus.Core.Metadata.SecurityTokenType.X509)
             {
-                
+
 
                 if (certificate == null)
                 {
                     throw new InvalidOperationException("X509 client certificates not available to use for REST call.");
                 }
                 else
-                {                    
+                {
                     request.ClientCertificates.Add(certificate);
                 }
             }
             else if (metadata.TokenType.Value == Piraeus.Core.Metadata.SecurityTokenType.Jwt)
             {
-                
+
                 JsonWebToken jwt = new JsonWebToken(metadata.SymmetricKey, claims, 20.0, issuer, audience);
                 token = jwt.ToString();
 
@@ -169,35 +136,33 @@ namespace Piraeus.Grains.Notifications
 
                 try
                 {
-                    using (HttpWebResponse response = await request.GetResponseAsync() as HttpWebResponse)
+                    using HttpWebResponse response = await request.GetResponseAsync() as HttpWebResponse;
+                    if (response.StatusCode == HttpStatusCode.Accepted || response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
                     {
-                        if (response.StatusCode == HttpStatusCode.Accepted || response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.NoContent)
-                        {
-                            Trace.TraceInformation("Rest request is success.");
-                            record = new MessageAuditRecord(message.MessageId, address, "WebService", "HTTP", payload.Length, MessageDirectionType.Out, true, DateTime.UtcNow);
+                        Trace.TraceInformation("Rest request is success.");
+                        record = new MessageAuditRecord(message.MessageId, address, "WebService", "HTTP", payload.Length, MessageDirectionType.Out, true, DateTime.UtcNow);
 
-                        }
-                        else
-                        {
-                            Trace.TraceInformation("Rest request returned an expected status code.");
-                            record = new MessageAuditRecord(message.MessageId, address, "WebService", "HTTP", payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, String.Format("Rest request returned an expected status code {0}", response.StatusCode));
-                        }
+                    }
+                    else
+                    {
+                        Trace.TraceInformation("Rest request returned an expected status code.");
+                        record = new MessageAuditRecord(message.MessageId, address, "WebService", "HTTP", payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, String.Format("Rest request returned an expected status code {0}", response.StatusCode));
                     }
                 }
                 catch (WebException we)
                 {
                     string faultMessage = String.Format("subscription '{0}' with status code '{1}' and error message '{2}'", metadata.SubscriptionUriString, we.Status.ToString(), we.Message);
                     Trace.TraceError(faultMessage);
-                    record = new MessageAuditRecord(message.MessageId, address, "WebService", "HTTP", payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, we.Message);                   
+                    record = new MessageAuditRecord(message.MessageId, address, "WebService", "HTTP", payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, we.Message);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 record = new MessageAuditRecord(message.MessageId, address, "WebService", "HTTP", payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, ex.Message);
             }
             finally
             {
-                if(message.Audit && record != null)
+                if (message.Audit && record != null)
                 {
                     await auditor?.WriteAuditRecordAsync(record);
                 }
@@ -222,6 +187,6 @@ namespace Piraeus.Grains.Notifications
                     return null;
             }
         }
-        
+
     }
 }

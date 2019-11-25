@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Orleans;
+﻿using Orleans;
+using Orleans.Concurrency;
+using Orleans.Providers;
+using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
 using Piraeus.GrainInterfaces;
-using System.Linq;
-using Piraeus.Core.Messaging;
-using Orleans.Providers;
-using Orleans.Concurrency;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Piraeus.Grains
 {
@@ -24,25 +24,25 @@ namespace Piraeus.Grains
         #region Activation/Deactivation
         public override Task OnActivateAsync()
         {
-            if(State.Subscriptions == null)
+            if (State.Subscriptions == null)
             {
                 System.Collections.Generic.Dictionary<string, ISubscription> subDict = new System.Collections.Generic.Dictionary<string, ISubscription>();
                 State.Subscriptions = subDict;
             }
 
-            if(State.LeaseExpiry == null)
+            if (State.LeaseExpiry == null)
             {
                 System.Collections.Generic.Dictionary<string, Tuple<DateTime, string>> tupleDict = new System.Collections.Generic.Dictionary<string, Tuple<DateTime, string>>();
                 State.LeaseExpiry = tupleDict;
             }
 
-            if(State.MetricLeases == null)
+            if (State.MetricLeases == null)
             {
                 Dictionary<string, IMetricObserver> metricObs = new Dictionary<string, IMetricObserver>();
                 State.MetricLeases = metricObs;
             }
 
-            if(State.ErrorLeases == null)
+            if (State.ErrorLeases == null)
             {
                 Dictionary<string, IErrorObserver> errorObs = new Dictionary<string, IErrorObserver>();
                 State.ErrorLeases = errorObs;
@@ -60,12 +60,12 @@ namespace Piraeus.Grains
         #region Resource Metadata
         public async Task UpsertMetadataAsync(EventMetadata metadata)
         {
-            if(metadata == null)
+            if (metadata == null)
             {
                 throw new ArgumentNullException("metadata");
             }
 
-            if(State.Metadata != null && metadata.ResourceUriString != this.GetPrimaryKeyString())
+            if (State.Metadata != null && metadata.ResourceUriString != this.GetPrimaryKeyString())
             {
                 Trace.TraceWarning("Resource metadata identifier mismatch failed for resource metadata upsert.");
                 Exception ex = new ResourceIdentityMismatchException(String.Format("Resource metadata {0} does not match grain identity {1}", State.Metadata.ResourceUriString, this.GetPrimaryKeyString()));
@@ -99,7 +99,7 @@ namespace Piraeus.Grains
         {
             if (subscription == null)
             {
-                Exception ex = new ArgumentNullException("resource subscribe null");                
+                Exception ex = new ArgumentNullException("resource subscribe null");
                 //GetLogger().Log(1009, Orleans.Runtime.Severity.Error, "Resource subscribe null subscription on resource {0}", new object[] { State.Metadata.ResourceUriString }, ex);
                 await NotifyErrorAsync(ex);
                 return;
@@ -131,7 +131,7 @@ namespace Piraeus.Grains
             //determine if a durable subscriber
             SubscriptionMetadata metadata = await subscription.GetMetadataAsync();
 
-            if(!metadata.IsEphemeral && !string.IsNullOrEmpty(metadata.Identity) && metadata.NotifyAddress == null)
+            if (!metadata.IsEphemeral && !string.IsNullOrEmpty(metadata.Identity) && metadata.NotifyAddress == null)
             {
                 //add as a durable active connection subscriber (no notify address)
                 ISubscriber subscriber = GrainFactory.GetGrain<ISubscriber>(metadata.Identity.ToLowerInvariant());
@@ -153,7 +153,7 @@ namespace Piraeus.Grains
                 throw new ArgumentNullException("subscriptionUriString");
             }
 
-            if(identity == null)
+            if (identity == null)
             {
                 throw new ArgumentNullException("identity");
             }
@@ -167,7 +167,7 @@ namespace Piraeus.Grains
 
         public async Task UnsubscribeAsync(string subscriptionUriString)
         {
-            if(subscriptionUriString == null)
+            if (subscriptionUriString == null)
             {
                 throw new ArgumentNullException("subscriptionUriString");
             }
@@ -178,7 +178,7 @@ namespace Piraeus.Grains
             }
 
             await WriteStateAsync();
-            
+
         }
 
         public async Task<IEnumerable<string>> GetSubscriptionListAsync()
@@ -200,7 +200,7 @@ namespace Piraeus.Grains
         #region Publish
 
         public async Task PublishAsync(EventMessage message)
-        {           
+        {
             if (message == null)
             {
                 Trace.TraceWarning("Resource publish has null message");
@@ -224,7 +224,7 @@ namespace Piraeus.Grains
                     ISubscription[] subscriptions = State.Subscriptions.Values.ToArray();
                     foreach (var item in subscriptions)
                     {
-                        taskList.Add(item.NotifyAsync(message));                        
+                        taskList.Add(item.NotifyAsync(message));
                     }
 
                     await Task.WhenAll(taskList);
@@ -232,7 +232,7 @@ namespace Piraeus.Grains
 
                 await NotifyMetricsAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Resource publish failed to complete.");
                 Trace.TraceError("Resource publish error {0}", ex.Message);
@@ -240,7 +240,7 @@ namespace Piraeus.Grains
                 //GetLogger().Log(1006, Orleans.Runtime.Severity.Error, "Resource publish error {0}", new object[] { State.Metadata.ResourceUriString }, ex);
             }
 
-            if(error != null)
+            if (error != null)
             {
                 await NotifyErrorAsync(error);
             }
@@ -283,23 +283,23 @@ namespace Piraeus.Grains
                     }
                 }
             }
-            catch(AggregateException ae)
+            catch (AggregateException ae)
             {
                 error = ae.Flatten().InnerException;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceWarning("Resource publish with indexes failed to complete.");
                 Trace.TraceError("Resource publish with indexes error {0}", ex.Message);
-                error = ex;                
+                error = ex;
             }
 
-            if(error != null)
+            if (error != null)
             {
                 //GetLogger().Log(1008, Orleans.Runtime.Severity.Error, "Resource publish with index error {0}", new object[] { State.Metadata.ResourceUriString }, error);
                 await NotifyErrorAsync(error);
             }
-            
+
 
         }
 
@@ -356,13 +356,13 @@ namespace Piraeus.Grains
                     leaseTimer = RegisterTimer(CheckLeaseExpiryAsync, null, TimeSpan.FromSeconds(10.0), TimeSpan.FromSeconds(60.0));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 error = ex;
                 //GetLogger().Log(1001, Orleans.Runtime.Severity.Error, "Resource add metric observer {0}", new object[] { State.Metadata.ResourceUriString }, ex);                
             }
 
-            if(error != null)
+            if (error != null)
             {
                 await NotifyErrorAsync(error);
             }
@@ -393,13 +393,13 @@ namespace Piraeus.Grains
                     leaseTimer = RegisterTimer(CheckLeaseExpiryAsync, null, TimeSpan.FromSeconds(10.0), TimeSpan.FromSeconds(60.0));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 error = ex;
                 //GetLogger().Log(1002, Orleans.Runtime.Severity.Error, "Resource add error observer {0}", new object[] { State.Metadata.ResourceUriString }, ex);                
             }
 
-            if(error != null)
+            if (error != null)
             {
                 await NotifyErrorAsync(error);
             }
@@ -435,13 +435,13 @@ namespace Piraeus.Grains
                     State.ErrorLeases.Remove(leaseKey);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 error = ex;
                 //GetLogger().Log(1005, Orleans.Runtime.Severity.Error, "Resource remove observer {0}", new object[] { State.Metadata.ResourceUriString }, ex);
             }
 
-            if(error != null)
+            if (error != null)
             {
                 await NotifyErrorAsync(error);
             }
@@ -499,7 +499,7 @@ namespace Piraeus.Grains
 
             List<string> metricLeaseKeyList = new List<string>(metricQuery.Select((c) => c.Key));
             List<string> errorLeaseKeyList = new List<string>(errorQuery.Select((c) => c.Key));
-                        
+
             foreach (var item in metricLeaseKeyList)
             {
                 State.MetricLeases.Remove(item);

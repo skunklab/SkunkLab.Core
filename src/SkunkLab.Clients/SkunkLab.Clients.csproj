@@ -1,22 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
-    <Version>1.2.0</Version>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <Version>3.0.0</Version>
     <RootNamespace>SkunkLab.Clients</RootNamespace>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.0.19.0</AssemblyVersion>
-    <FileVersion>1.2.0.0</FileVersion>
-    <Description>SkunkLab client library for netcore v2.2</Description>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
+    <Description>SkunkLab client library for dotnet core 3.0.  CoAP, MQTT, REST.</Description>
     <PackageReleaseNotes></PackageReleaseNotes>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/skunklab/piraeus/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/skunklab/piraeus</PackageProjectUrl>
-    <PackageIconUrl>https://avatars2.githubusercontent.com/u/25301165?s=40&amp;amp;u=f8ab917e074351e186df6a41b4d3d764f6b5af96&amp;amp;v=4</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/skunklab/bitrt</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>skunklab.png</PackageIcon>
     <RepositoryUrl>https://github.com/skunklab/SkunkLab.Core</RepositoryUrl>
     <AssemblyName>SkunkLab.Clients</AssemblyName>
     <RepositoryType>https://github.com/skunklab/piraeus</RepositoryType>
-    <PackageTags>SkunkLab Piraeus Clients</PackageTags>
+    <PackageTags>SkunkLab BitRT Clients</PackageTags>
     <Authors>theskunklab@gmail.com</Authors>
     <Company>SkunkLab</Company>
   </PropertyGroup>
@@ -24,6 +24,16 @@
   <ItemGroup>
     <ProjectReference Include="..\SkunkLab.Channels\SkunkLab.Channels.csproj" />
     <ProjectReference Include="..\SkunkLab.Protocols\SkunkLab.Protocols.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="skunklab.png" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="skunklab.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

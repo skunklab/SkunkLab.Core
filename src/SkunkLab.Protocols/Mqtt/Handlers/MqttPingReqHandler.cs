@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace SkunkLab.Protocols.Mqtt.Handlers
 {
@@ -16,7 +12,7 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
 
         public override async Task<MqttMessage> ProcessAsync()
         {
-            if(!Session.IsConnected)
+            if (!Session.IsConnected)
             {
                 Session.Disconnect(Message);
                 return null;

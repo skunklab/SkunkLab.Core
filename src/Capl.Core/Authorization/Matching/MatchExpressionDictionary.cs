@@ -11,7 +11,7 @@ namespace Capl.Authorization.Matching
     using System.Collections;
     using System.Collections.Generic;
 
-    
+
 
 
     public class MatchExpressionDictionary : IDictionary<string, MatchExpression>
@@ -29,7 +29,7 @@ namespace Capl.Authorization.Matching
         {
             get
             {
-                if(defaultInstance != null)
+                if (defaultInstance != null)
                 {
                     return defaultInstance;
                 }

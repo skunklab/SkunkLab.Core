@@ -5,7 +5,7 @@ namespace Piraeus.Configuration
 {
     [Serializable]
     [JsonObject]
-    public class ManagementApiConfig 
+    public class ManagementApiConfig
     {
         public ManagementApiConfig()
         {

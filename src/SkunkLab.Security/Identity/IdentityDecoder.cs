@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace SkunkLab.Security.Identity
 {
@@ -34,25 +34,25 @@ namespace SkunkLab.Security.Identity
             }
         }
 
-        
+
         public string Id { get; internal set; }
 
         public List<KeyValuePair<string, string>> Indexes { get; internal set; }
 
         private string DecodeClaimType(HttpContext context, string claimType)
         {
-            if(claimType == null)
+            if (claimType == null)
             {
                 return null;
             }
 
-            if(context == null)
+            if (context == null)
             {
                 return DecodeClaimType(claimType);
             }
 
             IEnumerable<Claim> claims = context.User.Claims.Where((c) => c.Type.ToLowerInvariant() == claimType.ToLowerInvariant());
-            if(claims != null && claims.Count() == 1)
+            if (claims != null && claims.Count() == 1)
             {
                 return claims.First().Value;
             }

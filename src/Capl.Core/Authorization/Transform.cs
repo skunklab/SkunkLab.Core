@@ -8,18 +8,15 @@ MIT License
 namespace Capl.Authorization
 {
     using System;
-    using System.Xml;
-    using System.Xml.Schema;
-    using System.Xml.Serialization;
-    using System.Security.Claims;
     using System.Collections.Generic;
-    using Capl.Authorization.Matching;
+    using System.Security.Claims;
+    using System.Xml;
 
     /// <summary>
     /// Interface used to transform claims.
     /// </summary>
     [Serializable]
-    public abstract class Transform 
+    public abstract class Transform
     {
         /// <summary>
         /// An optional URI that can identify the transform.
@@ -61,6 +58,6 @@ namespace Capl.Authorization
 
         public abstract void WriteXml(XmlWriter writer);
 
-        
+
     }
 }

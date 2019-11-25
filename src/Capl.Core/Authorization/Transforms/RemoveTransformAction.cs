@@ -7,10 +7,10 @@ MIT License
 
 namespace Capl.Authorization.Transforms
 {
+    using Capl.Authorization;
     using System;
     using System.Collections.Generic;
     using System.Security.Claims;
-    using Capl.Authorization;
 
     /// <summary>
     /// A transform that removes a claim from the set of claims.
@@ -28,7 +28,7 @@ namespace Capl.Authorization.Transforms
         {
             get { return new Uri(AuthorizationConstants.TransformUris.Remove); }
         }
-        
+
 
         /// <summary>
         /// The URI that identifies the remove transform action.
@@ -63,7 +63,7 @@ namespace Capl.Authorization.Transforms
             }
 
             ClaimsIdentity ci = new ClaimsIdentity(claims);
-            IEnumerable<Claim> claimSet = ci.FindAll(delegate(Claim claim)
+            IEnumerable<Claim> claimSet = ci.FindAll(delegate (Claim claim)
             {
                 foreach (Claim c in matchedClaims)
                 {

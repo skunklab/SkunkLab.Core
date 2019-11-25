@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Piraeus.Configuration
+﻿namespace Piraeus.Configuration
 {
     public abstract class WebConfig
     {
@@ -13,6 +9,6 @@ namespace Piraeus.Configuration
 
         #endregion
 
-        
+
     }
 }

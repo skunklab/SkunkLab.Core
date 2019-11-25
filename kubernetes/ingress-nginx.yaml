@@ -1,0 +1,159 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2019-11-12T12:09:21Z"
+  generateName: foolhardy-chipmunk-nginx-ingress-controller-5cfb6bf5b-
+  labels:
+    app: nginx-ingress
+    component: controller
+    pod-template-hash: 5cfb6bf5b
+    release: foolhardy-chipmunk
+  name: foolhardy-chipmunk-nginx-ingress-controller-5cfb6bf5b-qgm6g
+  namespace: ingress-nginx
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: foolhardy-chipmunk-nginx-ingress-controller-5cfb6bf5b
+    uid: 425c7144-0545-11ea-9340-a20cdd7e4435
+  resourceVersion: "1690"
+  selfLink: /api/v1/namespaces/ingress-nginx/pods/foolhardy-chipmunk-nginx-ingress-controller-5cfb6bf5b-qgm6g
+  uid: 427e9acb-0545-11ea-9340-a20cdd7e4435
+spec:
+  containers:
+  - args:
+    - /nginx-ingress-controller
+    - --default-backend-service=ingress-nginx/foolhardy-chipmunk-nginx-ingress-default-backend
+    - --election-id=ingress-controller-leader
+    - --ingress-class=nginx
+    - --configmap=ingress-nginx/foolhardy-chipmunk-nginx-ingress-controller
+    env:
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.name
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: metadata.namespace
+    image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.26.1
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /healthz
+        port: 10254
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    name: nginx-ingress-controller
+    ports:
+    - containerPort: 80
+      name: http
+      protocol: TCP
+    - containerPort: 443
+      name: https
+      protocol: TCP
+    - containerPort: 1883
+      name: tcp-1883
+      protocol: TCP
+    - containerPort: 8883
+      name: tcp-8883
+      protocol: TCP
+    - containerPort: 5684
+      name: tcp-5684
+      protocol: TCP
+    - containerPort: 5683
+      name: udp-5683
+      protocol: UDP
+    - containerPort: 5883
+      name: udp-5883
+      protocol: UDP
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /healthz
+        port: 10254
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities:
+        add:
+        - NET_BIND_SERVICE
+        drop:
+        - ALL
+      runAsUser: 33
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: foolhardy-chipmunk-nginx-ingress-token-rmqh7
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: aks-nodepool1-84088587-vmss000000
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: foolhardy-chipmunk-nginx-ingress
+  serviceAccountName: foolhardy-chipmunk-nginx-ingress
+  terminationGracePeriodSeconds: 60
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: foolhardy-chipmunk-nginx-ingress-token-rmqh7
+    secret:
+      defaultMode: 420
+      secretName: foolhardy-chipmunk-nginx-ingress-token-rmqh7
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2019-11-12T12:09:22Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2019-11-12T12:10:19Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2019-11-12T12:10:19Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2019-11-12T12:09:21Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: docker://4a832f9ced4ef007f6a2fc2255cfbb6fa68ed1145fcf49f669f1020f3888d64b
+    image: quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.26.1
+    imageID: docker-pullable://quay.io/kubernetes-ingress-controller/nginx-ingress-controller@sha256:d0b22f715fcea5598ef7f869d308b55289a3daaa12922fa52a1abf17703c88e7
+    lastState: {}
+    name: nginx-ingress-controller
+    ready: true
+    restartCount: 0
+    state:
+      running:
+        startedAt: "2019-11-12T12:10:01Z"
+  hostIP: 10.240.0.4
+  phase: Running
+  podIP: 10.244.0.13
+  qosClass: BestEffort
+  startTime: "2019-11-12T12:09:22Z"

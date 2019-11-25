@@ -8,12 +8,12 @@ MIT License
 namespace Capl.Authorization
 {
     using System;
+    using System.Collections.Generic;
+    using System.Runtime.Serialization;
+    using System.Security.Claims;
     using System.Xml;
     using System.Xml.Schema;
     using System.Xml.Serialization;
-    using System.Security.Claims;
-    using System.Runtime.Serialization;
-    using System.Collections.Generic;
 
     /// <summary>
     /// An interface used to evaluate a set of claims or a collection of claims and set the truthful evaluation
@@ -41,14 +41,14 @@ namespace Capl.Authorization
 
             reader.MoveToStartElement();
 
-            if(reader.IsRequiredStartElement(AuthorizationConstants.Elements.Rule))
+            if (reader.IsRequiredStartElement(AuthorizationConstants.Elements.Rule))
             {
                 Rule rule = new Rule();
                 rule.ReadXml(reader);
                 evalExp = rule;
             }
 
-            if(reader.IsRequiredStartElement(AuthorizationConstants.Elements.LogicalAnd))
+            if (reader.IsRequiredStartElement(AuthorizationConstants.Elements.LogicalAnd))
             {
                 LogicalAndCollection logicalAnd = new LogicalAndCollection();
                 logicalAnd.ReadXml(reader);
@@ -56,7 +56,7 @@ namespace Capl.Authorization
             }
 
 
-            if(reader.IsRequiredStartElement(AuthorizationConstants.Elements.LogicalOr))
+            if (reader.IsRequiredStartElement(AuthorizationConstants.Elements.LogicalOr))
             {
                 LogicalOrCollection logicalOr = new LogicalOrCollection();
                 logicalOr.ReadXml(reader);

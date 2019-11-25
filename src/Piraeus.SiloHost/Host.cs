@@ -6,7 +6,6 @@ using Orleans.Configuration;
 using Orleans.Hosting;
 using Orleans.Storage.Redis;
 using Piraeus.Configuration;
-using Piraeus.Grains;
 using System;
 using System.Net;
 
@@ -25,14 +24,19 @@ namespace Piraeus.SiloHost
         {
             orleansConfig = GetOrleansConfiguration();
 
-            if(orleansConfig.Dockerized)
-            {
-                CreateClusteredSiloHost();                
-            }
-            else
-            {
-                CreateLocalSiloHost();
-            }
+#if DEBUG
+            CreateClusteredSiloHost();
+#else
+            CreateLocalSiloHost();
+#endif
+            //if (orleansConfig.Dockerized)
+            //{
+            //    CreateClusteredSiloHost();
+            //}
+            //else
+            //{
+            //    CreateLocalSiloHost();
+            //}
 
             host.StartAsync().GetAwaiter();
 
@@ -68,7 +72,6 @@ namespace Piraeus.SiloHost
                     options.ClusterId = orleansConfig.ClusterId;
                     options.ServiceId = orleansConfig.ServiceId;
                 });
-                //.EnableDirectClient();
 
             string storageType = GetStorageType(orleansConfig.DataConnectionString);
             if (storageType.ToLowerInvariant() == "redis")
@@ -91,7 +94,7 @@ namespace Piraeus.SiloHost
             LogLevel orleansLogLevel = GetLogLevel();
             var loggers = orleansConfig.GetLoggerTypes();
             silo.ConfigureLogging(builder =>
-            {                
+            {
                 if (loggers.HasFlag(LoggerType.Console))
                     builder.AddConsole();
                 if (loggers.HasFlag(LoggerType.Debug))
@@ -101,12 +104,12 @@ namespace Piraeus.SiloHost
 
             if (loggers.HasFlag(LoggerType.AppInsights) && !string.IsNullOrEmpty(orleansConfig.AppInsightsKey))
                 silo.AddApplicationInsightsTelemetryConsumer(orleansConfig.AppInsightsKey);
-            host = silo.Build();            
+            host = silo.Build();
 
-            var clusterClient = (IClusterClient)host.Services.GetService(typeof(IClusterClient));
-            GraphManager.Initialize(clusterClient);
+            //var clusterClient = (IClusterClient)host.Services.GetService(typeof(IClusterClient));
+
         }
-                
+
         private LogLevel GetLogLevel()
         {
             return Enum.Parse<LogLevel>(orleansConfig.LogLevel, true);
@@ -133,7 +136,7 @@ namespace Piraeus.SiloHost
         private OrleansConfig GetOrleansConfiguration()
         {
             var builder = new ConfigurationBuilder()
-                .AddJsonFile("./orleansconfig.json") 
+                .AddJsonFile("./orleansconfig.json")
                 .AddEnvironmentVariables("OR_");
             IConfigurationRoot root = builder.Build();
             OrleansConfig config = new OrleansConfig();

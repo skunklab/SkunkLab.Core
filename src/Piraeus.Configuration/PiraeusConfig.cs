@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
-using System.Linq;
 
 namespace Piraeus.Configuration
 {
@@ -145,7 +145,7 @@ namespace Piraeus.Configuration
         /// </summary>
         /// <remarks>The CoAP authority can is not required to be related to the hostname of the gateway.</remarks>
         [JsonProperty("coapAuthority")]
-        public string CoapAuthority { get; set; }        
+        public string CoapAuthority { get; set; }
 
         ///// <summary>
         ///// Hostname of a gateway (deprecated)
@@ -258,7 +258,7 @@ namespace Piraeus.Configuration
         /// Client issuer when using a symmetric key for authentication, e.g., JWT security token.
         /// </summary>
         [JsonProperty("clientIssuer")]
-        public string  ClientIssuer { get; set; }
+        public string ClientIssuer { get; set; }
 
         /// <summary>
         /// Client audience when using a symmetric key for authentication, e.g., JWT security token.
@@ -432,11 +432,11 @@ namespace Piraeus.Configuration
         /// Gets the client indexes, where Key is the claim type and Value is the claim key.
         /// </summary>
         /// <returns></returns>
-        public List<KeyValuePair<string,string>> GetClientIndexes()
+        public List<KeyValuePair<string, string>> GetClientIndexes()
         {
             if (clientIndexes == null)
             {
-                if(ClientIdentityClaimTypes == null || ClientIdentityClaimKeys == null)
+                if (ClientIdentityClaimTypes == null || ClientIdentityClaimKeys == null)
                 {
                     return null;
                 }
@@ -452,7 +452,7 @@ namespace Piraeus.Configuration
                 {
                     clientIndexes = new List<KeyValuePair<string, string>>();
                     for (int index = 0; index < claimTypes.Length; index++)
-                        clientIndexes.Add(new KeyValuePair<string,string>(claimTypes[index], claimKeys[index]));
+                        clientIndexes.Add(new KeyValuePair<string, string>(claimTypes[index], claimKeys[index]));
                 }
                 else
                 {
@@ -468,26 +468,26 @@ namespace Piraeus.Configuration
         /// </summary>
         /// <param name="claims"></param>
         /// <returns></returns>
-        public List<KeyValuePair<string, string>>  GetClientIndexes(IEnumerable<Claim> claims)
+        public List<KeyValuePair<string, string>> GetClientIndexes(IEnumerable<Claim> claims)
         {
             List<KeyValuePair<string, string>> container = new List<KeyValuePair<string, string>>();
 
             List<KeyValuePair<string, string>> clientIndexes = GetClientIndexes();
-            if(clientIndexes == null)
+            if (clientIndexes == null)
             {
                 return null;
             }
 
-            foreach(Claim claim in claims)
+            foreach (Claim claim in claims)
             {
                 var query = clientIndexes.Where((c) => c.Key == claim.Type.ToLowerInvariant());
-                foreach(KeyValuePair<string,string> kvp in query)
+                foreach (KeyValuePair<string, string> kvp in query)
                 {
                     container.Add(new KeyValuePair<string, string>(kvp.Value, claim.Value));
                 }
             }
 
-            if(container.Count > 0)
+            if (container.Count > 0)
             {
                 return container;
             }
@@ -495,7 +495,7 @@ namespace Piraeus.Configuration
             {
                 return null;
             }
-            
+
         }
 
 
@@ -515,11 +515,11 @@ namespace Piraeus.Configuration
             string[] claimTypes = ServiceIdentityClaimTypes.Split(";", StringSplitOptions.RemoveEmptyEntries);
             string[] claimValues = ServiceIdentityClaimValues.Split(";", StringSplitOptions.RemoveEmptyEntries);
 
-            if(claimTypes == null && claimValues == null)
+            if (claimTypes == null && claimValues == null)
             {
                 return null;
             }
-            else if(claimTypes != null && claimValues != null && claimTypes.Length == claimTypes.Length)
+            else if (claimTypes != null && claimValues != null && claimTypes.Length == claimTypes.Length)
             {
                 List<Claim> list = new List<Claim>();
                 for (int index = 0; index < claimTypes.Length; index++)
@@ -532,7 +532,7 @@ namespace Piraeus.Configuration
                 throw new IndexOutOfRangeException("Service claim types and values out of range.");
             }
         }
-               
+
         /// <summary>
         /// Gets the cliet certificate.
         /// </summary>
@@ -540,7 +540,7 @@ namespace Piraeus.Configuration
         public X509Certificate2 GetClientCertificate()
         {
             string filename = ClientCertificateFilename ?? null;
-            if(filename != null)
+            if (filename != null)
             {
                 return new X509Certificate2(File.ReadAllBytes(filename));
             }
@@ -549,7 +549,7 @@ namespace Piraeus.Configuration
             string location = ClientCertificateLocation ?? null;
             string thumbprint = ClientCertificateThumbprint ?? null;
 
-            if(store != null && location != null && thumbprint != null)
+            if (store != null && location != null && thumbprint != null)
             {
                 return GetCertificateFromStore(store, location, thumbprint);
             }
@@ -581,7 +581,7 @@ namespace Piraeus.Configuration
             return null;
 
         }
-                
+
         private X509Certificate2 GetCertificateFromStore(string store, string location, string thumbprint)
         {
             StoreName storeName = Enum.Parse<StoreName>(store, true);
@@ -589,7 +589,7 @@ namespace Piraeus.Configuration
             string thumb = thumbprint.ToUpperInvariant();
 
             X509Store x509Store = new X509Store(storeName, storeLocation);
-            
+
             try
             {
                 x509Store.Open(OpenFlags.ReadOnly);

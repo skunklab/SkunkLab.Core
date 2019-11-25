@@ -5,7 +5,7 @@ namespace SkunkLab.Protocols.Coap
     using System;
     using System.Runtime.Serialization;
 
-     [Serializable]
+    [Serializable]
     public class CoapVersionMismatchException : Exception
     {
         public CoapVersionMismatchException()

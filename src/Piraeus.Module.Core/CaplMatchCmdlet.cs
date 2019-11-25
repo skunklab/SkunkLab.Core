@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Capl.Authorization;
+using System;
 using System.Management.Automation;
-using Capl.Authorization;
 
 namespace Piraeus.Module
 {
@@ -43,7 +43,7 @@ namespace Piraeus.Module
             {
                 throw new ArgumentOutOfRangeException("Type");
             }
-            
+
             WriteObject(new Match() { ClaimType = this.ClaimType, Required = this.Required, Type = matchUri });
         }
     }

@@ -7,7 +7,7 @@ namespace SkunkLab.Clients.Coap
     public class ClientRequestDispatcher : ICoapRequestDispatch
     {
         public ClientRequestDispatcher(CoapClientRequestRegistry registry)
-        {  
+        {
             this.registry = registry;
         }
 
@@ -28,12 +28,12 @@ namespace SkunkLab.Clients.Coap
             TaskCompletionSource<CoapMessage> tcs = new TaskCompletionSource<CoapMessage>();
             CoapUri uri = new CoapUri(message.ResourceUri.ToString());
             ResponseMessageType rmt = message.MessageType == CoapMessageType.Confirmable ? ResponseMessageType.Acknowledgement : ResponseMessageType.NonConfirmable;
-                       
+
 
             registry.GetAction("POST", uri.Resource)?.Invoke(MediaTypeConverter.ConvertFromMediaType(message.ContentType), message.Payload);
             CoapMessage response = new CoapResponse(message.MessageId, rmt, ResponseCodeType.Created, message.Token);
             tcs.SetResult(response);
-            return tcs.Task;           
+            return tcs.Task;
         }
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace SkunkLab.Clients.Coap
             }
         }
 
-       
+
         public void Dispose()
         {
             Dispose(true);

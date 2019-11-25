@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Orleans;
+﻿using Orleans;
 using Orleans.Providers;
 using Piraeus.GrainInterfaces;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Piraeus.Grains
 {
@@ -14,7 +14,7 @@ namespace Piraeus.Grains
         #region Activate/Deactivate
         public override Task OnActivateAsync()
         {
-            if(State.Container == null)
+            if (State.Container == null)
             {
                 List<string> list = new List<string>();
                 State.Container = list;
@@ -31,14 +31,14 @@ namespace Piraeus.Grains
         #endregion
 
         #region List/Add/Remove Subscriptions
-        public async Task<IEnumerable<string>>  GetSubscriptionsAsync()
+        public async Task<IEnumerable<string>> GetSubscriptionsAsync()
         {
             return await Task.FromResult<IEnumerable<string>>(State.Container);
         }
 
         public async Task AddSubscriptionAsync(string subscriptionUriString)
         {
-            if(!State.Container.Contains(subscriptionUriString))
+            if (!State.Container.Contains(subscriptionUriString))
             {
                 State.Container.Add(subscriptionUriString);
             }

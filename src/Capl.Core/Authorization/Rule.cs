@@ -7,13 +7,12 @@ MIT License
 
 namespace Capl.Authorization
 {
+    using Capl.Authorization.Matching;
     using System;
-    using System.Collections;
     using System.Collections.Generic;
+    using System.Security.Claims;
     using System.Xml;
     using System.Xml.Serialization;
-    using System.Security.Claims;
-    using Capl.Authorization.Matching;
 
     /// <summary>
     /// A rule that performs an evaluation.
@@ -56,7 +55,7 @@ namespace Capl.Authorization
         public override Uri TermId { get; set; }
 
         public string Issuer { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the name of the authorization operation.
         /// </summary>
@@ -83,7 +82,7 @@ namespace Capl.Authorization
         /// </summary>
         /// <remarks>If the evaluation of the operation matches the Evaluates property, then the evaluation of the rule is true; otherwise false.</remarks>
         public override bool Evaluates { get; set; }
-        
+
 
         /// <summary>
         /// Evaluates a set of claims using the authorization operation.
@@ -100,7 +99,7 @@ namespace Capl.Authorization
             IList<Claim> list = null;
             Capl.Authorization.Operations.Operation operation = null;
             MatchExpression exp = Capl.Authorization.Matching.MatchExpression.Create(this.MatchExpression.Type, null);
-            
+
             list = exp.MatchClaims(claims, this.MatchExpression.ClaimType, this.MatchExpression.Value);
 
             if (list.Count == 0)
@@ -123,10 +122,10 @@ namespace Capl.Authorization
             }
 
             operation = Capl.Authorization.Operations.Operation.Create(this.Operation.Type, null);
-            
+
             foreach (Claim claim in list)
             {
-                bool eval = operation.Execute(claim.Value, this.Operation.ClaimValue);                                              
+                bool eval = operation.Execute(claim.Value, this.Operation.ClaimValue);
 
                 if (this.Evaluates && eval)
                 {
@@ -137,7 +136,7 @@ namespace Capl.Authorization
                 {
                     return false;
                 }
-            }            
+            }
 
             return !this.Evaluates;
         }
@@ -146,8 +145,8 @@ namespace Capl.Authorization
 
         #region IXmlSerializable Members
 
-        
-       
+
+
         public override void ReadXml(XmlReader reader)
         {
             if (reader == null)
@@ -174,7 +173,7 @@ namespace Capl.Authorization
 
             while (reader.Read())
             {
-                if(reader.IsRequiredStartElement(AuthorizationConstants.Elements.Operation))
+                if (reader.IsRequiredStartElement(AuthorizationConstants.Elements.Operation))
                 {
                     this.Operation = EvaluationOperation.Load(reader);
                 }
@@ -186,7 +185,8 @@ namespace Capl.Authorization
 
                 if (reader.IsRequiredEndElement(AuthorizationConstants.Elements.Rule))
                 {
-                    break;
+                    return;
+                    //break;
                 }
             }
 
@@ -222,7 +222,7 @@ namespace Capl.Authorization
 
             this.MatchExpression.WriteXml(writer);
 
-            writer.WriteEndElement();            
+            writer.WriteEndElement();
         }
 
         #endregion

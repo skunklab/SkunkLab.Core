@@ -12,8 +12,8 @@ namespace SkunkLab.Storage
             await ExecuteAsync(retryOperation, TimeSpan.FromMilliseconds(250), 3);
         }
 
-        
-        
+
+
         public async static Task ExecuteAsync(Action retryOperation, TimeSpan deltaBackoff, int maxRetries)
         {
             int delayMilliseconds = Convert.ToInt32(deltaBackoff.TotalMilliseconds);

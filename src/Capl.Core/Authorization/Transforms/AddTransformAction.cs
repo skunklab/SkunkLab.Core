@@ -7,10 +7,10 @@ MIT License
 
 namespace Capl.Authorization.Transforms
 {
+    using Capl.Authorization;
     using System;
     using System.Collections.Generic;
     using System.Security.Claims;
-    using Capl.Authorization;
 
     /// <summary>
     /// A transform that adds a new claim to a set of claims.
@@ -29,7 +29,7 @@ namespace Capl.Authorization.Transforms
         {
             get { return new Uri(AuthorizationConstants.TransformUris.Add); }
         }
-        
+
         /// <summary>
         /// Gets the URI that identifies the add transform action.
         /// </summary>
@@ -67,8 +67,8 @@ namespace Capl.Authorization.Transforms
             Claim claim = new Claim(targetClaim.ClaimType, targetClaim.ClaimValue);
             claimList.Add(claim);
 
-            return claimList.ToArray();  
-            
+            return claimList.ToArray();
+
         }
     }
 }

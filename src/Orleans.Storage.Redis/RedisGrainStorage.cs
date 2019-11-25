@@ -14,7 +14,7 @@ namespace Orleans.Storage.Redis
 {
     public class RedisGrainStorage : IGrainStorage, ILifecycleParticipant<ISiloLifecycle>
     {
-        
+
         private BinarySerializer serializer;
         private string name;
         private RedisStorageOptions options;
@@ -29,18 +29,18 @@ namespace Orleans.Storage.Redis
             this.options = options;
             this.serializationManager = serializationManager;
             this.logger = logger;
-        }       
+        }
 
         public async Task ClearStateAsync(string grainType, GrainReference grainReference, IGrainState grainState)
         {
             string key = grainReference.ToKeyString();
 
             try
-            {                
+            {
                 await database.KeyDeleteAsync(key);
                 logger.LogDebug($"Redis grain state deleted {key}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, "Failed clear state for key '{key}'.");
             }
@@ -68,7 +68,7 @@ namespace Orleans.Storage.Redis
 
                 logger.LogDebug($"Redis grain state read {key}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, $"Failed read state for key '{key}'.");
             }
@@ -80,7 +80,7 @@ namespace Orleans.Storage.Redis
 
             try
             {
-                var state = grainState.State;               
+                var state = grainState.State;
 
                 if (options.Serializer == SerializerType.Json)
                 {
@@ -95,7 +95,7 @@ namespace Orleans.Storage.Redis
 
                 logger.LogDebug($"Redis grain state wrote {key}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, $"Failed write state for key '{key}'");
             }
@@ -105,11 +105,11 @@ namespace Orleans.Storage.Redis
         {
             try
             {
-                
+
                 lifecycle.Subscribe(OptionFormattingUtilities.Name<RedisGrainStorage>(this.name), this.options.InitStage, Init);
                 logger.LogInformation($"Lifecycle started for {this.name}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, "Redis grain storage failed participate in lifecycle.");
             }

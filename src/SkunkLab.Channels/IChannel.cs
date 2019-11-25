@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SkunkLab.Channels
 {
-  
+
 
     public interface IChannel : IDisposable
     {
@@ -14,8 +11,8 @@ namespace SkunkLab.Channels
         event EventHandler<ChannelCloseEventArgs> OnClose;
         event EventHandler<ChannelOpenEventArgs> OnOpen;
         event EventHandler<ChannelErrorEventArgs> OnError;
-        event EventHandler<ChannelStateEventArgs> OnStateChange; 
-        
+        event EventHandler<ChannelStateEventArgs> OnStateChange;
+
         bool RequireBlocking { get; }
 
         bool IsConnected { get; }
@@ -30,11 +27,11 @@ namespace SkunkLab.Channels
         bool IsEncrypted { get; }
 
         bool IsAuthenticated { get; }
-        
+
         Task OpenAsync();
 
         Task SendAsync(byte[] message);
-        
+
         Task CloseAsync();
 
         Task ReceiveAsync();

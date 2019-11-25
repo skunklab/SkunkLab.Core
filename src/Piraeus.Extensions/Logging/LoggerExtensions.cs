@@ -1,60 +1,38 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Orleans;
-using Orleans.Configuration;
-using Orleans.Hosting;
+﻿using Microsoft.Extensions.Logging;
 using Piraeus.Configuration;
-using Piraeus.Extensions.Options;
 using System;
-using LoggerType = Piraeus.Configuration.LoggerType;
 
 namespace Piraeus.Extensions.Logging
 {
     public static class LoggerExtensions
     {
-        internal static IClientBuilder AddLoggers(this IClientBuilder clientBuilder, PiraeusGatewayOptions options)
+        public static ILoggingBuilder AddLogging(this ILoggingBuilder builder, PiraeusConfig config)
         {
-            clientBuilder.ConfigureLogging(builder =>
+            LoggerType loggerTypes = config.GetLoggerTypes();
+
+            //if (loggerTypes.HasFlag(LoggerType.None))
+            //{
+            //    return builder;
+            //}
+
+            LogLevel logLevel = Enum.Parse<LogLevel>(config.LogLevel, true);
+
+
+            if (loggerTypes.HasFlag(LoggerType.Console))
             {
-                if (options.LoggerTypes.HasFlag(LoggerType.Console) && options.LoggingLevel != LogLevel.None)
-                    builder.AddConsole();
+                builder.AddConsole();
+            }
 
-                if (options.LoggerTypes.HasFlag(LoggerType.Debug) && options.LoggingLevel != LogLevel.None)
-                    builder.AddDebug();                
-
-                if(options.LoggingLevel != LogLevel.None)
-                    builder.SetMinimumLevel(options.LoggingLevel);
-                
-            });
-
-            if (options.LoggingLevel.HasFlag(LoggerType.AppInsights) && options.LoggingLevel != LogLevel.None && !string.IsNullOrEmpty(options.AppInsightKey))
-                clientBuilder.AddApplicationInsightsTelemetryConsumer(options.AppInsightKey);
-        
-            return clientBuilder;
-        }
-
-        public static ISiloHostBuilder AddLoggers(this ISiloHostBuilder siloBuilder, OrleansConfig config)
-        {
-            LoggerType loggerType = config.GetLoggerTypes();            
-
-            siloBuilder.ConfigureLogging(builder =>
+            if (loggerTypes.HasFlag(LoggerType.Debug))
             {
-                if (loggerType.HasFlag(LoggerType.Console))
-                    builder.AddConsole();
+                builder.AddDebug();
+            }
 
-                if (loggerType.HasFlag(LoggerType.Debug))
-                    builder.AddDebug();
-                
-                builder.SetMinimumLevel(Enum.Parse<LogLevel>(config.LogLevel));
-            });
 
-            if (loggerType.HasFlag(LoggerType.AppInsights))
-                siloBuilder.AddApplicationInsightsTelemetryConsumer(config.AppInsightsKey);
 
-            return siloBuilder;
+            builder.SetMinimumLevel(logLevel);
+
+            return builder;
         }
-
-
-        
     }
 }

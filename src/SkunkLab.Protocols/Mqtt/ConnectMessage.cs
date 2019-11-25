@@ -8,7 +8,7 @@ namespace SkunkLab.Protocols.Mqtt
     public class ConnectMessage : MqttMessage
     {
         public ConnectMessage()
-        {           
+        {
         }
 
         public ConnectMessage(string clientId, bool cleanSession)
@@ -24,7 +24,7 @@ namespace SkunkLab.Protocols.Mqtt
             this.CleanSession = cleanSession;
         }
 
-        public ConnectMessage(string clientId, string username, string password, int keepAliveSeconds, bool cleanSession)       
+        public ConnectMessage(string clientId, string username, string password, int keepAliveSeconds, bool cleanSession)
         {
             this.ClientId = clientId;
             this.Username = username;
@@ -40,14 +40,14 @@ namespace SkunkLab.Protocols.Mqtt
         {
         }
 
-        public ConnectMessage(string clientId, int keepAliveSeconds, 
+        public ConnectMessage(string clientId, int keepAliveSeconds,
                              QualityOfServiceLevelType willQualityOfServiceLevel,
                              string willTopic, string willMessage, bool willRetain, bool cleanSession)
             : this(clientId, null, null, keepAliveSeconds, willQualityOfServiceLevel, willTopic, willMessage, willRetain, cleanSession)
         {
         }
 
-        public ConnectMessage(string clientId, string username, string password, int keepAliveSeconds, 
+        public ConnectMessage(string clientId, string username, string password, int keepAliveSeconds,
                              QualityOfServiceLevelType willQualityOfServiceLevel,
                              string willTopic, string willMessage, bool willRetain, bool cleanSession)
         {
@@ -123,7 +123,7 @@ namespace SkunkLab.Protocols.Mqtt
         //private bool willRetain;
         private byte connectFlags;
 
-        
+
         private void SetConnectFlags()
         {
             usernameFlag = !string.IsNullOrEmpty(this.Username);
@@ -139,7 +139,7 @@ namespace SkunkLab.Protocols.Mqtt
                 //fault
             }
 
-            
+
 
             willQoS = 0x00;
             if (this.WillQualityOfServiceLevel.HasValue)
@@ -157,7 +157,7 @@ namespace SkunkLab.Protocols.Mqtt
             this.connectFlags |= this.WillFlag ? (byte)(0x01 << 0x02) : (byte)0x00;
             this.connectFlags |= this.CleanSession ? (byte)(0x01 << 0x01) : (byte)0x00;
         }
-        
+
 
         //public ConnectMessage(ConnectVariableHeader variableHeader, ConnectPayload payload)
         //{
@@ -221,8 +221,8 @@ namespace SkunkLab.Protocols.Mqtt
             int index = 0;
             byte fixedHeader = message[index];
             base.DecodeFixedHeader(fixedHeader);
-            
-            
+
+
             int remainingLength = base.DecodeRemainingLength(message);
 
             int temp = remainingLength; //increase the fixed header size
@@ -247,7 +247,7 @@ namespace SkunkLab.Protocols.Mqtt
             {
                 Buffer.BlockCopy(buffer, index, protocolName, 0, protocolNameLength);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceError(ex.Message);
             }
@@ -256,7 +256,7 @@ namespace SkunkLab.Protocols.Mqtt
 
             //if (Encoding.UTF8.GetString(protocolName) != this.ProtocolName)
             //{
-                //fault wrong protocol
+            //fault wrong protocol
             //}
 
             index += protocolNameLength;
@@ -304,7 +304,7 @@ namespace SkunkLab.Protocols.Mqtt
                 this.Password = ByteContainer.DecodeString(buffer, index, out length);
                 index += length;
             }
-            
+
             return connectMessage;
         }
     }

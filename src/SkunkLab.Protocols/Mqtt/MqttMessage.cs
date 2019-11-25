@@ -33,7 +33,7 @@ namespace SkunkLab.Protocols.Mqtt
             byte msgType = (byte)(fixedHeader >> 0x04);
 
             MqttMessageType messageType = (MqttMessageType)msgType;
-            
+
             MqttMessage mqttMessage = null;
 
             switch (messageType)
@@ -135,7 +135,7 @@ namespace SkunkLab.Protocols.Mqtt
             byte qosLevel = (byte)((fixedHeader & 0x06) >> 0x01);
             byte dupFlag = (byte)((fixedHeader & 0x08) >> 0x03);
             byte retainFlag = (byte)((fixedHeader & 0x01));
-            
+
             this.MessageType = (MqttMessageType)(int)msgType;
             this.QualityOfService = (QualityOfServiceLevelType)(int)qosLevel;
             this.Dup = dupFlag == 0 ? false : true;
@@ -160,7 +160,7 @@ namespace SkunkLab.Protocols.Mqtt
             return value;
         }
 
-        
+
 
     }
 }

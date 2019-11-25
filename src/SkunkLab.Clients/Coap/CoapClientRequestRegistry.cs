@@ -1,5 +1,4 @@
-﻿using SkunkLab.Protocols.Coap;
-using SkunkLab.Protocols.Utilities;
+﻿using SkunkLab.Protocols.Utilities;
 using System;
 using System.Collections.Generic;
 
@@ -31,12 +30,12 @@ namespace SkunkLab.Clients.Coap
             container.Remove(key);
         }
 
-        public Action<string,byte[]> GetAction(string verb, string resourceUriString)
+        public Action<string, byte[]> GetAction(string verb, string resourceUriString)
         {
             Uri uri = new Uri(resourceUriString);
             string key = verb.ToUpperInvariant() + uri.ToCanonicalString(false);
 
-            if(container.ContainsKey(key))
+            if (container.ContainsKey(key))
             {
                 return container[key];
             }

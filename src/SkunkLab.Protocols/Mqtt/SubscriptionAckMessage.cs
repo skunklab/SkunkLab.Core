@@ -57,7 +57,7 @@ namespace SkunkLab.Protocols.Mqtt
 
             ByteContainer qosContainer = new ByteContainer();
             int index = 0;
-            while(index < this._qosLevels.Count)
+            while (index < this._qosLevels.Count)
             {
                 byte qos = (byte)(int)this._qosLevels[index];
                 qosContainer.Add(qos);
@@ -111,7 +111,7 @@ namespace SkunkLab.Protocols.Mqtt
             }
 
 
-            return subackMessage; 
+            return subackMessage;
         }
     }
 }

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -35,8 +35,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.11.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.11.2" />
+    <PackageReference Include="Microsoft.ApplicationInsights.PerfCounterCollector" Version="2.11.2" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.WebApiCompatShim" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.2.1" />
   </ItemGroup>
@@ -46,6 +49,7 @@
     <ProjectReference Include="..\Piraeus.Adapters\Piraeus.Adapters.csproj" />
     <ProjectReference Include="..\Piraeus.Configuration\Piraeus.Configuration.csproj" />
     <ProjectReference Include="..\Piraeus.Core\Piraeus.Core.csproj" />
+    <ProjectReference Include="..\Piraeus.Extensions\Piraeus.Extensions.csproj" />
     <ProjectReference Include="..\SkunkLab.Channels\SkunkLab.Channels.csproj" />
     <ProjectReference Include="..\SkunkLab.Security\SkunkLab.Security.csproj" />
     <ProjectReference Include="..\SkunkLab.Storage\SkunkLab.Storage.csproj" />

@@ -1,6 +1,6 @@
 {
-    "managementApiIssuer": "http://skunklab.io/mgmt",
-    "managementApiAudience": "http://skunklab.io/mgmt",
+    "managementApiIssuer": "http://localhost/mgmt",
+    "managementApiAudience": "http://localhost/mgmt",
     "managmentApiSymmetricKey": "//////////////////////////////////////////8=",
     "managementApiSecurityCodes": "12345678;87654321",
     "loggerTypes": "Console;Debug",

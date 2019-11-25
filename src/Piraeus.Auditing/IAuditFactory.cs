@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Piraeus.Auditing
+﻿namespace Piraeus.Auditing
 {
     public interface IAuditFactory
     {

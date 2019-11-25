@@ -81,7 +81,7 @@ namespace SkunkLab.Protocols.Mqtt
                 messageId[0] = (byte)((this.MessageId >> 8) & 0x00FF); // MSB
                 messageId[1] = (byte)(this.MessageId & 0x00FF); // LSB
                 vhContainer.Add(messageId);
-            }            
+            }
 
             byte[] variableHeaderBytes = vhContainer.ToBytes();
 
@@ -98,7 +98,7 @@ namespace SkunkLab.Protocols.Mqtt
             payloadContainer.Add(this.Payload);
 
             byte[] payloadBytes = payloadContainer.ToBytes();
-            
+
             int remainingLength = variableHeaderBytes.Length + payloadBytes.Length;
             byte[] remainingLengthBytes = base.EncodeRemainingLength(remainingLength);
 
@@ -159,7 +159,7 @@ namespace SkunkLab.Protocols.Mqtt
 
             this.Payload = data;
             //index = base.VariableHeader.Decode(buffer);
-            
+
             //base.Payload = new PublishPayload();
             //base.Payload.Decode(buffer, base.VariableHeader, index);
 

@@ -23,7 +23,7 @@ namespace SkunkLab.Channels.Tcp
             this.maxBufferSize = maxBufferSize;
             this.token = token;
             this.token.Register(async () => await CloseAsync());
-            Id = "tcp-" + Guid.NewGuid().ToString();
+            Id = "tcp2-" + Guid.NewGuid().ToString();
             Port = ((IPEndPoint)client.Client.LocalEndPoint).Port;
             this.queue = new Queue<byte[]>();
         }
@@ -37,7 +37,7 @@ namespace SkunkLab.Channels.Tcp
             this.maxBufferSize = maxBufferSize;
             this.token = token;
             this.token.Register(async () => await CloseAsync());
-            Id = "tcp-" + Guid.NewGuid().ToString();
+            Id = "tcp2-" + Guid.NewGuid().ToString();
             Port = ((IPEndPoint)client.Client.LocalEndPoint).Port;
             this.queue = new Queue<byte[]>();
         }
@@ -50,7 +50,7 @@ namespace SkunkLab.Channels.Tcp
             this.maxBufferSize = maxBufferSize;
             this.token = token;
             this.token.Register(async () => await CloseAsync());
-            Id = "tcp-" + Guid.NewGuid().ToString();
+            Id = "tcp2-" + Guid.NewGuid().ToString();
             Port = ((IPEndPoint)client.Client.LocalEndPoint).Port;
             this.queue = new Queue<byte[]>();
         }
@@ -307,7 +307,7 @@ namespace SkunkLab.Channels.Tcp
             }
             finally
             {
-                OnError?.Invoke(this, new ChannelErrorEventArgs(Id,  error ?? new TimeoutException("Receiver closing")));
+                OnError?.Invoke(this, new ChannelErrorEventArgs(Id, error ?? new TimeoutException("Receiver closing")));
             }
         }
 

@@ -7,13 +7,11 @@ MIT License
 
 namespace Capl.Issuance
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Xml;
-    using System.Security.Claims;
     using Capl.Authorization;
-    using Capl.Authorization.Transforms;
+    using System;
+    using System.Collections.Generic;
+    using System.Security.Claims;
+    using System.Xml;
     using System.Xml.Serialization;
 
     [Serializable]
@@ -22,7 +20,7 @@ namespace Capl.Issuance
     {
         public IssuePolicy()
         {
-            this._transforms = new TransformCollection();    
+            this._transforms = new TransformCollection();
         }
 
         private string _policyId;
@@ -83,19 +81,19 @@ namespace Capl.Issuance
             IEnumerable<Claim> inputClaims = new ClaimsIdentity(copyList).Claims;
 
             List<ICollection<Claim>> list = new List<ICollection<Claim>>();
-            
+
             foreach (ClaimTransform transform in this._transforms)
             {
                 clone = new List<Claim>(transform.TransformClaims(clone.ToArray()));
             }
-            
-            
+
+
 
             if (this._mode == IssueMode.Unique)
             {
                 foreach (Claim c in inputClaims)
                 {
-                    ICollection<Claim> claimSet = clone.FindAll(delegate(Claim claim)
+                    ICollection<Claim> claimSet = clone.FindAll(delegate (Claim claim)
                     {
                         return (c.Type == claim.Type && c.Value == claim.Value && c.Issuer == claim.Issuer);
                     });
@@ -112,7 +110,7 @@ namespace Capl.Issuance
                     {
                         clone.Remove(c);
                     }
-                }                
+                }
             }
 
             return clone;
@@ -124,7 +122,7 @@ namespace Capl.Issuance
             {
                 throw new ArgumentNullException("reader");
             }
-            
+
             reader.MoveToRequiredStartElement(IssueConstants.Elements.IssuePolicy, IssueConstants.Namespaces.Xmlns);
             this._policyId = reader.GetOptionalAttribute(IssueConstants.Attributes.PolicyId);
             string mode = reader.GetOptionalAttribute(IssueConstants.Attributes.Mode);
@@ -148,7 +146,7 @@ namespace Capl.Issuance
 
             while (reader.Read())
             {
-                if(reader.IsRequiredStartElement(AuthorizationConstants.Elements.Transforms))
+                if (reader.IsRequiredStartElement(AuthorizationConstants.Elements.Transforms))
                 {
                     this._transforms = TransformCollection.Load(reader);
                 }
@@ -159,7 +157,7 @@ namespace Capl.Issuance
                 }
             }
 
-            reader.Read();            
+            reader.Read();
         }
 
 
@@ -169,7 +167,7 @@ namespace Capl.Issuance
             {
                 throw new ArgumentNullException("writer");
             }
-            
+
             writer.WriteStartElement(IssueConstants.Elements.IssuePolicy, IssueConstants.Namespaces.Xmlns);
 
             if (this._mode == IssueMode.Aggregate)

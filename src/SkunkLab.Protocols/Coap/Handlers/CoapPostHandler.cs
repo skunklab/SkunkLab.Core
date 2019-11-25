@@ -1,14 +1,11 @@
-﻿using System;
-using System.Security;
-using System.Threading.Tasks;
-using SkunkLab.Protocols.Utilities;
+﻿using System.Threading.Tasks;
 
 namespace SkunkLab.Protocols.Coap.Handlers
 {
     public class CoapPostHandler : CoapMessageHandler
     {
-        public CoapPostHandler(CoapSession session, CoapMessage message, ICoapRequestDispatch dispatcher = null) 
-            : base(session, message, dispatcher)         
+        public CoapPostHandler(CoapSession session, CoapMessage message, ICoapRequestDispatch dispatcher = null)
+            : base(session, message, dispatcher)
         {
             session.EnsureAuthentication(message);
         }
@@ -23,15 +20,15 @@ namespace SkunkLab.Protocols.Coap.Handlers
             }
             else
             {
-                if(Message.MessageType == CoapMessageType.Confirmable)
+                if (Message.MessageType == CoapMessageType.Confirmable)
                 {
                     return await Task.FromResult<CoapMessage>(new CoapResponse(Message.MessageId, ResponseMessageType.Acknowledgement, ResponseCodeType.EmptyMessage));
                 }
             }
-            
 
-            if (response != null && !Message.NoResponse.IsNoResponse(Message.Code))            
-            {                
+
+            if (response != null && !Message.NoResponse.IsNoResponse(Message.Code))
+            {
                 return response;
             }
             else

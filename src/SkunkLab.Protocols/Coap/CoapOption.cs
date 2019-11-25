@@ -37,11 +37,11 @@ namespace SkunkLab.Protocols.Coap
             get
             {
                 int typeValue = (int)this.Type;
-                if(typeValue == 1 || typeValue == 4)
+                if (typeValue == 1 || typeValue == 4)
                 {
                     return typeof(byte[]);
                 }
-                else if(typeValue == 5 )
+                else if (typeValue == 5)
                 {
                     return null;
                 }

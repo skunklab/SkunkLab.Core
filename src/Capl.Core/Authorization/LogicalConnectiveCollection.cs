@@ -10,11 +10,6 @@ namespace Capl.Authorization
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Xml;
-    using System.Xml.Schema;
-    using System.Xml.Serialization;
-    using System.Security.Claims;
-    using System.Runtime.Serialization;
 
     /// <summary>
     /// An abstract logical connective.
@@ -38,7 +33,7 @@ namespace Capl.Authorization
         protected LogicalConnectiveCollection()
         {
             this.list = new List<Term>();
-            this._evaluates = true;    
+            this._evaluates = true;
         }
 
         /// <summary>
@@ -49,7 +44,7 @@ namespace Capl.Authorization
             get { return this._evaluates; }
             set { this._evaluates = value; }
         }
-        
+
         /// <summary>
         /// Gets or sets and option id for the term.
         /// </summary>
@@ -89,7 +84,7 @@ namespace Capl.Authorization
         ///// <returns>True, if the evaluation is true; otherwise false.</returns>
         //public abstract bool Evaluate(ClaimCollection claims);
 
-        
+
         /// <summary>
         /// Index of a term.
         /// </summary>
@@ -182,6 +177,6 @@ namespace Capl.Authorization
         IEnumerator IEnumerable.GetEnumerator()
         {
             return (IEnumerator)this.GetEnumerator();
-        }        
+        }
     }
 }

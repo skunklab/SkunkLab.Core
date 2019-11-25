@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Piraeus.Core.Metadata;
+using System;
 using System.Collections.Generic;
 using System.Management.Automation;
-using Piraeus.Core.Metadata;
 
 namespace Piraeus.Module
 {
@@ -21,7 +21,7 @@ namespace Piraeus.Module
         public string Identity;
 
         [Parameter(HelpMessage = "Optional description of the subsription.", Mandatory = false)]
-        public string Description;       
+        public string Description;
 
         [Parameter(HelpMessage = "Semi-colon delimited list of index keys.  Must match number of index values.", Mandatory = false)]
         public string IndexKeys;
@@ -56,7 +56,7 @@ namespace Piraeus.Module
 
         protected override void ProcessRecord()
         {
-            List<KeyValuePair<string,string>> kvps = null;
+            List<KeyValuePair<string, string>> kvps = null;
 
             if ((!string.IsNullOrEmpty(IndexKeys) || string.IsNullOrEmpty(IndexValues))
                 || (string.IsNullOrEmpty(IndexKeys) || !string.IsNullOrEmpty(IndexValues)))
@@ -69,14 +69,14 @@ namespace Piraeus.Module
                 string[] keys = IndexKeys.Split(";", StringSplitOptions.RemoveEmptyEntries);
                 string[] values = IndexValues.Split(";", StringSplitOptions.RemoveEmptyEntries);
 
-                if(keys.Length != values.Length)
+                if (keys.Length != values.Length)
                 {
                     throw new IndexOutOfRangeException("Index keys and values lengths do not match.");
                 }
 
                 kvps = new List<KeyValuePair<string, string>>();
                 int index = 0;
-                while(index < keys.Length)
+                while (index < keys.Length)
                 {
                     kvps.Add(new KeyValuePair<string, string>(keys[index], values[index]));
                     index++;
@@ -98,7 +98,7 @@ namespace Piraeus.Module
                 SymmetricKey = this.SymmetricKey,
                 SpoolRate = this.SpoolRate,
                 DurableMessaging = this.DurableMessaging,
-                ClaimKey = this.ClaimKey                
+                ClaimKey = this.ClaimKey
             };
 
             string url = String.Format("{0}/api/subscription/upsertsubscriptionmetadata", ServiceUrl);

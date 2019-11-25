@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Orleans;
 using Piraeus.Adapters;
 using Piraeus.Configuration;
+using Piraeus.Core.Logging;
 using Piraeus.Grains;
 using SkunkLab.Channels;
 using SkunkLab.Security.Authentication;
@@ -18,28 +19,27 @@ namespace Piraeus.WebSocketGateway.Middleware
     public class PiraeusWebSocketMiddleware
     {
         private readonly RequestDelegate _next;
-        private PiraeusConfig config;
+        private readonly PiraeusConfig config;
         private CancellationTokenSource source;
         private readonly WebSocketOptions _options;
-        private Dictionary<string, ProtocolAdapter> container;
+        private readonly Dictionary<string, ProtocolAdapter> container;
+        private readonly GraphManager graphManager;
+        private readonly ILog logger;
 
-        
 
-        public PiraeusWebSocketMiddleware(RequestDelegate next, PiraeusConfig config, IClusterClient client, IOptions<WebSocketOptions> options)
+        public PiraeusWebSocketMiddleware(RequestDelegate next, PiraeusConfig config, IClusterClient client, Logger logger, IOptions<WebSocketOptions> options)
         {
             container = new Dictionary<string, ProtocolAdapter>();
             _next = next;
             _options = options.Value;
             this.config = config;
 
-            if (!GraphManager.IsInitialized)
-            {
-                GraphManager.Initialize(client);
-            }            
+            this.graphManager = new GraphManager(client);
+            this.logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
-        {            
+        {
             if (!context.WebSockets.IsWebSocketRequest)
                 return;
 
@@ -49,9 +49,9 @@ namespace Piraeus.WebSocketGateway.Middleware
             IAuthenticator authn = basicAuthn;
 
             WebSocket socket = await context.WebSockets.AcceptWebSocketAsync();
-            
+
             source = new CancellationTokenSource();
-            ProtocolAdapter adapter = ProtocolAdapterFactory.Create(config, context, socket, null, authn, source.Token);
+            ProtocolAdapter adapter = ProtocolAdapterFactory.Create(config, graphManager, context, socket, logger, authn, source.Token);
             container.Add(adapter.Channel.Id, adapter);
             adapter.OnClose += Adapter_OnClose;
             adapter.OnError += Adapter_OnError;
@@ -59,21 +59,21 @@ namespace Piraeus.WebSocketGateway.Middleware
 
 
             await adapter.Channel.OpenAsync();
-            await _next(context);            
+            await _next(context);
             Console.WriteLine("Exiting WS Invoke");
-            
+
         }
 
         private void Adapter_OnError(object sender, ProtocolAdapterErrorEventArgs e)
         {
             Console.WriteLine($"Adapter OnError - {e.Error.Message}");
-            if(container.ContainsKey(e.ChannelId))
+            if (container.ContainsKey(e.ChannelId))
             {
                 ProtocolAdapter adapter = container[e.ChannelId];
                 adapter.Channel.CloseAsync().GetAwaiter();
                 Console.WriteLine("Adapter channel closed due to error.");
             }
-           
+
         }
 
         private void Adapter_OnClose(object sender, ProtocolAdapterCloseEventArgs e)
@@ -83,7 +83,7 @@ namespace Piraeus.WebSocketGateway.Middleware
 
             try
             {
-                if(container.ContainsKey(e.ChannelId))
+                if (container.ContainsKey(e.ChannelId))
                 {
                     adapter = container[e.ChannelId];
                     Console.WriteLine("Adapter on close channel id found adapter to dispose.");
@@ -105,7 +105,7 @@ namespace Piraeus.WebSocketGateway.Middleware
                         Console.WriteLine("Adpater trying to close channel.");
                         adapter.Channel.CloseAsync().GetAwaiter();
                         Console.WriteLine("Adapter has closed the channel");
-                        
+
                     }
                     catch { }
                     adapter.Dispose();

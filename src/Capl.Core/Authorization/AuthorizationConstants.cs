@@ -7,11 +7,6 @@ MIT License
 
 namespace Capl.Authorization
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     /// <summary>
     /// Constants used for Access Control
     /// </summary>
@@ -56,7 +51,7 @@ namespace Capl.Authorization
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
         public static class OperationUris
-        {            
+        {
             public const string Equal = "http://schemas.authz.org/capl/operation#Equal";
             public const string NotEqual = "http://schemas.authz.org/capl/operation#NotEqual";
             public const string Exists = "http://schemas.authz.org/capl/operation#Exists";
@@ -64,7 +59,7 @@ namespace Capl.Authorization
             public const string EqualDateTime = "http://schemas.authz.org/capl/operation#EqualDateTime";
             public const string EqualNumeric = "http://schemas.authz.org/capl/operation#EqualNumeric";
             public const string GreaterThan = "http://schemas.authz.org/capl/operation#GreaterThan";
-            public const string GreaterThanDateTime = "http://schemas.authz.org/capl/operation#GreaterThanDateTime";            
+            public const string GreaterThanDateTime = "http://schemas.authz.org/capl/operation#GreaterThanDateTime";
             public const string GreaterThanOrEqual = "http://schemas.authz.org/capl/operation#GreaterThanOrEqual";
             public const string GreaterThanOrEqualDateTime = "http://schemas.authz.org/capl/operation#GreaterThanOrEqualDateTime";
             public const string LessThan = "http://schemas.authz.org/capl/operation#LessThan";
@@ -72,8 +67,8 @@ namespace Capl.Authorization
             public const string LessThanOrEqual = "http://schemas.authz.org/capl/operation#LessThanOrEqual";
             public const string LessThanOrEqualDateTime = "http://schemas.authz.org/capl/operation#LessThanOrEqualDateTime";
             public const string BetweenDateTime = "http://schemas.authz.org/capl/operation#BetweenDateTime";
-            
-        }        
+
+        }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible")]
         public static class TransformUris

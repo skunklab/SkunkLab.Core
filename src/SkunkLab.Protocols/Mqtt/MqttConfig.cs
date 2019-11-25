@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace SkunkLab.Protocols.Mqtt
-{   
+{
     public sealed class MqttConfig
     {
 
@@ -12,7 +12,7 @@ namespace SkunkLab.Protocols.Mqtt
 
         }
 
-        
+
         public MqttConfig(double keepAliveSeconds = 180.0, double ackTimeout = 2.0, double ackRandomFactor = 1.5, int maxRetransmit = 4, double maxLatency = 100.0, IAuthenticator authenticator = null, string identityClaimType = null, List<KeyValuePair<string, string>> indexes = null)
         {
             KeepAliveSeconds = keepAliveSeconds;
@@ -37,7 +37,7 @@ namespace SkunkLab.Protocols.Mqtt
         /// List of claim type and index name used to associated indexes with an ephemeral subscription.
         /// </summary>
         /// <remarks>Used only on server.</remarks>
-        public List<KeyValuePair<string,string>> Indexes { get; set; }
+        public List<KeyValuePair<string, string>> Indexes { get; set; }
 
         //public IAuthenticator Authenticator { get; set; }
         public double KeepAliveSeconds { get; internal set; }
@@ -67,7 +67,7 @@ namespace SkunkLab.Protocols.Mqtt
 
         public TimeSpan MaxLatency { get; internal set; }
 
-      
+
         public TimeSpan ExchangeLifetime
         {
             get

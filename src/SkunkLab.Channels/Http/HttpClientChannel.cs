@@ -13,7 +13,7 @@ namespace SkunkLab.Channels.Http
 {
     public class HttpClientChannel : HttpChannel
     {
-        
+
         public HttpClientChannel(string endpoint, string securityToken)
         {
             Id = "http-" + Guid.NewGuid().ToString();
@@ -39,7 +39,7 @@ namespace SkunkLab.Channels.Http
             this.indexes = indexes;
         }
 
-        
+
         public HttpClientChannel(string endpoint, string resourceUriString, string contentType, X509Certificate2 certificate, string cacheKey = null, List<KeyValuePair<string, string>> indexes = null)
         {
             Id = "http-" + Guid.NewGuid().ToString();
@@ -88,18 +88,18 @@ namespace SkunkLab.Channels.Http
             this.internalToken = tokenSource.Token;
             this.token.Register(() => this.tokenSource.Cancel());
         }
-        
+
 
         private IEnumerable<KeyValuePair<string, string>> indexes;
-        private CancellationTokenSource tokenSource;
+        private readonly CancellationTokenSource tokenSource;
         private IEnumerable<Observer> observers;
         private X509Certificate2 certificate;
         private string securityToken;
         private string contentType;
-        private Uri requestUri;
+        private readonly Uri requestUri;
         private string resourceUriString;
-        private CancellationToken internalToken;
-        private CancellationToken token;
+        private readonly CancellationToken internalToken;
+        private readonly CancellationToken token;
         private bool disposed;
         private ChannelState _state;
         private string cacheKey;
@@ -128,7 +128,7 @@ namespace SkunkLab.Channels.Http
             get { return _state; }
             internal set
             {
-                if(value != _state)
+                if (value != _state)
                 {
                     OnStateChange?.Invoke(this, new ChannelStateEventArgs(Id, value));
                 }
@@ -143,7 +143,7 @@ namespace SkunkLab.Channels.Http
         public override event EventHandler<ChannelErrorEventArgs> OnError;
         public override event EventHandler<ChannelStateEventArgs> OnStateChange;
 
-     
+
 
         public override async Task AddMessageAsync(byte[] message)
         {
@@ -154,7 +154,7 @@ namespace SkunkLab.Channels.Http
         {
             State = ChannelState.ClosedReceived;
 
-           if(!internalToken.IsCancellationRequested)
+            if (!internalToken.IsCancellationRequested)
             {
                 tokenSource.Cancel();
             }
@@ -165,7 +165,7 @@ namespace SkunkLab.Channels.Http
             await Task.CompletedTask;
         }
 
-        
+
 
         public override async Task OpenAsync()
         {
@@ -178,7 +178,7 @@ namespace SkunkLab.Channels.Http
 
         public override async Task ReceiveAsync()
         {
-            while(!internalToken.IsCancellationRequested)
+            while (!internalToken.IsCancellationRequested)
             {
                 State = ChannelState.Connecting;
                 HttpWebRequest request = GetRequest(HttpMethod.Get);
@@ -186,9 +186,9 @@ namespace SkunkLab.Channels.Http
                 IsEncrypted = request.RequestUri.Scheme == "https";
 
                 try
-                {                   
+                {
                     State = ChannelState.Open;
-                    using (HttpWebResponse response = await request.GetResponseAsync().WithCancellation<WebResponse>(internalToken) as HttpWebResponse)                   
+                    using (HttpWebResponse response = await request.GetResponseAsync().WithCancellation<WebResponse>(internalToken) as HttpWebResponse)
                     {
                         if (response.StatusCode == HttpStatusCode.OK ||
                             response.StatusCode == HttpStatusCode.Accepted)
@@ -203,15 +203,15 @@ namespace SkunkLab.Channels.Http
 
                                 foreach (Observer observer in observers)
                                 {
-                                    if(observer.ResourceUri.ToString().ToLowerInvariant() == resourceUriString)
-                                    {                                        
+                                    if (observer.ResourceUri.ToString().ToLowerInvariant() == resourceUriString)
+                                    {
                                         observer.Update(observer.ResourceUri, response.ContentType, buffer);
                                     }
                                 }
 
                                 List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>();
                                 list.Add(new KeyValuePair<string, string>("Resource", resourceUriString));
-                                list.Add(new KeyValuePair<string, string>("Content-Type", response.ContentType));                               
+                                list.Add(new KeyValuePair<string, string>("Content-Type", response.ContentType));
                                 OnReceive?.Invoke(this, new ChannelReceivedEventArgs(Id, buffer, list));
                             }
                         }
@@ -230,12 +230,12 @@ namespace SkunkLab.Channels.Http
                     State = ChannelState.Aborted;
                 }
                 catch (AggregateException ae)
-                {                    
+                {
                     Trace.TraceError("Http client channel '{0}' receive error '{1}'", Id, ae.Flatten().InnerException.Message);
                     State = ChannelState.Closed;
                     OnError?.Invoke(this, new ChannelErrorEventArgs(Id, ae.Flatten()));
-                }     
-                catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     Trace.TraceError("Http client channel '{0}' receive error '{1}'", Id, ex.Message);
                     State = ChannelState.Closed;
@@ -244,7 +244,7 @@ namespace SkunkLab.Channels.Http
             }
         }
 
-        public async Task SendAsync(string resourceUriString, string contentType, byte[] message, string cacheKey = null, List<KeyValuePair<string,string>> indexes = null)
+        public async Task SendAsync(string resourceUriString, string contentType, byte[] message, string cacheKey = null, List<KeyValuePair<string, string>> indexes = null)
         {
             this.resourceUriString = resourceUriString;
             this.contentType = contentType;
@@ -260,15 +260,15 @@ namespace SkunkLab.Channels.Http
                 HttpWebRequest request = GetRequest(HttpMethod.Post);
                 request.ContentLength = message.Length;
                 Port = request.RequestUri.Port;
-                IsEncrypted = request.RequestUri.Scheme == "https";               
+                IsEncrypted = request.RequestUri.Scheme == "https";
 
-                
+
                 using (Stream stream = await request.GetRequestStreamAsync().WithCancellation(internalToken))
                 {
                     await stream.WriteAsync(message, 0, message.Length);
                 }
 
-                
+
                 using (HttpWebResponse response = await request.GetResponseAsync().WithCancellation(internalToken) as HttpWebResponse)
                 {
                     if (response.StatusCode == HttpStatusCode.OK ||
@@ -286,33 +286,33 @@ namespace SkunkLab.Channels.Http
                     }
                 }
 
-                
+
             }
-            catch(OperationCanceledException oce)
+            catch (OperationCanceledException oce)
             {
                 Trace.TraceWarning("Http channel cancelled.");
                 State = ChannelState.Aborted;
-                OnError?.Invoke(this, new ChannelErrorEventArgs(Id, oce));               
+                OnError?.Invoke(this, new ChannelErrorEventArgs(Id, oce));
             }
-            catch(AggregateException ae)
+            catch (AggregateException ae)
             {
                 State = ChannelState.Aborted;
                 OnError?.Invoke(this, new ChannelErrorEventArgs(Id, ae.Flatten()));
             }
-            catch(WebException we)
+            catch (WebException we)
             {
                 Trace.TraceError("Channel '{0}' error with '{1}'", Id, we.Message);
                 State = ChannelState.Aborted;
                 OnError?.Invoke(this, new ChannelErrorEventArgs(Id, we.InnerException));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceError("Channel '{0}' error with '{1}'", Id, ex.Message);
                 State = ChannelState.Aborted;
                 OnError?.Invoke(this, new ChannelErrorEventArgs(Id, ex));
             }
         }
-        
+
 
         private HttpWebRequest GetRequest(HttpMethod method)
         {
@@ -339,7 +339,7 @@ namespace SkunkLab.Channels.Http
                     }
                 }
             }
-            else if(method == HttpMethod.Post)
+            else if (method == HttpMethod.Post)
             {
                 request.Method = "POST";
                 request.ContentType = contentType;
@@ -348,14 +348,14 @@ namespace SkunkLab.Channels.Http
 
                 request.Headers.Add(HttpChannelConstants.RESOURCE_HEADER, resourceUri.ToString());
 
-                if(!string.IsNullOrEmpty(cacheKey))
+                if (!string.IsNullOrEmpty(cacheKey))
                 {
                     request.Headers.Add(HttpChannelConstants.CACHE_KEY, cacheKey);
                 }
 
                 if (indexes != null)
                 {
-                    foreach(KeyValuePair<string,string> index in indexes)
+                    foreach (KeyValuePair<string, string> index in indexes)
                     {
                         request.Headers.Add(HttpChannelConstants.INDEX_HEADER, index.Key + ";" + index.Value);
                     }
@@ -374,7 +374,7 @@ namespace SkunkLab.Channels.Http
             if (certificate != null)
             {
                 request.ClientCertificates.Add(certificate);
-            }            
+            }
 
             return request;
         }

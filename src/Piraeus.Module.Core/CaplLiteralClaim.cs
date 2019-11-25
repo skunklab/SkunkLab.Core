@@ -15,7 +15,7 @@ namespace Piraeus.Module
 
         protected override void ProcessRecord()
         {
-            LiteralClaim literalClaim = new LiteralClaim(ClaimType, ClaimValue); 
+            LiteralClaim literalClaim = new LiteralClaim(ClaimType, ClaimValue);
             WriteObject(literalClaim);
         }
     }

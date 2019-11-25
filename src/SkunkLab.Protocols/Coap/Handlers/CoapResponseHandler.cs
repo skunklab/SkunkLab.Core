@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkunkLab.Protocols.Utilities;
+﻿using System.Threading.Tasks;
 
 namespace SkunkLab.Protocols.Coap.Handlers
 {
@@ -19,7 +14,7 @@ namespace SkunkLab.Protocols.Coap.Handlers
         {
             Session.CoapSender.DispatchResponse(Message);
 
-            if(Message.MessageType == CoapMessageType.Acknowledgement)
+            if (Message.MessageType == CoapMessageType.Acknowledgement)
             {
                 return await Task.FromResult<CoapResponse>(new CoapResponse(Message.MessageId, ResponseMessageType.Acknowledgement, ResponseCodeType.EmptyMessage));
             }

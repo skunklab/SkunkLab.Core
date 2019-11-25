@@ -26,7 +26,7 @@ namespace SkunkLab.Protocols.Mqtt
             length += 2;
             return Encoding.UTF8.GetString(encodedBytes);
         }
-        
+
         public void Add(byte value)
         {
             header.Add(value);
@@ -40,7 +40,7 @@ namespace SkunkLab.Protocols.Mqtt
         public void Add(byte[] array)
         {
             int index = 0;
-            while(index < array.Length)
+            while (index < array.Length)
             {
                 header.Add(array[index]);
                 index++;
@@ -57,7 +57,7 @@ namespace SkunkLab.Protocols.Mqtt
             byte[] valueArray = null;
 
             valueArray = Encoding.UTF8.GetBytes(value);
-            
+
             byte[] buffer = new byte[valueArray.Length + 2];
 
             byte[] lengthSB = new byte[2];
@@ -69,7 +69,7 @@ namespace SkunkLab.Protocols.Mqtt
 
             Add(buffer);
         }
-        
+
         public byte[] ToBytes()
         {
             return header.ToArray();

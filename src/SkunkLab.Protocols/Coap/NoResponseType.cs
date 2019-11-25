@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkunkLab.Protocols.Coap
 {
@@ -19,7 +15,7 @@ namespace SkunkLab.Protocols.Coap
     {
         public static bool IsNoResponse(this NoResponseType? nrt, CodeType code)
         {
-            if(!nrt.HasValue)
+            if (!nrt.HasValue)
             {
                 return false;
             }
@@ -30,15 +26,15 @@ namespace SkunkLab.Protocols.Coap
             {
                 return true;
             }
-            else if(value >= 200 && value < 300)
+            else if (value >= 200 && value < 300)
             {
                 return nrt.Value.HasFlag(NoResponseType.No200);
             }
-            else if(value >= 400 && value < 500)
+            else if (value >= 400 && value < 500)
             {
                 return nrt.Value.HasFlag(NoResponseType.No400);
             }
-            else if(value >= 500)
+            else if (value >= 500)
             {
                 return nrt.Value.HasFlag(NoResponseType.No500);
             }
@@ -46,8 +42,8 @@ namespace SkunkLab.Protocols.Coap
             {
                 return false;
             }
-            
-            
+
+
 
         }
     }

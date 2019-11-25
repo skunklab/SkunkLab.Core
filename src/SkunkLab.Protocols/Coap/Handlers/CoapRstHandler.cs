@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkunkLab.Protocols.Utilities;
+﻿using System.Threading.Tasks;
 
 namespace SkunkLab.Protocols.Coap.Handlers
 {

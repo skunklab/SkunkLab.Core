@@ -1,9 +1,9 @@
-﻿using System;
+﻿using SkunkLab.Protocols.Mqtt.Handlers;
+using SkunkLab.Security.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
-using SkunkLab.Protocols.Mqtt.Handlers;
-using SkunkLab.Security.Tokens;
 
 namespace SkunkLab.Protocols.Mqtt
 {
@@ -52,10 +52,10 @@ namespace SkunkLab.Protocols.Mqtt
 
         public string Identity { get; set; }
 
-        public List<KeyValuePair<string,string>> Indexes { get; set; }
+        public List<KeyValuePair<string, string>> Indexes { get; set; }
 
 
-        
+
 
         public bool IsConnected { get; internal set; }
         public bool IsAuthenticated { get; set; }
@@ -77,7 +77,7 @@ namespace SkunkLab.Protocols.Mqtt
             return quarantine.NewId();
         }
 
-        
+
 
         /// <summary>
         /// Processes a receive MQTT message and a response or null (no response).
@@ -108,7 +108,7 @@ namespace SkunkLab.Protocols.Mqtt
             bootstrapToken = token;
             HasBootstrapToken = true;
 
-            IsAuthenticated = Config.Authenticator.Authenticate(tt, token);           
+            IsAuthenticated = Config.Authenticator.Authenticate(tt, token);
             return IsAuthenticated;
         }
 
@@ -157,7 +157,7 @@ namespace SkunkLab.Protocols.Mqtt
                 OnPublish?.Invoke(this, new MqttMessageEventArgs(message));
             }
         }
-               
+
 
         internal List<string> Subscribe(MqttMessage message)
         {
@@ -248,7 +248,7 @@ namespace SkunkLab.Protocols.Mqtt
             //if (expiry < DateTime.Now)
             //{
             //    OnKeepAliveExpiry?.Invoke(this, null);
-                //return;
+            //return;
             //}
 
             //signals client to send a ping to keep alive
@@ -308,7 +308,7 @@ namespace SkunkLab.Protocols.Mqtt
                 qosLevels.Clear();
                 qosLevels = null;
 
-                if(keepaliveTimer != null)
+                if (keepaliveTimer != null)
                 {
                     keepaliveTimer.Dispose();
                 }
@@ -317,5 +317,5 @@ namespace SkunkLab.Protocols.Mqtt
             disposed = true;
         }
     }
-            
+
 }

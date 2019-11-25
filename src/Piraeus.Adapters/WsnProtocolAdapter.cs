@@ -5,6 +5,7 @@ using Orleans;
 using Piraeus.Auditing;
 using Piraeus.Configuration;
 using Piraeus.Core;
+using Piraeus.Core.Logging;
 using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
 using Piraeus.Core.Utilities;
@@ -13,18 +14,32 @@ using SkunkLab.Channels;
 using SkunkLab.Security.Identity;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Security;
-using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Piraeus.Adapters
 {
     public class WsnProtocolAdapter : ProtocolAdapter
     {
-        public WsnProtocolAdapter(PiraeusConfig config, IChannel channel, HttpContext context, ILogger logger)
-        {
+        public WsnProtocolAdapter(PiraeusConfig config, GraphManager graphManager, IChannel channel, HttpContext context, ILog logger = null)
+        {            
+            this.config = config;
+            this.graphManager = graphManager;
+            this.Channel = channel;
+            this.logger = logger;
+
+            IdentityDecoder decoder = new IdentityDecoder(config.ClientIdentityNameClaimType, context, config.GetClientIndexes());
+            identity = decoder.Id;
+            localIndexes = decoder.Indexes;
+
+            MessageUri messageUri = new MessageUri(context.Request);
+            this.contentType = messageUri.ContentType;
+            this.cacheKey = messageUri.CacheKey;
+            this.resource = messageUri.Resource;
+            this.subscriptions = messageUri.Subscriptions != null ? new List<string>(messageUri.Subscriptions) : null;
+            this.indexes = messageUri.Indexes != null ? new List<KeyValuePair<string, string>>(messageUri.Indexes) : null;
+
             auditFactory = AuditFactory.CreateSingleton();
             if (config.AuditConnectionString != null && config.AuditConnectionString.Contains("DefaultEndpointsProtocol"))
             {
@@ -47,20 +62,23 @@ namespace Piraeus.Adapters
         public override event EventHandler<ProtocolAdapterCloseEventArgs> OnClose;
         public override event EventHandler<ChannelObserverEventArgs> OnObserve;
 
-        private HttpContext context;
-        private PiraeusConfig config;
+        private readonly GraphManager graphManager;
+        //private readonly HttpContext context;
+        private readonly PiraeusConfig config;
+        private readonly List<string> subscriptions;
         private OrleansAdapter adapter;
         private bool disposedValue;
-        private IAuditor messageAuditor;
-        private string identity;
-        private IAuditor userAuditor;
+        private readonly IAuditor messageAuditor;
+        private readonly string identity;
+        private readonly IAuditor userAuditor;
         private bool closing;
-        private IAuditFactory auditFactory;
-        private ILogger logger;
-        private string resource;
-        private string contentType;
-        private string cacheKey;
-        private List<KeyValuePair<string, string>> indexes;
+        private readonly IAuditFactory auditFactory;
+        private readonly ILog logger;
+        private readonly string resource;
+        private readonly string contentType;
+        private readonly string cacheKey;
+        private readonly List<KeyValuePair<string, string>> indexes;
+        private readonly List<KeyValuePair<string, string>> localIndexes;
 
         public override void Init()
         {
@@ -77,46 +95,51 @@ namespace Piraeus.Adapters
         private void Channel_OnOpen(object sender, ChannelOpenEventArgs e)
         {
             if (!Channel.IsAuthenticated)
-            {
+            {               
+                
                 OnError?.Invoke(this, new ProtocolAdapterErrorEventArgs(Channel.Id, new SecurityException("Not authenticated on WSN channel")));
                 Channel.CloseAsync().Ignore(); //shutdown channel immediately
                 return;
             }
-           
-            string uriString = UriHelper.GetDisplayUrl(context.Request);
 
-            MessageUri uri = new MessageUri(uriString);
-            IdentityDecoder decoder = new IdentityDecoder(config.ClientIdentityNameClaimType, context, config.GetClientIndexes());
-            identity = decoder.Id;
-            resource = uri.Resource;
-            indexes = uri.Indexes == null ? null : new List<KeyValuePair<string, string>>(uri.Indexes);
-            var localIndexes = decoder.Indexes;
+            //string uriString = HttpUtility.HtmlDecode(UriHelper.GetEncodedUrl(context.Request));
 
-            adapter = new OrleansAdapter(decoder.Id, "WebSocket", "WSN");
+            //MessageUri uri = new MessageUri(uriString);
+            //IdentityDecoder decoder = new IdentityDecoder(config.ClientIdentityNameClaimType, context, config.GetClientIndexes());
+            //identity = decoder.Id;
+            ////resource = uri.Resource;
+            ////indexes = uri.Indexes == null ? null : new List<KeyValuePair<string, string>>(uri.Indexes);
+            //var localIndexes = decoder.Indexes;
+
+            adapter = new OrleansAdapter(identity, "WebSocket", "WSN", graphManager);
             adapter.OnObserve += Adapter_OnObserve;
-            foreach(var sub in uri.Subscriptions)
-            {
-                //subscribe
-                SubscriptionMetadata metadata = new SubscriptionMetadata()
-                {
-                    Identity = identity,
-                    Indexes = localIndexes,
-                    IsEphemeral = true
-                };
 
-                SubscribeAsync(uri.Resource, metadata).GetAwaiter();
-                
+            if (subscriptions != null)
+            {
+                foreach (var sub in subscriptions)
+                {
+                    //subscribe
+                    SubscriptionMetadata metadata = new SubscriptionMetadata()
+                    {
+                        Identity = identity,
+                        Indexes = localIndexes,
+                        IsEphemeral = true
+                    };
+
+                    adapter.SubscribeAsync(resource, metadata).GetAwaiter();
+                    //SubscribeAsync(sub, metadata).GetAwaiter();
+                }
             }
 
         }
 
-        private async Task SubscribeAsync(string resource, SubscriptionMetadata metadata)
-        {
-            await adapter.SubscribeAsync(resource, metadata);
-        }
+        //private async Task SubscribeAsync(string resource, SubscriptionMetadata metadata)
+        //{
+        //    await adapter.SubscribeAsync(resource, metadata);
+        //}
 
         private void Adapter_OnObserve(object sender, ObserveMessageEventArgs e)
-        {  
+        {
             MessageAuditRecord record = null;
             int length = 0;
             DateTime sendTime = DateTime.UtcNow;
@@ -124,6 +147,7 @@ namespace Piraeus.Adapters
             {
                 byte[] message = ProtocolTransition.ConvertToHttp(e.Message);
                 Send(message).LogExceptions();
+                OnObserve?.Invoke(this, new ChannelObserverEventArgs(Channel.Id, e.Message.ResourceUri, e.Message.ContentType, e.Message.Message));
 
                 length = message.Length;
                 record = new MessageAuditRecord(e.Message.MessageId, identity, this.Channel.TypeId, "WSN", length, MessageDirectionType.Out, true, sendTime);
@@ -147,6 +171,13 @@ namespace Piraeus.Adapters
         {
             try
             {
+                if (message.Length > config.MaxBufferSize)
+                {
+                    logger?.LogErrorAsync($"Message size {message.Length} is greater than max message size {config.MaxBufferSize}.");
+                    OnError.Invoke(this, new ProtocolAdapterErrorEventArgs(Channel.Id, new Exception("Exceeded max message size.")));
+                    return;
+                }
+
                 await Channel.SendAsync(message);
             }
             catch (Exception ex)
@@ -157,10 +188,12 @@ namespace Piraeus.Adapters
 
         private void Channel_OnReceive(object sender, ChannelReceivedEventArgs e)
         {
-            var metadata = GraphManager.GetPiSystemMetadataAsync(resource).GetAwaiter().GetResult();
+            var metadata = graphManager.GetPiSystemMetadataAsync(resource).GetAwaiter().GetResult();
 
-            EventMessage msg = new EventMessage(contentType, resource, ProtocolType.WSN, e.Message, DateTime.UtcNow, metadata.Audit);
-            msg.CacheKey = cacheKey;
+            EventMessage msg = new EventMessage(contentType, resource, ProtocolType.WSN, e.Message, DateTime.UtcNow, metadata.Audit)
+            {
+                CacheKey = cacheKey
+            };
 
             adapter.PublishAsync(msg, indexes).GetAwaiter();
         }
@@ -190,9 +223,9 @@ namespace Piraeus.Adapters
             }
         }
 
-        
 
-       
+
+
 
         #endregion
 

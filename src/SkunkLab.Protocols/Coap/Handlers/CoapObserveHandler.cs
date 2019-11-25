@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SkunkLab.Protocols.Utilities;
+﻿using System.Threading.Tasks;
 
 namespace SkunkLab.Protocols.Coap.Handlers
 {
@@ -20,9 +14,9 @@ namespace SkunkLab.Protocols.Coap.Handlers
         {
             if (!Session.CoapReceiver.IsDup(Message.MessageId))
             {
-                Session.CoapReceiver.CacheId(Message.MessageId);               
+                Session.CoapReceiver.CacheId(Message.MessageId);
             }
-         
+
             CoapMessage message = await Dispatcher.ObserveAsync(Message);
 
             return await Task.FromResult<CoapMessage>(message);

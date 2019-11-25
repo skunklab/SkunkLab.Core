@@ -23,6 +23,7 @@ namespace SkunkLab.Channels.Tcp
             this.port = port;
             this.maxBufferSize = maxBufferSize;
             this.token = token;
+            Id = "tcp-" + Guid.NewGuid().ToString();
             this.token.Register(async () => await CloseAsync());
             this.queue = new Queue<byte[]>();
         }
@@ -37,6 +38,7 @@ namespace SkunkLab.Channels.Tcp
             this.remoteEP = remoteEndpoint;
             this.maxBufferSize = maxBufferSize;
             this.token = token;
+            Id = "tcp-" + Guid.NewGuid().ToString();
             this.token.Register(async () => await CloseAsync());
             this.queue = new Queue<byte[]>();
         }
@@ -52,6 +54,7 @@ namespace SkunkLab.Channels.Tcp
             this.port = port;
             this.maxBufferSize = maxBufferSize;
             this.token = token;
+            Id = "tcp-" + Guid.NewGuid().ToString();
             this.token.Register(async () => await CloseAsync());
             this.queue = new Queue<byte[]>();
         }
@@ -324,7 +327,7 @@ namespace SkunkLab.Channels.Tcp
                 Trace.TraceError(ioe.Message);
                 throw ioe;
             }
-            
+
 
             localStream = client.GetStream();
 

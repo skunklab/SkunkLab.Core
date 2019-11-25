@@ -33,7 +33,7 @@ namespace Piraeus.Module
         protected override void ProcessRecord()
         {
             string url = null;
-            if(string.IsNullOrEmpty(Password))
+            if (string.IsNullOrEmpty(Password))
             {
                 throw new ArgumentNullException("Password");
             }
@@ -42,7 +42,7 @@ namespace Piraeus.Module
             {
                 url = String.Format($"{ServiceUrl}/api/serviceidentity/addcertificate?key={Name}&path={Path}&pwd={Password}");
             }
-            else if(string.IsNullOrEmpty(Path) && !string.IsNullOrEmpty(Store) && !string.IsNullOrEmpty(Location) && !string.IsNullOrEmpty(Thumbprint))
+            else if (string.IsNullOrEmpty(Path) && !string.IsNullOrEmpty(Store) && !string.IsNullOrEmpty(Location) && !string.IsNullOrEmpty(Thumbprint))
             {
                 url = String.Format($"{ServiceUrl}/api/serviceidentity/addcertificate2?key={Name}&store={Store}&location={Location}&thumbprint={Thumbprint}&pwd={Password}");
             }

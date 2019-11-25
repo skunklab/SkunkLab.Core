@@ -23,7 +23,7 @@ namespace Capl.Issuance
 
         public abstract void WriteXml(XmlWriter writer);
 
-        
+
 
         public static XmlQualifiedName GetSchema(XmlSchemaSet schemaSet)
         {
@@ -32,13 +32,13 @@ namespace Capl.Issuance
                 throw new ArgumentNullException("schemaSet");
             }
 
-            
+
             using (StringReader reader = new StringReader(Capl.Properties.Resources.IssuePolicySchema))
             {
                 XmlSchema schema = XmlSchema.Read(reader, null);
                 schemaSet.Add(schema);
             }
-            
+
             using (StringReader reader = new StringReader(Capl.Properties.Resources.AuthorizationPolicySchema))
             {
                 XmlSchema schema = XmlSchema.Read(reader, null);

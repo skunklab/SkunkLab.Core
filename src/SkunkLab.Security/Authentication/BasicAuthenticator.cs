@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using SkunkLab.Security.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.AspNetCore.Http;
-using SkunkLab.Security.Tokens;
 
 namespace SkunkLab.Security.Authentication
 {
@@ -19,7 +19,7 @@ namespace SkunkLab.Security.Authentication
         public void Add(SecurityTokenType type, string signingKey, string issuer = null, string audience = null, HttpContext context = null)
         {
             this.context = context;
-            if(!container.ContainsKey(type.ToString()))
+            if (!container.ContainsKey(type.ToString()))
             {
                 Tuple<string, string, string> tuple = new Tuple<string, string, string>(signingKey, issuer, audience);
                 container.Add(type.ToString(), tuple);
@@ -39,14 +39,14 @@ namespace SkunkLab.Security.Authentication
         public bool Authenticate(SecurityTokenType type, byte[] token)
         {
 
-            if(token != null)
+            if (token != null)
             {
                 return Authenticate(type, type == SecurityTokenType.X509 ? Convert.ToBase64String(token) : Encoding.UTF8.GetString(token));
             }
             else
             {
                 return Authenticate(type, token);
-            }            
+            }
         }
 
         public bool Authenticate(SecurityTokenType type, string token)

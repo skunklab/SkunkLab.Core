@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
@@ -27,7 +26,7 @@ namespace SkunkLab.Security.Authentication
             }
 
             string[] parts = authorization.ToArray()[0].Split(" ");
-            if(parts.Length != 2)
+            if (parts.Length != 2)
             {
                 return Task.FromResult(AuthenticateResult.Fail("Invalid JWT security token."));
             }
@@ -37,7 +36,7 @@ namespace SkunkLab.Security.Authentication
             {
                 JsonWebToken.Authenticate(tokenString, Options.Issuer, Options.Audience, Options.SigningKey);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceError(ex.Message);
                 return Task.FromResult(AuthenticateResult.Fail("Not authenticated."));

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:  
+  name: http
+  labels:
+    app: http
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: http
+spec:
+  type: ClusterIP
+  ports:
+  - name: "8088"
+    port: 8088
+    targetPort: 8088
+  
+  selector:
+    app: http
+    release: {{ .Release.Name }}
+    component: http
+status:
+  loadBalancer: {}
+

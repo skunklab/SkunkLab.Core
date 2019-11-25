@@ -10,7 +10,7 @@ namespace SkunkLab.Protocols.Coap
     internal static class UriExtensions
     {
         public static IEnumerable<CoapOption> DecomposeCoapUri(this Uri resource)
-        {            
+        {
             List<CoapOption> options = new List<CoapOption>();
 
             GenericUriParser gup = new GenericUriParser(GenericUriParserOptions.NoFragment);
@@ -37,7 +37,7 @@ namespace SkunkLab.Protocols.Coap
 
             options.Add(new CoapOption(OptionType.UriHost, resource.Host));
 
-            if(resource.Port > 0)
+            if (resource.Port > 0)
             {
                 options.Add(new CoapOption(OptionType.UriPort, (uint)resource.Port));
             }
@@ -45,7 +45,7 @@ namespace SkunkLab.Protocols.Coap
             if (resource.AbsolutePath != "/")
             {
                 string[] parts = resource.AbsolutePath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach(string part in parts)
+                foreach (string part in parts)
                 {
                     options.Add(new CoapOption(OptionType.UriPath, part));
                 }
@@ -55,7 +55,7 @@ namespace SkunkLab.Protocols.Coap
             {
                 NameValueCollection nvc = HttpUtility.ParseQueryString(resource.Query);
                 int index = 0;
-                while(index < nvc.Count)
+                while (index < nvc.Count)
                 {
                     options.Add(new CoapOption(OptionType.UriQuery, nvc.GetKey(index) + "=" + nvc[index]));
                     index++;

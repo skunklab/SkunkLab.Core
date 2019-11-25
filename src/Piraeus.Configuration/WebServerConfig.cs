@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Piraeus.Configuration
+﻿namespace Piraeus.Configuration
 {
-    public class WebServerConfig : WebConfig 
+    public class WebServerConfig : WebConfig
     {
         public WebServerConfig()
         {

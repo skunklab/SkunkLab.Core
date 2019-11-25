@@ -7,12 +7,12 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
         public MqttConnectHandler(MqttSession session, MqttMessage message)
             : base(session, message)
         {
-           
+
         }
 
         public override async Task<MqttMessage> ProcessAsync()
         {
-            if(Session.IsConnected)
+            if (Session.IsConnected)
             {
                 Session.Disconnect(Message);
                 return null;
@@ -21,20 +21,20 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
             ConnectMessage msg = Message as ConnectMessage;
 
             //wrong protocol version
-            if(msg.ProtocolVersion != 4)
+            if (msg.ProtocolVersion != 4)
             {
                 Session.ConnectResult = ConnectAckCode.UnacceptableProtocolVersion;
-                return await Task.FromResult<MqttMessage>(new ConnectAckMessage(false, ConnectAckCode.UnacceptableProtocolVersion));                
+                return await Task.FromResult<MqttMessage>(new ConnectAckMessage(false, ConnectAckCode.UnacceptableProtocolVersion));
             }
 
             //0-byte client id and clean session = 0
-            if(msg.ClientId == null && !msg.CleanSession)
+            if (msg.ClientId == null && !msg.CleanSession)
             {
                 Session.ConnectResult = ConnectAckCode.IdentifierRejected;
                 return await Task.FromResult<MqttMessage>(new ConnectAckMessage(false, ConnectAckCode.IdentifierRejected));
             }
 
-            if(!Session.IsAuthenticated)
+            if (!Session.IsAuthenticated)
             {
                 Session.ConnectResult = ConnectAckCode.NotAuthorized;
                 return await Task.FromResult<MqttMessage>(new ConnectAckMessage(false, ConnectAckCode.BadUsernameOrPassword));
@@ -45,8 +45,8 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
                 Session.Connect(ConnectAckCode.ConnectionAccepted);
                 return await Task.FromResult<MqttMessage>(new ConnectAckMessage(false, ConnectAckCode.ConnectionAccepted));
             }
-            
-            
+
+
         }
     }
 }

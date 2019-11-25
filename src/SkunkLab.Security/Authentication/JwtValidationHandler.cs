@@ -18,7 +18,7 @@
 
 //    public class JwtValidationHandler : DelegatingHandler
 //    {
-             
+
 
 //        public JwtValidationHandler(string signingKey, string issuer = null, string audience = null)
 //        {
@@ -74,11 +74,11 @@
 //                };
 
 //                Microsoft.IdentityModel.Tokens.SecurityToken stoken = null;
-                                
+
 //                Thread.CurrentPrincipal = tokenHandler.ValidateToken(token, validationParameters, out stoken);
-               
+
 //                HttpContext.Current.User = Thread.CurrentPrincipal;
-                
+
 //                return base.SendAsync(request, cancellationToken);
 //            }
 //            catch (Microsoft.IdentityModel.Tokens.SecurityTokenValidationException e)

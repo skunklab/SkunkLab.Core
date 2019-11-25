@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Orleans;
 using Piraeus.Adapters;
 using Piraeus.Configuration;
@@ -7,11 +8,9 @@ using Piraeus.Grains;
 using SkunkLab.Channels;
 using SkunkLab.Security.Authentication;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.WebSockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,42 +25,41 @@ namespace Piraeus.WebSocketGateway.Controllers
         private ProtocolAdapter adapter;
         private WebSocket socket;
         private IAuthenticator authn;
+        private GraphManager graphManager;
+        private ILogger logger;
 
 
-        public ConnectController(PiraeusConfig config, IClusterClient client)
+        public ConnectController(PiraeusConfig config, IClusterClient client, ILogger logger)
         {
             this.config = config;
             BasicAuthenticator basicAuthn = new BasicAuthenticator();
-           
+
             SkunkLab.Security.Tokens.SecurityTokenType tokenType = Enum.Parse<SkunkLab.Security.Tokens.SecurityTokenType>(config.ClientTokenType, true);
             basicAuthn.Add(tokenType, config.ClientSymmetricKey, config.ClientIssuer, config.ClientAudience);
             authn = basicAuthn;
 
-
-            if (!GraphManager.IsInitialized)
-            {
-                GraphManager.Initialize(client);
-            }
+            this.graphManager = new GraphManager(client);
+            this.logger = logger;
         }
 
 
         [HttpGet]
         public async Task<HttpResponseMessage> Get()
-        {            
+        {
             source = new CancellationTokenSource();
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
                 try
                 {
                     socket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                    adapter = ProtocolAdapterFactory.Create(config, HttpContext, socket, null, authn, source.Token);
+                    adapter = ProtocolAdapterFactory.Create(config, graphManager, HttpContext, socket, null, authn, source.Token);
                     adapter.OnClose += Adapter_OnClose;
                     adapter.OnError += Adapter_OnError;
                     adapter.Init();
                     await adapter.Channel.OpenAsync();
                     return new HttpResponseMessage(HttpStatusCode.SwitchingProtocols);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     StatusCode(500);
                     Console.WriteLine(ex.Message);

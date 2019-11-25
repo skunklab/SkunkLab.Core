@@ -21,7 +21,7 @@ namespace Piraeus.Module
 
         [Parameter(HelpMessage = "Device ID that you will send messages.", Mandatory = true)]
         public string DeviceId;
-        
+
         [Parameter(HelpMessage = "Name key used for authentication.", Mandatory = true)]
         public string KeyName;
 
@@ -33,7 +33,7 @@ namespace Piraeus.Module
 
         [Parameter(HelpMessage = "SAS token used for authentication.", Mandatory = true)]
         public string Key;
-      
+
         [Parameter(HelpMessage = "Description of the subscription.", Mandatory = false)]
         public string Description;
 
@@ -42,7 +42,7 @@ namespace Piraeus.Module
         {
             string uriString = String.Format("iothub://{0}.azure-devices.net?deviceid={1}&keyname={2}", Account, DeviceId, KeyName);
 
-            if(!String.IsNullOrEmpty(PropertyName))
+            if (!String.IsNullOrEmpty(PropertyName))
             {
                 uriString = String.Format("{0}&propname={1}&propvalue={1}", uriString, PropertyName, PropertyValue);
             }

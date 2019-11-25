@@ -149,7 +149,7 @@ namespace SkunkLab.Protocols.Coap
             byte[] options = null;
 
             if (this.Options.Count > 0)
-            {              
+            {
                 OptionBuilder builder = new OptionBuilder(this.Options.ToArray());
                 options = builder.Encode();
                 length += options.Length;
@@ -240,9 +240,9 @@ namespace SkunkLab.Protocols.Coap
 
             this.HasContentFormat = this.Options.ContainsContentFormat();
 
-            ReadOptions(this);            
+            ReadOptions(this);
         }
-        
+
         protected void LoadOptions()
         {
             Action<OptionType, byte[]> loadByteArray = new Action<OptionType, byte[]>((type, array) =>
@@ -277,7 +277,7 @@ namespace SkunkLab.Protocols.Coap
                 {
                     this.Options.Add(new CoapOption(type, value));
                 }
-            });            
+            });
 
             this.Options.Clear();
 
@@ -290,12 +290,12 @@ namespace SkunkLab.Protocols.Coap
                 }
             }
 
-            if(this.Observe.HasValue)
+            if (this.Observe.HasValue)
             {
                 loadUint(OptionType.Observe, Convert.ToUInt32(!this.Observe.Value), true);
             }
-            
-            if(this.NoResponse.HasValue)
+
+            if (this.NoResponse.HasValue)
             {
                 loadUint(OptionType.NoResponse, Convert.ToUInt32(this.NoResponse.Value), false);
             }
@@ -320,7 +320,7 @@ namespace SkunkLab.Protocols.Coap
             }
 
             loadUint(OptionType.MaxAge, this.MaxAge, false);
-            if(this.Accept.HasValue)
+            if (this.Accept.HasValue)
             {
                 loadUint(OptionType.Accept, (uint)this.Accept.Value, false);
             }
@@ -348,8 +348,8 @@ namespace SkunkLab.Protocols.Coap
             message._eTag = etag == null ? new List<byte[]>() : new List<byte[]>(etag as byte[][]);
             message.IfNoneMatch = message.Options.Contains(new CoapOption(OptionType.IfNoneMatch, null));
             message._locationPath = locationpath == null ? new List<string>() : new List<string>(locationpath as string[]);
-            
-            if(observe != null)
+
+            if (observe != null)
             {
                 message.Observe = ((uint)observe) == 0 ? true : false;
             }
@@ -361,9 +361,9 @@ namespace SkunkLab.Protocols.Coap
             }
 
             message.MaxAge = message.Options.GetOptionValue(OptionType.MaxAge) != null ? (uint)message.Options.GetOptionValue(OptionType.MaxAge) : 0;
-            
+
             object accept = message.Options.GetOptionValue(OptionType.Accept);
-            if(accept != null)
+            if (accept != null)
             {
                 message.Accept = (MediaType)Convert.ToInt32(accept);
             }
@@ -375,6 +375,6 @@ namespace SkunkLab.Protocols.Coap
             message.Size1 = message.Options.GetOptionValue(OptionType.Size1) != null ? (uint)message.Options.GetOptionValue(OptionType.Size1) : 0;
         }
 
-        
+
     }
 }

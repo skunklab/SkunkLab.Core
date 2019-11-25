@@ -78,7 +78,7 @@ namespace Piraeus.Grains.Notifications
             //collection = coltask.Result; 
         }
 
-       
+
 
 
         public override async Task SendAsync(EventMessage message)
@@ -137,15 +137,15 @@ namespace Piraeus.Grains.Notifications
                             record = new MessageAuditRecord(message.MessageId, uri.Query.Length > 0 ? uri.ToString().Replace(uri.Query, "") : uri.ToString(), "CosmosDB", "CosmoDB", payload.Length, MessageDirectionType.Out, true, DateTime.UtcNow);
                         }
                     }
-                }                
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                record = new MessageAuditRecord(message.MessageId, uri.Query.Length > 0 ? uri.ToString().Replace(uri.Query, "") : uri.ToString(), "CosmosDB", "CosmosDB", payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, ex.Message);                
+                record = new MessageAuditRecord(message.MessageId, uri.Query.Length > 0 ? uri.ToString().Replace(uri.Query, "") : uri.ToString(), "CosmosDB", "CosmosDB", payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, ex.Message);
             }
             finally
             {
-                if(record != null && message.Audit)
+                if (record != null && message.Audit)
                 {
                     await auditor?.WriteAuditRecordAsync(record);
                 }
@@ -170,7 +170,7 @@ namespace Piraeus.Grains.Notifications
                     return null;
             }
         }
-        
+
 
         private string GetSlug(string id, string contentType)
         {
@@ -310,6 +310,6 @@ namespace Piraeus.Grains.Notifications
 
             return databases;
         }
-       
+
     }
 }

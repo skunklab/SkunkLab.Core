@@ -35,19 +35,19 @@ namespace Piraeus.Module
         public string Description;
 
         protected override void ProcessRecord()
-        {            
+        {
 
             string uriString = String.Format("redis://{0}.redis.cache.windows.net", Account);
 
-            if(DatabaseNum >= 0 && Expiry.HasValue)
+            if (DatabaseNum >= 0 && Expiry.HasValue)
             {
                 uriString = String.Format("{0}?db={1}&expiry={2}", uriString, DatabaseNum, Expiry.ToString());
             }
-            else if(DatabaseNum >= 0)
+            else if (DatabaseNum >= 0)
             {
                 uriString = String.Format("{0}?db={1}", uriString, DatabaseNum);
             }
-            else if(Expiry.HasValue)
+            else if (Expiry.HasValue)
             {
                 uriString = String.Format("{0}?expiry={1}", uriString, Expiry.ToString());
             }
@@ -64,7 +64,7 @@ namespace Piraeus.Module
                 SymmetricKey = SecurityKey
             };
 
-            if(!string.IsNullOrEmpty(ClaimType))
+            if (!string.IsNullOrEmpty(ClaimType))
             {
                 metadata.ClaimKey = ClaimType.ToLowerInvariant();
             }

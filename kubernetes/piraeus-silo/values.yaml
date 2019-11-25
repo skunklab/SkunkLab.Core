@@ -2,14 +2,15 @@ replicaCount: 1
 dockerized: true
 serviceId: "myservice"
 clusterId: "mycluster"
-loggerTypes: "Console;Debug"
+loggerTypes: "Console"
 loglevel: "Warning"
 
 image:
+  registry: docker.io
   ## Image location, NOT including the tag
   repository: skunklab/piraeus-silo
   ## Image tag
-  tag: latest 
+  tag: v3.0 
   pullPolicy: IfNotPresent
 
 service: 

@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Text;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
 
 namespace Piraeus.Module
 {

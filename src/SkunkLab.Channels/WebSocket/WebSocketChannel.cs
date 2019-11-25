@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
@@ -81,6 +80,6 @@ namespace SkunkLab.Channels.WebSocket
 
         public abstract void Send(byte[] message);
 
-        
+
     }
 }

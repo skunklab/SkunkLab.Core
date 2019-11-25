@@ -55,7 +55,7 @@ namespace SkunkLab.Protocols.Mqtt
         }
         public void RemoveTopic(string topic)
         {
-            if(this._topics.ContainsKey(topic))
+            if (this._topics.ContainsKey(topic))
             {
                 this._topics.Remove(topic);
             }
@@ -76,11 +76,11 @@ namespace SkunkLab.Protocols.Mqtt
             byte[] messageId = new byte[2];
             messageId[0] = (byte)((this.MessageId >> 8) & 0x00FF); // MSB
             messageId[1] = (byte)(this.MessageId & 0x00FF); // LSB
-            
+
             ByteContainer payloadContainer = new ByteContainer();
 
             IEnumerator<KeyValuePair<string, QualityOfServiceLevelType>> en = this._topics.GetEnumerator();
-            while(en.MoveNext())
+            while (en.MoveNext())
             {
                 string topic = en.Current.Key;
                 QualityOfServiceLevelType qosLevel = this._topics[topic];
@@ -89,7 +89,7 @@ namespace SkunkLab.Protocols.Mqtt
                 payloadContainer.Add(topicQos);
             }
 
-         
+
             byte[] payload = payloadContainer.ToBytes();
 
             byte[] remainingLengthBytes = EncodeRemainingLength(payload.Length + 2);

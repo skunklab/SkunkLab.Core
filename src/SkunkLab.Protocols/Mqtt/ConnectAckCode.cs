@@ -2,7 +2,7 @@
 namespace SkunkLab.Protocols.Mqtt
 {
     public enum ConnectAckCode
-    {        
+    {
         ConnectionAccepted = 0,
         UnacceptableProtocolVersion = 1,
         IdentifierRejected = 2,

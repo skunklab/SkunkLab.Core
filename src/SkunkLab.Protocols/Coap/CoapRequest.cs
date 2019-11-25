@@ -15,7 +15,7 @@ namespace SkunkLab.Protocols.Coap
         public CoapRequest(ushort messageId, RequestMessageType type, MethodType method, Uri resourceUri, MediaType? contentType)
             : this(messageId, type, method, null, resourceUri, contentType, null)
         {
-        }    
+        }
 
         public CoapRequest(ushort messageId, RequestMessageType type, MethodType method, Uri resourceUri, MediaType? contentType, byte[] payload)
             : this(messageId, type, method, null, resourceUri, contentType, payload)
@@ -25,24 +25,24 @@ namespace SkunkLab.Protocols.Coap
         public CoapRequest(ushort messageId, RequestMessageType type, MethodType method, byte[] token, Uri resourceUri, MediaType? contentType)
             : this(messageId, type, method, token, resourceUri, contentType, null)
         {
-        }        
+        }
 
         public CoapRequest(ushort messageId, RequestMessageType type, MethodType method, byte[] token, Uri resourceUri, MediaType? contentType, byte[] payload)
             : base()
         {
-            this.MessageId  = messageId;
+            this.MessageId = messageId;
             this.RequestType = type;
             this.Method = method;
             this.Token = token;
             this.ResourceUri = resourceUri;
             this.ContentType = contentType;
             this.Payload = payload;
-        }     
-     
+        }
+
         public RequestMessageType RequestType { get; set; }
-        
+
         public MethodType Method { get; set; }
-               
+
 
         public override byte[] Encode()
         {
@@ -110,7 +110,7 @@ namespace SkunkLab.Protocols.Coap
         public override void Decode(byte[] message)
         {
             //CoapRequest message = new CoapRequest();
-            
+
             int index = 0;
             byte header = message[index++];
             if (header >> 0x06 != 1)
@@ -153,6 +153,6 @@ namespace SkunkLab.Protocols.Coap
 
             ReadOptions(this);
         }
-       
+
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace SkunkLab.Protocols.Mqtt.Handlers
 {
@@ -14,7 +10,7 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
 
         }
 
-        public override async  Task<MqttMessage> ProcessAsync()
+        public override async Task<MqttMessage> ProcessAsync()
         {
             Session.IncrementKeepAlive();
             return await Task.FromResult<MqttMessage>(new PublishAckMessage(PublishAckType.PUBREL, this.Message.MessageId));

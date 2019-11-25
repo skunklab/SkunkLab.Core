@@ -44,10 +44,10 @@ namespace SkunkLab.Channels.WebSocket
         internal Task CloseAsync()
         {
             TaskCompletionSource<Task> tcs = new TaskCompletionSource<Task>();
-            
+
             if (Socket != null && Socket.State == WebSocketState.Open)
             {
-                Task task =  this._sendQueue.Enqueue(() => Socket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "", token));
+                Task task = this._sendQueue.Enqueue(() => Socket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "", token));
                 tcs.SetResult(task);
             }
 
@@ -73,7 +73,7 @@ namespace SkunkLab.Channels.WebSocket
         [EditorBrowsable(EditorBrowsableState.Never)]
         public Task ProcessWebSocketRequestAsync(WebSocket socket)
         {
-            if(socket == null)
+            if (socket == null)
             {
                 throw new ArgumentNullException("socket");
             }
@@ -140,7 +140,7 @@ namespace SkunkLab.Channels.WebSocket
         //[EditorBrowsable(EditorBrowsableState.Never)]       
         //public Task ProcessWebSocketRequestAsync(HttpListenerWebSocketContext webSocketContext)
         //{
-            
+
         //    if (webSocketContext == null)
         //    {
         //        throw new ArgumentNullException("webSocketContext");
@@ -148,7 +148,7 @@ namespace SkunkLab.Channels.WebSocket
 
         //    byte[] buffer = new byte[config.ReceiveLoopBufferSize];
         //    WebSocket webSocket = webSocketContext.WebSocket;
-           
+
         //    return ProcessWebSocketRequestAsync(webSocketContext, () => WebSocketMessageReader.ReadMessageAsync(webSocket, buffer, config.MaxIncomingMessageSize,CancellationToken.None));
         //    //source.SetResult(ProcessWebSocketRequestAsync(webSocketContext, () => WebSocketMessageReader.ReadMessageAsync(webSocket, buffer, config.MaxIncomingMessageSize, CancellationToken.None)));
         //    //return source.Task;
@@ -250,16 +250,16 @@ namespace SkunkLab.Channels.WebSocket
 
             return tcs.Task;
         }
-        
 
-        
 
-       
 
-        
+
+
+
+
 
     }
-        
-    
+
+
 
 }

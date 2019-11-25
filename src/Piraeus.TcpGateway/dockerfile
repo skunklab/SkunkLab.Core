@@ -1,0 +1,8 @@
+﻿FROM mcr.microsoft.com/dotnet/core/runtime:3.0 AS runtime
+WORKDIR /app
+EXPOSE 1883
+EXPOSE 8883
+EXPOSE 5684
+
+ENTRYPOINT ["dotnet", "Piraeus.TcpGateway.dll"]
+COPY . /app

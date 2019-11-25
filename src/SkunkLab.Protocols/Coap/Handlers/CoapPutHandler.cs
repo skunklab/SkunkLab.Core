@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace SkunkLab.Protocols.Coap.Handlers
 {
     public class CoapPutHandler : CoapMessageHandler
     {
-        public CoapPutHandler(CoapSession session, CoapMessage message, ICoapRequestDispatch dispatcher = null) 
+        public CoapPutHandler(CoapSession session, CoapMessage message, ICoapRequestDispatch dispatcher = null)
             : base(session, message, dispatcher)
         {
             session.EnsureAuthentication(message);

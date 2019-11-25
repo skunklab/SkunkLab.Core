@@ -1,8 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using System;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace SkunkLab.Security.Authentication
 {
@@ -18,7 +14,7 @@ namespace SkunkLab.Security.Authentication
             get { return "SkunkLabX509"; }
         }
 
-       
+
         public X509AuthenticationOptions(string storeName, string location, string thumbprint)
         {
             StoreName = storeName;

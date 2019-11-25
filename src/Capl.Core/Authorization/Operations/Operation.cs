@@ -8,7 +8,6 @@ MIT License
 namespace Capl.Authorization.Operations
 {
     using System;
-    using Capl.Authorization.Operations;
 
     /// <summary>
     /// An abstract operation that performs an authorization function.

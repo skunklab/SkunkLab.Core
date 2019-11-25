@@ -65,9 +65,9 @@ namespace Capl.Authorization
         {
             Match match = new Match();
             match.ReadXml(reader);
-            return match;           
+            return match;
         }
-                
+
         public XmlSchema GetSchema()
         {
             return null;
@@ -100,7 +100,7 @@ namespace Capl.Authorization
             {
                 throw new SerializationException(String.Format("Unexpected element {0}", reader.LocalName));
             }
-            
+
         }
 
         public void WriteXml(XmlWriter writer)
@@ -121,7 +121,7 @@ namespace Capl.Authorization
                 writer.WriteString(this.Value);
             }
 
-            writer.WriteEndElement();          
+            writer.WriteEndElement();
         }
     }
 }

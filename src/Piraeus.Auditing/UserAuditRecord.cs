@@ -61,7 +61,7 @@ namespace Piraeus.Auditing
         [JsonProperty("logoutTime")]
         public DateTime? LogoutTime { get; set; }
 
-       
+
         public override string ConvertToCsv()
         {
             return String.Format($"{ChannelId},{Identity},{Channel},{Protocol},{ClaimType},{Status},{LoginTime},{LogoutTime}");

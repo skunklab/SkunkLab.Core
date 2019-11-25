@@ -10,14 +10,14 @@ namespace SkunkLab.Protocols.Coap
     {
         public static MediaType ConvertToMediaType(string contentType)
         {
-            if(string.IsNullOrEmpty(contentType))
+            if (string.IsNullOrEmpty(contentType))
             {
                 throw new ArgumentNullException("contentType");
             }
 
             string lower = contentType.ToLower(CultureInfo.InvariantCulture);
 
-            if(lower == "text/plain")
+            if (lower == "text/plain")
             {
                 return MediaType.TextPlain;
             }
@@ -25,40 +25,40 @@ namespace SkunkLab.Protocols.Coap
             {
                 return MediaType.Json;
             }
-            else if( lower == "application/xml" || lower == "text/xml")
+            else if (lower == "application/xml" || lower == "text/xml")
             {
                 return MediaType.Xml;
             }
-            else if(lower == "application/octet-stream")
+            else if (lower == "application/octet-stream")
             {
                 return MediaType.OctetStream;
             }
             else
             {
-                throw new UnsupportedMediaTypeException(String.Format("Content-Type of '{0}' is not supported.", contentType)); 
+                throw new UnsupportedMediaTypeException(String.Format("Content-Type of '{0}' is not supported.", contentType));
             }
         }
 
 
         public static string ConvertFromMediaType(MediaType? mediaType)
         {
-            if(!mediaType.HasValue)
+            if (!mediaType.HasValue)
             {
                 return "application/octet-stream";
             }
-            else if(mediaType == MediaType.TextPlain)
+            else if (mediaType == MediaType.TextPlain)
             {
                 return "text/plain";
             }
-            else if(mediaType == MediaType.Json)
+            else if (mediaType == MediaType.Json)
             {
                 return "application/json";
             }
-            else if(mediaType == MediaType.Xml)
+            else if (mediaType == MediaType.Xml)
             {
                 return "application/xml";
             }
-            else if(mediaType == MediaType.OctetStream)
+            else if (mediaType == MediaType.OctetStream)
             {
                 return "application/octet-stream";
             }

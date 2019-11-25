@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Capl.Authorization;
+using System;
 using System.Management.Automation;
-using Capl.Authorization;
 
 namespace Piraeus.Module
 {

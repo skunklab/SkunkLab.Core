@@ -21,7 +21,7 @@ namespace Capl.Authorization.Operations
         {
             get
             {
-                if(defaultInstance != null)
+                if (defaultInstance != null)
                 {
                     return defaultInstance;
                 }
@@ -118,7 +118,7 @@ namespace Capl.Authorization.Operations
             get { return this.operations[key]; }
             set { this.operations[key] = value; }
         }
-      
+
         /// <summary>
         /// Adds a new operation.
         /// </summary>
@@ -157,15 +157,15 @@ namespace Capl.Authorization.Operations
         /// <returns>If the key is found, then the return is the value of the key; otherwise an initialized type of the value.</returns>
         public bool TryGetValue(string key, out Operation value)
         {
-            return this.operations.TryGetValue(key, out value);            
+            return this.operations.TryGetValue(key, out value);
         }
-       
+
         /// <summary>
         /// Adds a key and value pair to the dictionary.
         /// </summary>
         /// <param name="item">The key-value pair to add.</param>
         public void Add(KeyValuePair<string, Operation> item)
-        {            
+        {
             ((ICollection<KeyValuePair<string, Operation>>)this.operations).Add(item);
         }
 
@@ -195,7 +195,7 @@ namespace Capl.Authorization.Operations
         public void CopyTo(KeyValuePair<string, Operation>[] array, int arrayIndex)
         {
             ((ICollection<KeyValuePair<string, Operation>>)this.operations).CopyTo(array, arrayIndex);
-        }        
+        }
 
         /// <summary>
         /// Removes a key-value pair from the dictionary.
@@ -206,7 +206,7 @@ namespace Capl.Authorization.Operations
         {
             return ((ICollection<KeyValuePair<string, Operation>>)this.operations).Remove(item);
         }
-        
+
         /// <summary>
         /// Gets an enumerator for the dictionary.
         /// </summary>

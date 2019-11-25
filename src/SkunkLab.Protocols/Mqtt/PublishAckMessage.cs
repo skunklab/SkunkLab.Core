@@ -35,7 +35,7 @@ namespace SkunkLab.Protocols.Mqtt
                         reserved |
                         (byte)(0x00));
 
-            
+
             byte[] remainingLength = base.EncodeRemainingLength(2);
 
             byte[] buffer = new byte[4];
@@ -68,13 +68,13 @@ namespace SkunkLab.Protocols.Mqtt
 
             byte[] buffer = new byte[remainingLength];
             Buffer.BlockCopy(message, index, buffer, 0, buffer.Length);
-            
+
             ushort messageId = (ushort)((buffer[0] << 8) & 0xFF00);
             messageId |= buffer[1];
 
             this.MessageId = messageId;
 
-            return pubackMessage; 
+            return pubackMessage;
         }
     }
 }

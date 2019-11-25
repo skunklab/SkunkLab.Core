@@ -37,7 +37,7 @@ namespace SkunkLab.Protocols.Mqtt
 
             int remainingLength = base.DecodeRemainingLength(message);
 
-            if(remainingLength != 0)
+            if (remainingLength != 0)
             {
                 //fault
             }

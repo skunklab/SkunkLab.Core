@@ -48,7 +48,7 @@ namespace SkunkLab.Channels.Udp
         {
             get
             {
-                if(disposedValue || client == null || client.Client == null)
+                if (disposedValue || client == null || client.Client == null)
                 {
                     return false;
                 }
@@ -85,7 +85,7 @@ namespace SkunkLab.Channels.Udp
         public override event EventHandler<ChannelErrorEventArgs> OnError;
         public override event EventHandler<ChannelStateEventArgs> OnStateChange;
 
-        
+
 
         public override async Task AddMessageAsync(byte[] message)
         {
@@ -138,10 +138,10 @@ namespace SkunkLab.Channels.Udp
                 }
 
                 State = ChannelState.Open;
-               
+
                 OnOpen?.Invoke(this, new ChannelOpenEventArgs(Id, null));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 client = null;
                 Trace.TraceError("UDP client channel {0} open error {1}", Id, ex.Message);
@@ -153,15 +153,15 @@ namespace SkunkLab.Channels.Udp
 
         public override async Task ReceiveAsync()
         {
-            
-            while(IsConnected && !token.IsCancellationRequested)
+
+            while (IsConnected && !token.IsCancellationRequested)
             {
                 try
-                {  
-                    UdpReceiveResult result = await client.ReceiveAsync();                    
+                {
+                    UdpReceiveResult result = await client.ReceiveAsync();
                     OnReceive?.Invoke(this, new ChannelReceivedEventArgs(Id, result.Buffer));
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Trace.TraceError("UDP client channel {0} receive error {1}", Id, ex.Message);
                     OnError?.Invoke(this, new ChannelErrorEventArgs(Id, ex));
@@ -175,7 +175,7 @@ namespace SkunkLab.Channels.Udp
         public override async Task SendAsync(byte[] message)
         {
             try
-            {               
+            {
                 if (remoteEP == null)
                 {
                     await client.SendAsync(message, message.Length);
@@ -185,9 +185,9 @@ namespace SkunkLab.Channels.Udp
                     await client.SendAsync(message, message.Length);
                 }
 
-                
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Trace.TraceError("UDP client channel {0} send error {1}", Id, ex.Message);
                 OnError?.Invoke(this, new ChannelErrorEventArgs(Id, ex));

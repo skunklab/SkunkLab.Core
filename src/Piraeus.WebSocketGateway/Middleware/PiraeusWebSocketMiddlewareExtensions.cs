@@ -1,11 +1,4 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using SkunkLab.Channels.WebSocket;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 
 namespace Piraeus.WebSocketGateway.Middleware
 {
@@ -17,6 +10,6 @@ namespace Piraeus.WebSocketGateway.Middleware
 
         }
 
-       
+
     }
 }

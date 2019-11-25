@@ -79,7 +79,7 @@ namespace Orleans.Clustering.Redis
         {
             return list.GetEnumerator();
         }
-        
+
 
         public bool HasEntry(RedisMembershipEntry entry)
         {
@@ -98,7 +98,7 @@ namespace Orleans.Clustering.Redis
 
                 return new MembershipTableData(data, _tableVersion);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -119,7 +119,7 @@ namespace Orleans.Clustering.Redis
             bool ret = false;
             string val = iAmAlivetime.ToString();
             var item = list.ToArray().Where((x) => x != null && x.DeploymentId == clusterId && x.ParsableAddress == address.ToParsableString()).First();
-            if(item != null)
+            if (item != null)
             {
                 item.IAmAliveTime = iAmAlivetime;
                 ret = true;
@@ -144,7 +144,7 @@ namespace Orleans.Clustering.Redis
         //        //var items = data.TakeWhile((x) => x.Item1.SiloAddress.ToParsableString() == address.ToParsableString()).ToList();
         //        if (items == null || items.Count != 1)
         //        {
-                    
+
         //            return null;
         //        }
         //        else

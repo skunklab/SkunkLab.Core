@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
+﻿using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage.File;
 using Microsoft.WindowsAzure.Storage.Core.Util;
+using Microsoft.WindowsAzure.Storage.File;
 using Microsoft.WindowsAzure.Storage.RetryPolicies;
-using System.Threading;
+using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SkunkLab.Storage
 {
@@ -49,7 +46,7 @@ namespace SkunkLab.Storage
             {
                 throw new ArgumentNullException("source");
             }
-            
+
             Exception error = null;
             Stopwatch watch = new Stopwatch();
             watch.Start();
@@ -105,7 +102,7 @@ namespace SkunkLab.Storage
                 throw new ArgumentNullException("filename");
             }
 
-            if(source == null)
+            if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
@@ -171,7 +168,7 @@ namespace SkunkLab.Storage
             double time = watch.Elapsed.TotalMilliseconds;
             long bytesTransferred = 0;
 
-            
+
 
             byte[] buffer = null;
 
@@ -217,7 +214,7 @@ namespace SkunkLab.Storage
 
         public async Task<Stream> ReadFileAsync(string share, string filename, Stream stream, CancellationToken token = default(CancellationToken))
         {
-           
+
             if (string.IsNullOrEmpty(share))
             {
                 throw new ArgumentNullException("share");
@@ -228,7 +225,7 @@ namespace SkunkLab.Storage
                 throw new ArgumentNullException("filename");
             }
 
-            if(stream == null)
+            if (stream == null)
             {
                 throw new ArgumentNullException("stream");
             }
@@ -239,10 +236,10 @@ namespace SkunkLab.Storage
             double time = watch.Elapsed.TotalMilliseconds;
             long bytesTransferred = 0;
 
-            
 
 
-    
+
+
             try
             {
                 CloudFileShare choudShare = client.GetShareReference(share);
@@ -282,24 +279,24 @@ namespace SkunkLab.Storage
             return stream;
         }
 
-        public async Task UploadFileAsync(string path, string share, string filename, string contentType="application/octet-stream", CancellationToken token = default(CancellationToken))
+        public async Task UploadFileAsync(string path, string share, string filename, string contentType = "application/octet-stream", CancellationToken token = default(CancellationToken))
         {
-            if(string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
                 throw new ArgumentNullException("path");
             }
 
-            if(string.IsNullOrEmpty(share))
+            if (string.IsNullOrEmpty(share))
             {
                 throw new ArgumentNullException("share");
             }
 
-            if(string.IsNullOrEmpty("filename"))
+            if (string.IsNullOrEmpty("filename"))
             {
                 throw new ArgumentNullException("filename");
             }
 
-            if(!File.Exists(path))
+            if (!File.Exists(path))
             {
                 throw new FileNotFoundException("path");
             }
@@ -326,7 +323,7 @@ namespace SkunkLab.Storage
                 CloudFileShare choudShare = client.GetShareReference(share);
                 CloudFileDirectory dir = choudShare.GetRootDirectoryReference();
                 CloudFile file = dir.GetFileReference(filename);
-                file.Properties.ContentType = contentType;                
+                file.Properties.ContentType = contentType;
                 await file.UploadFromFileAsync(path, default(AccessCondition), default(FileRequestOptions), default(OperationContext), progressHandler, token);
             }
             catch (Exception ex)

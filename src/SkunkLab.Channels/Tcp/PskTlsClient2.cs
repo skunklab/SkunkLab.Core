@@ -1,5 +1,5 @@
-﻿using System;
-using Org.BouncyCastle.Crypto.Tls;
+﻿using Org.BouncyCastle.Crypto.Tls;
+using System;
 
 namespace SkunkLab.Channels.Tcp
 {
@@ -7,13 +7,13 @@ namespace SkunkLab.Channels.Tcp
     {
         public PskTlsClient2(TlsCipherFactory cipherFactory, TlsPskIdentity pskIdentity)
             : base(cipherFactory, pskIdentity)
-        { 
+        {
 
         }
         public PskTlsClient2(TlsPskIdentity pskIdentity)
             : base(pskIdentity)
         {
-               
+
         }
 
         public override ProtocolVersion MinimumVersion

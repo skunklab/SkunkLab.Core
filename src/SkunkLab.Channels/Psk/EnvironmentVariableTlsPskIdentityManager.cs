@@ -12,7 +12,7 @@ namespace SkunkLab.Channels.Psk
             storage = EnvironmentVariablePskStorage.CreateSingleton(keys, values);
         }
 
-        private EnvironmentVariablePskStorage storage; 
+        private EnvironmentVariablePskStorage storage;
 
         public byte[] GetHint()
         {

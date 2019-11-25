@@ -18,7 +18,7 @@ namespace Capl.Authorization.Operations
         /// Initializes a new instance of the <see cref="LessThanOrEqualOperation"/> class.
         /// </summary>
         public LessThanOrEqualOperation()
-        {                
+        {
         }
 
         public static Uri OperationUri

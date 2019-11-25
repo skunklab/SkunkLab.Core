@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.WebApiCompatShim;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,7 +7,6 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.WebApiCompatShim;
 
 namespace SkunkLab.Channels.Http
 {
@@ -20,20 +20,15 @@ namespace SkunkLab.Channels.Http
         //public HttpServerChannel(HttpRequestMessage request)
         public HttpServerChannel(HttpContext context)
         {
-            
+
             Id = "http-" + Guid.NewGuid().ToString();
             this.request = context.GetHttpRequestMessage();
             Port = request.RequestUri.Port;
-            //Port = HttpContext.Current.Request.Url.Port;
-            //Port = request.Host.Port.Value; //request.RequestUri.Port;
-            //contentType = request.ContentType;
 
             contentType = request.Content.Headers.ContentType != null ? request.Content.Headers.ContentType.MediaType : HttpChannelConstants.CONTENT_TYPE_BYTE_ARRAY;
             IsAuthenticated = context.User.Identity.IsAuthenticated;
-            //IsAuthenticated = HttpContext.Current.Request.IsAuthenticated;
-            //IsAuthenticated = HttpHelper.HttpContext.User.Identity.IsAuthenticated;
             IsConnected = true;
-            IsEncrypted = request.RequestUri.Scheme == "https"; //request.RequestUri.Scheme == "https";            
+            IsEncrypted = request.RequestUri.Scheme == "https";
         }
 
         public HttpServerChannel(string endpoint, string resourceUriString, string contentType, IEnumerable<KeyValuePair<string, string>> indexes = null)
@@ -45,7 +40,7 @@ namespace SkunkLab.Channels.Http
             Id = "http-" + Guid.NewGuid().ToString();
         }
 
-        public HttpServerChannel(string endpoint, string resourceUriString, string contentType, string securityToken, IEnumerable<KeyValuePair<string,string>> indexes = null)
+        public HttpServerChannel(string endpoint, string resourceUriString, string contentType, string securityToken, IEnumerable<KeyValuePair<string, string>> indexes = null)
         {
             this.endpoint = endpoint;
             this.resource = resourceUriString;
@@ -113,7 +108,7 @@ namespace SkunkLab.Channels.Http
         public override event EventHandler<ChannelStateEventArgs> OnStateChange;
 
         public override async Task SendAsync(byte[] message)
-        {           
+        {
             try
             {
                 HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(endpoint);
@@ -144,13 +139,13 @@ namespace SkunkLab.Channels.Http
                     }
                 }
 
-                             
+
             }
-            catch(WebException we)
+            catch (WebException we)
             {
                 OnError?.Invoke(this, new ChannelErrorEventArgs(Id, we));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 OnError.Invoke(this, new ChannelErrorEventArgs(Id, ex));
             }
@@ -174,9 +169,8 @@ namespace SkunkLab.Channels.Http
             {
                 byte[] message = await request.Content.ReadAsByteArrayAsync();
                 OnReceive?.Invoke(this, new ChannelReceivedEventArgs(Id, message));
-                //OnObserve?.Invoke(this, new ChannelObserverEventArgs(resource, contentType, message));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 OnError.Invoke(this, new ChannelErrorEventArgs(Id, ex));
             }
@@ -186,7 +180,7 @@ namespace SkunkLab.Channels.Http
         {
             OnClose?.Invoke(this, new ChannelCloseEventArgs(Id));
             await Task.CompletedTask;
-        }      
+        }
 
         private void SetSecurityToken(HttpWebRequest request)
         {

@@ -37,13 +37,13 @@ namespace Capl.Authorization.Operations
             DateTime right = XmlConvert.ToDateTime((string)y, XmlDateTimeSerializationMode.Utc);
 
             if (left == right)
-            { 
-                return 0; 
+            {
+                return 0;
             }
 
-            if (left < right) 
-            { 
-                return -1; 
+            if (left < right)
+            {
+                return -1;
             }
 
             return 1;

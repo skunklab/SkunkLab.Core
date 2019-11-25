@@ -6,7 +6,6 @@ using SkunkLab.Protocols.Coap;
 using SkunkLab.Protocols.Mqtt;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace Piraeus.Grains.Notifications
 {
     public class EventHubSink : EventSink
     {
-        
+
         private Uri uri;
         private IAuditor auditor;
         private string keyName;
@@ -66,7 +65,7 @@ namespace Piraeus.Grains.Notifications
 
             storageArray = new EventHubClient[clientCount];
             for (int i = 0; i < clientCount; i++)
-            {                
+            {
                 storageArray[i] = EventHubClient.CreateFromConnectionString(connectionString);
 
                 if (!String.IsNullOrEmpty(partitionId))
@@ -77,7 +76,7 @@ namespace Piraeus.Grains.Notifications
 
         }
 
-        
+
 
 
         public override async Task SendAsync(EventMessage message)
@@ -87,7 +86,7 @@ namespace Piraeus.Grains.Notifications
 
             try
             {
-                
+
                 byte[] msg = GetPayload(message);
                 queue.Enqueue(msg);
 
@@ -121,14 +120,14 @@ namespace Piraeus.Grains.Notifications
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 record = new MessageAuditRecord(message.MessageId, String.Format("sb://{0}", uri.Authority, hubName), "EventHub", "EventHub", payload.Length, MessageDirectionType.Out, false, DateTime.UtcNow, ex.Message);
                 throw;
             }
             finally
             {
-                if(message.Audit && record != null)
+                if (message.Audit && record != null)
                 {
                     await auditor?.WriteAuditRecordAsync(record);
                 }
@@ -153,6 +152,6 @@ namespace Piraeus.Grains.Notifications
                     return null;
             }
         }
-        
+
     }
 }

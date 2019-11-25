@@ -14,7 +14,7 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
             Session.IncrementKeepAlive();
             MqttMessage message = Session.GetHeldMessage(Message.MessageId);
 
-            if(message != null)
+            if (message != null)
             {
                 PublishMessage msg = message as PublishMessage;
                 MqttUri uri = new MqttUri(msg.Topic);
@@ -27,7 +27,7 @@ namespace SkunkLab.Protocols.Mqtt.Handlers
                     Session.Publish(msg, true);
                 }
             }
-            
+
             return await Task.FromResult<MqttMessage>(new PublishAckMessage(PublishAckType.PUBCOMP, Message.MessageId));
         }
     }

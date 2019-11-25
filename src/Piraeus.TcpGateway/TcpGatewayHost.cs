@@ -1,43 +1,51 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Orleans;
 using Piraeus.Configuration;
 using Piraeus.Core;
-using Piraeus.Grains;
+using Piraeus.Core.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Piraeus.TcpGateway
 {
-    public class TcpGatewayService
+    public class TcpGatewayHost : IHostedService
     {
-        public TcpGatewayService(PiraeusConfig piraeusConfig, IClusterClient clusterClient, ILogger<TcpGatewayService> logger = null)
+        public TcpGatewayHost(PiraeusConfig config, OrleansConfig orleansConfig, Logger logger)
         {
-            this.config = piraeusConfig;
-            this.clusterClient = clusterClient;
+            this.config = config;
+            this.orleansConfig = orleansConfig;
             this.logger = logger;
-
-            if(!GraphManager.IsInitialized)
-            {
-                GraphManager.Initialize(this.clusterClient);
-            }
-        }
-
-        private PiraeusConfig config;
-        private IClusterClient clusterClient;
-        private Dictionary<int, TcpServerListener> listeners;
-        private Dictionary<int, CancellationTokenSource> sources;
-        private ILogger<TcpGatewayService> logger;
-        private string hostname;
-
-
-        public void Init(bool dockerized)
-        {
             listeners = new Dictionary<int, TcpServerListener>();
             sources = new Dictionary<int, CancellationTokenSource>();
+        }
+
+
+        private readonly Logger logger;
+        private readonly PiraeusConfig config;
+        private readonly OrleansConfig orleansConfig;
+        private readonly Dictionary<int, TcpServerListener> listeners;
+        private readonly Dictionary<int, CancellationTokenSource> sources;
+        private string hostname;
+
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            Console.WriteLine("   /$$$$$$$$/$$$$$$ /$$$$$$$         /$$$$$$            /$$");
+            Console.WriteLine("  |__  $$__/$$__  $| $$__  $$       /$$__  $$          | $$ ");
+            Console.WriteLine("     | $$ | $$  \\__| $$  \\ $$      | $$  \\__/ /$$$$$$ /$$$$$$   /$$$$$$ /$$  /$$  /$$ /$$$$$$ /$$   /$$");
+            Console.WriteLine("     | $$ | $$     | $$$$$$$/      | $$ /$$$$|____  $|_  $$_/  /$$__  $| $$ | $$ | $$|____  $| $$  | $$");
+            Console.WriteLine("     | $$ | $$     | $$____/       | $$|_  $$ /$$$$$$$ | $$   | $$$$$$$| $$ | $$ | $$ /$$$$$$| $$  | $$");
+            Console.WriteLine("     | $$ | $$    $| $$            | $$  \\ $$/$$__  $$ | $$ /$| $$_____| $$ | $$ | $$/$$__  $| $$  | $$");
+            Console.WriteLine("     | $$ |  $$$$$$| $$            |  $$$$$$|  $$$$$$$ |  $$$$|  $$$$$$|  $$$$$/$$$$|  $$$$$$|  $$$$$$$");
+            Console.WriteLine("     |__/  \\______/|__/             \\______/ \\_______/  \\___/  \\_______/\\_____/\\___/ \\_______/\\____  $$");
+            Console.WriteLine("                                                                                              /$$  | $$");
+            Console.WriteLine("                                                                                             |  $$$$$$/");
+            Console.WriteLine("                                                                                              \\______/ ");
 
             int[] ports = config.GetPorts();
 
@@ -46,13 +54,18 @@ namespace Piraeus.TcpGateway
                 sources.Add(port, new CancellationTokenSource());
             }
 
-            hostname = !dockerized ? "localhost" : Dns.GetHostName();
-            //string hostname = config.Hostname == null ? "localhost" : config.Hostname;
+
+#if DEBUG
+            hostname = "localhost";
+#else
+            hostname = Dns.GetHostName();
+#endif
 
             int index = 0;
             while (index < ports.Length)
             {
-                listeners.Add(ports[index], new TcpServerListener(new IPEndPoint(GetIPAddress(hostname), ports[index]), config, this.logger, sources[ports[index]].Token));
+                listeners.Add(ports[index], new TcpServerListener(new IPEndPoint(GetIPAddress(hostname), ports[index]), config, orleansConfig, this.logger, sources[ports[index]].Token));
+                logger?.LogInformation($"TCP listener added to port {ports[index]}");
                 index++;
             }
 
@@ -61,11 +74,24 @@ namespace Piraeus.TcpGateway
             foreach (var item in tcpKvps)
             {
                 item.Value.OnError += Listener_OnError;
-                item.Value.StartAsync().LogExceptions();
+                item.Value.StartAsync().LogExceptions(logger);
                 logger?.LogInformation($"TCP listener started on port {item.Key}");
             }
 
             logger?.LogInformation("TCP server started.");
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            TcpServerListener[] servers = listeners.Values.ToArray();
+            foreach(var server in servers)
+            {
+                server.StopAsync().Ignore();
+            }
+
+            return Task.CompletedTask;
+
         }
 
         private IPAddress GetIPAddress(string hostname)
@@ -114,17 +140,15 @@ namespace Piraeus.TcpGateway
                     sources.Add(e.Port, new CancellationTokenSource());
 
                     //string hostname = config.Hostname == null ? "localhost" : config.Hostname;
-                    listeners.Add(e.Port, new TcpServerListener(new IPEndPoint(GetIPAddress(hostname), e.Port), config, logger, sources[e.Port].Token));
+                    listeners.Add(e.Port, new TcpServerListener(new IPEndPoint(GetIPAddress(hostname), e.Port), config, orleansConfig, logger, sources[e.Port].Token));
                 }
             }
             catch (Exception ex)
             {
                 logger?.LogError(ex, $"Faulted handling a TCP server failed event on channel type '{e.ChannelType}' and port '{e.Port}'.");
             }
+
+            throw new Exception("TCP Server");
         }
-
-       
-
-
     }
 }

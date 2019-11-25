@@ -8,12 +8,10 @@ MIT License
 namespace Capl.Authorization
 {
     using System;
+    using System.Collections.Generic;
+    using System.Security.Claims;
     using System.Xml;
     using System.Xml.Serialization;
-    using System.Security.Claims;
-    using Capl.Authorization.Transforms;
-    using System.Globalization;
-    using System.Collections.Generic;
 
     /// <summary>
     /// An authorization policy.
@@ -22,7 +20,7 @@ namespace Capl.Authorization
     [XmlSchemaProvider(null, IsAny = true)]
     public class AuthorizationPolicy : AuthorizationPolicyBase
     {
-        
+
         /// </summary>
         public AuthorizationPolicy()
             : this(null)
@@ -35,7 +33,7 @@ namespace Capl.Authorization
         /// <param name="authorizationRule">The authorization rule to be evaluated.</param>
         public AuthorizationPolicy(Term evaluationExpression)
             : this(evaluationExpression, null)
-        {            
+        {
         }
 
         /// <summary>
@@ -50,7 +48,7 @@ namespace Capl.Authorization
 
         public AuthorizationPolicy(Term evaluationExpression, Uri policyId, bool delegation)
             : this(evaluationExpression, policyId, delegation, null)
-        {            
+        {
         }
 
         public AuthorizationPolicy(Term evaluationExpression, Uri policyId, bool delegation, TransformCollection transforms)
@@ -73,9 +71,9 @@ namespace Capl.Authorization
         /// Gets or sets an operation URI that identifies the policy.
         /// </summary>
         public Uri PolicyId { get; set; }
-        
+
         public bool Delegation { get; set; }
-       
+
 
         /// <summary>
         /// Gets transforms for the authorization policy.
@@ -128,7 +126,7 @@ namespace Capl.Authorization
             }
 
             return this.Expression.Evaluate(claims);
-        }        
+        }
 
         #region IXmlSerializable Members
 
@@ -146,7 +144,7 @@ namespace Capl.Authorization
             reader.MoveToRequiredStartElement(AuthorizationConstants.Elements.AuthorizationPolicy);
             this.PolicyId = new Uri(reader.GetOptionalAttribute(AuthorizationConstants.Attributes.PolicyId));
             string del = reader.GetOptionalAttribute(AuthorizationConstants.Attributes.Delegation);
-            
+
             if (!string.IsNullOrEmpty(del))
             {
                 this.Delegation = XmlConvert.ToBoolean(del);
@@ -162,7 +160,7 @@ namespace Capl.Authorization
                 }
 
                 if (reader.IsRequiredStartElement(AuthorizationConstants.Elements.Transforms))
-                {                    
+                {
                     this.Transforms.ReadXml(reader);
                 }
 
@@ -172,7 +170,7 @@ namespace Capl.Authorization
                 }
             }
 
-            reader.Read();            
+            reader.Read();
         }
 
         /// <summary>
@@ -185,7 +183,7 @@ namespace Capl.Authorization
             {
                 throw new ArgumentNullException("writer");
             }
-            
+
             writer.WriteStartElement(AuthorizationConstants.Elements.AuthorizationPolicy, AuthorizationConstants.Namespaces.Xmlns);
 
             if (this.PolicyId != null)
@@ -202,7 +200,7 @@ namespace Capl.Authorization
                 this.Transforms.WriteXml(writer);
             }
 
-            writer.WriteEndElement();            
+            writer.WriteEndElement();
         }
 
         #endregion

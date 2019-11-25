@@ -27,7 +27,7 @@ namespace Piraeus.Module
 
         [Parameter(HelpMessage = "Name key used for authentication.", Mandatory = true)]
         public string KeyName;
-        
+
         [Parameter(HelpMessage = "SAS token used for authentication.", Mandatory = true)]
         public string Key;
 

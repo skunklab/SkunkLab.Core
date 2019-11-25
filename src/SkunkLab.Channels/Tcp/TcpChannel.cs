@@ -1,7 +1,6 @@
 ﻿
 using Org.BouncyCastle.Crypto.Tls;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
@@ -18,9 +17,9 @@ namespace SkunkLab.Channels.Tcp
         /// <param name="client">TCP client obtained from TCP listener.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns></returns>
-        public static TcpChannel Create(bool usePrefixLength, TcpClient client,  int blockSize, int maxBufferSize, CancellationToken token)
+        public static TcpChannel Create(bool usePrefixLength, TcpClient client, int blockSize, int maxBufferSize, CancellationToken token)
         {
-            if(usePrefixLength)
+            if (usePrefixLength)
             {
                 return new TcpServerChannel(client, maxBufferSize, token);
             }
@@ -163,7 +162,7 @@ namespace SkunkLab.Channels.Tcp
         /// <param name="clientAuth">Determines whether to authenticate the client certificate.</param>
         /// <param name="token">Cancellation token.</param>
         /// <returns></returns>
-        public static TcpChannel Create(bool usePrefixLength, TcpClient client,  X509Certificate2 certificate, bool clientAuth, int blockSize, int maxBufferSize, CancellationToken token)
+        public static TcpChannel Create(bool usePrefixLength, TcpClient client, X509Certificate2 certificate, bool clientAuth, int blockSize, int maxBufferSize, CancellationToken token)
         {
             if (usePrefixLength)
             {
@@ -353,7 +352,7 @@ namespace SkunkLab.Channels.Tcp
             }
         }
 
-        
+
 
         /// <summary>
         /// Creates a new TCP client channel.
@@ -434,7 +433,7 @@ namespace SkunkLab.Channels.Tcp
             }
         }
 
-       
+
 
         public abstract bool RequireBlocking { get; }
         public abstract int Port { get; internal set; }

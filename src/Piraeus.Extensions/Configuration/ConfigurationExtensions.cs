@@ -11,15 +11,63 @@ namespace Piraeus.Extensions.Configuration
 {
     public static class ConfigurationExtensions
     {
+        public static IServiceCollection AddOrleansConfiguration(this IServiceCollection services)
+        {
+            IConfigurationBuilder builder = new ConfigurationBuilder();
+            builder.AddJsonFile("./orleansconfig.json")
+                .AddEnvironmentVariables("OR_");
+            IConfigurationRoot root = builder.Build();
+            OrleansConfig config = new OrleansConfig();
+            ConfigurationBinder.Bind(root, config);
+            services.AddSingleton<OrleansConfig>(config);
+
+            return services;
+        }
+
+        public static IServiceCollection AddOrleansConfiguration(this IServiceCollection services, out OrleansConfig config)
+        {
+            IConfigurationBuilder builder = new ConfigurationBuilder();
+            builder.AddJsonFile("./orleansconfig.json")
+                .AddEnvironmentVariables("OR_");
+            IConfigurationRoot root = builder.Build();
+            config = new OrleansConfig();
+            ConfigurationBinder.Bind(root, config);
+            services.AddSingleton<OrleansConfig>(config);
+
+            return services;
+        }
+        public static IServiceCollection AddPiraeusConfiguration(this IServiceCollection services)
+        {
+            IConfigurationBuilder builder = new ConfigurationBuilder();
+            builder.AddJsonFile("./piraeusconfig.json")
+                .AddEnvironmentVariables("PI_");
+            IConfigurationRoot root = builder.Build();
+            PiraeusConfig config = new PiraeusConfig();
+            ConfigurationBinder.Bind(root, config);
+            services.AddSingleton<PiraeusConfig>(config);
+
+            return services;
+        }
+
+        public static IServiceCollection AddPiraeusConfiguration(this IServiceCollection services, out PiraeusConfig config)
+        {
+            IConfigurationBuilder builder = new ConfigurationBuilder();
+            builder.AddJsonFile("./piraeusconfig.json")
+                .AddEnvironmentVariables("PI_");
+            IConfigurationRoot root = builder.Build();
+            config = new PiraeusConfig();
+            ConfigurationBinder.Bind(root, config);
+            services.AddSingleton<PiraeusConfig>(config);
+
+            return services;
+        }
         public static IConfigurationBuilder AddOrleansConfiguration(this IConfigurationBuilder configure, out OrleansConfig orleansConfig)
         {
-
             configure.AddJsonFile("./orleansconfig.json")
                 .AddEnvironmentVariables("OR_");
             IConfigurationRoot root = configure.Build();
             orleansConfig = new OrleansConfig();
             ConfigurationBinder.Bind(root, orleansConfig);
-
             return configure;
         }
 
@@ -33,9 +81,9 @@ namespace Piraeus.Extensions.Configuration
 
             return configure;
         }
-               
+
         public static IClientBuilder UseRedisGatewayListProvider(this IClientBuilder builder, Action<RedisClusteringOptions> configureOptions)
-        {            
+        {
             return builder.ConfigureServices(services => services.UseRedisGatewayListProvider(configureOptions));
         }
 

@@ -15,7 +15,7 @@ namespace SkunkLab.Protocols.Coap
             timer.Elapsed += Timer_Elapsed;
         }
 
-        
+
 
         private double lifetimeMilliseconds;
         private Dictionary<ushort, DateTime> container;
@@ -24,7 +24,7 @@ namespace SkunkLab.Protocols.Coap
 
         public void CacheId(ushort id)
         {
-            if(!container.ContainsKey(id))
+            if (!container.ContainsKey(id))
             {
                 container.Add(id, DateTime.UtcNow.AddMilliseconds(lifetimeMilliseconds));
             }
@@ -54,15 +54,15 @@ namespace SkunkLab.Protocols.Coap
             var query = container.Where((c) => c.Value < DateTime.UtcNow);
 
             List<ushort> list = new List<ushort>();
-            if(query != null && query.Count() > 0)
+            if (query != null && query.Count() > 0)
             {
-                foreach(var item in query)
+                foreach (var item in query)
                 {
                     list.Add(item.Key);
                 }
             }
 
-            foreach(var item in list)
+            foreach (var item in list)
             {
                 container.Remove(item);
             }
@@ -82,7 +82,7 @@ namespace SkunkLab.Protocols.Coap
                         timer.Stop();
                         timer.Dispose();
                     }
-                    
+
                     container.Clear();
                 }
 

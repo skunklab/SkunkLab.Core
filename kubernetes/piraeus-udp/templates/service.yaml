@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:  
+  name: udp
+  labels:
+    app: udp
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: udp
+spec:
+  type: ClusterIP
+  ports:
+  - name: "5683"
+    port: 5683
+    targetPort: 5683
+  - name: "5883"
+    port: 5883
+    targetPort: 5883
+  
+  selector:
+    app: udp
+    release: {{ .Release.Name }}
+    component: udp
+status:
+  loadBalancer: {}
+

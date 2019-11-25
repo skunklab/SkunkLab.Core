@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Piraeus.Configuration;
+using Piraeus.Extensions.Configuration;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -14,15 +14,17 @@ namespace Piraeus.WebApi
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()               
-                .UseKestrel(options =>
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+            .ConfigureServices(services => services.AddPiraeusConfiguration())
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+                PiraeusConfig config = WebApiHelpers.GetPiraeusConfig();
+                webBuilder.ConfigureKestrel((options) =>
                 {
-                    PiraeusConfig config = GetPiraeusConfig();
                     options.Limits.MaxConcurrentConnections = config.MaxConnections;
                     options.Limits.MaxConcurrentUpgradedConnections = config.MaxConnections;
                     options.Limits.MaxRequestBodySize = config.MaxBufferSize;
@@ -30,7 +32,6 @@ namespace Piraeus.WebApi
                         new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
                     options.Limits.MinResponseDataRate =
                         new MinDataRate(bytesPerSecond: 100, gracePeriod: TimeSpan.FromSeconds(10));
-
                     X509Certificate2 cert = config.GetServerCerticate();
                     int[] ports = config.GetPorts();
 
@@ -44,12 +45,9 @@ namespace Piraeus.WebApi
                         {
                             IPAddress address = GetIPAddress(Dns.GetHostName());
                             options.Listen(address, port);
-                            //options.Listen(IPAddress.Loopback, port);
-                            //options.ListenAnyIP(port);
                         }
                     }
 
-                    
                     if (!string.IsNullOrEmpty(config.ServerCertificateFilename))
                     {
                         string[] portStrings = config.Ports.Split(";", StringSplitOptions.RemoveEmptyEntries);
@@ -59,24 +57,11 @@ namespace Piraeus.WebApi
                             options.ListenAnyIP(Convert.ToInt32(portString), (a) => a.UseHttps(config.ServerCertificateFilename, config.ServerCertificatePassword));
                         }
                     }
-                    //else
-                    //{
-                    //    options.ListenAnyIP(config.Channels.Http.ListenPort, (a) => a.UseHttps(".\\localhost.pfx", "pass@word1"));
-                    //}                    
                 });
+                webBuilder.UseStartup<Startup>();
+            });
 
-        private static PiraeusConfig GetPiraeusConfig()
-        {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("./piraeusconfig.json")
-                .AddEnvironmentVariables("PI_");
 
-            IConfigurationRoot root = builder.Build();
-            PiraeusConfig config = new PiraeusConfig();
-            ConfigurationBinder.Bind(root, config);
-
-            return config;
-        }
 
         private static IPAddress GetIPAddress(string hostname)
         {
@@ -92,8 +77,6 @@ namespace Piraeus.WebApi
             return null;
         }
 
-        //public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-        //    WebHost.CreateDefaultBuilder(args)
-        //        .UseStartup<Startup>();
+
     }
 }

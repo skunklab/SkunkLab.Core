@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using SkunkLab.Security.Identity;
+using SkunkLab.Security.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Security;
 using System.Timers;
-using Microsoft.AspNetCore.Http;
-using SkunkLab.Security.Identity;
-using SkunkLab.Security.Tokens;
 
 namespace SkunkLab.Protocols.Coap.Handlers
 {
@@ -16,12 +16,12 @@ namespace SkunkLab.Protocols.Coap.Handlers
         {
             Config = config;
             this.context = context;
-            
+
             CoapReceiver = new Receiver(config.ExchangeLifetime.TotalMilliseconds);
             CoapSender = new Transmitter(config.ExchangeLifetime.TotalMilliseconds, config.MaxTransmitSpan.TotalMilliseconds, config.MaxRetransmit);
             CoapSender.OnRetry += Transmit_OnRetry;
 
-            if(config.KeepAlive.HasValue)
+            if (config.KeepAlive.HasValue)
             {
                 keepaliveTimestamp = DateTime.UtcNow.AddSeconds(config.KeepAlive.Value);
                 keepaliveTimer = new Timer(config.KeepAlive.Value * 1000);
@@ -29,7 +29,7 @@ namespace SkunkLab.Protocols.Coap.Handlers
                 keepaliveTimer.Start();
             }
         }
-        
+
 
         public event EventHandler<CoapMessageEventArgs> OnRetry;
         public event EventHandler<CoapMessageEventArgs> OnKeepAlive;
@@ -45,16 +45,16 @@ namespace SkunkLab.Protocols.Coap.Handlers
 
         public string Identity { get; set; }
 
-        public List<KeyValuePair<string,string>> Indexes { get; set; }
+        public List<KeyValuePair<string, string>> Indexes { get; set; }
 
         public bool IsAuthenticated { get; set; }
-       
+
 
         public Transmitter CoapSender { get; internal set; }
 
         public Receiver CoapReceiver { get; internal set; }
-                
-        
+
+
 
         public CoapConfig Config { get; internal set; }
 
@@ -75,7 +75,7 @@ namespace SkunkLab.Protocols.Coap.Handlers
                 }
             }
         }
-        
+
         public bool Authenticate(string tokenType, string token)
         {
             if (HasBootstrapToken)
@@ -97,8 +97,8 @@ namespace SkunkLab.Protocols.Coap.Handlers
 
         public bool IsNoResponse(NoResponseType? messageNrt, NoResponseType result)
         {
-            
-            if(!messageNrt.HasValue)
+
+            if (!messageNrt.HasValue)
             {
                 return false;
             }
@@ -147,7 +147,7 @@ namespace SkunkLab.Protocols.Coap.Handlers
             {
                 if (disposing)
                 {
-                    if(keepaliveTimer != null)
+                    if (keepaliveTimer != null)
                     {
                         keepaliveTimer.Stop();
                         keepaliveTimer.Dispose();

@@ -6,7 +6,7 @@
 //{
 //    internal class Auditor : IAuditor
 //    {
-        
+
 //        public static IAuditor Create(List<IAuditor> list)
 //        {
 //            if(instance == null)

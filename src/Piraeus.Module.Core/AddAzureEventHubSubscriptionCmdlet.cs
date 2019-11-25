@@ -42,7 +42,7 @@ namespace Piraeus.Module
         {
             string uriString = String.Format("eh://{0}.servicebus.windows.net?hub={1}&keyname={2}&clients={3}", Account, Hub, KeyName, NumClients <= 0 ? 1 : NumClients);
 
-            if(PartitionId != null)
+            if (PartitionId != null)
             {
                 uriString = String.Format("{0}&partitionid={1}", uriString, PartitionId);
             }

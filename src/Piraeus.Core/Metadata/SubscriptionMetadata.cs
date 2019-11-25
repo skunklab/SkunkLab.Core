@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace Piraeus.Core.Metadata
 {
@@ -91,7 +91,7 @@ namespace Piraeus.Core.Metadata
         [JsonProperty("subscriptionUriString")]
         public string SubscriptionUriString { get; set; }
 
-       
+
         /// <summary>
         /// Gets or sets the time To live of a message in the subscription
         /// </summary>
@@ -119,7 +119,7 @@ namespace Piraeus.Core.Metadata
 
 
         [JsonProperty("indexes")]
-        public List<KeyValuePair<string,string>> Indexes { get; set; }
+        public List<KeyValuePair<string, string>> Indexes { get; set; }
 
         /// <summary>
         /// Gets or sets an optional symmetric key when the security token type is set to JWT or SWT.

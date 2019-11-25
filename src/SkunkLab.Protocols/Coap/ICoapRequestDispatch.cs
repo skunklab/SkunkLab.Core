@@ -14,6 +14,6 @@ namespace SkunkLab.Protocols.Coap
 
         Task<CoapMessage> DeleteAsync(CoapMessage message);
 
-        Task<CoapMessage> ObserveAsync(CoapMessage message);        
+        Task<CoapMessage> ObserveAsync(CoapMessage message);
     }
 }

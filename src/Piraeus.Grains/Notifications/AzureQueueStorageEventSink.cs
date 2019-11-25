@@ -1,16 +1,15 @@
-﻿using Piraeus.Core.Messaging;
+﻿using Piraeus.Auditing;
+using Piraeus.Core.Messaging;
 using Piraeus.Core.Metadata;
 using SkunkLab.Protocols.Coap;
 using SkunkLab.Protocols.Mqtt;
 using SkunkLab.Storage;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Web;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using Piraeus.Auditing;
 
 namespace Piraeus.Grains.Notifications
 {
@@ -50,11 +49,11 @@ namespace Piraeus.Grains.Notifications
             else
             {
                 string connectionString = String.Format("BlobEndpoint={0};SharedAccessSignature={1}", queue, metadata.SymmetricKey);
-                storage = QueueStorage.New(connectionString,1000,5120000);
+                storage = QueueStorage.New(connectionString, 1000, 5120000);
             }
         }
 
-       
+
 
 
         public override async Task SendAsync(EventMessage message)

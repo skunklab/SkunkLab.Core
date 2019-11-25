@@ -10,7 +10,7 @@ namespace Capl.Authorization.Transforms
     using System;
     using System.Collections.Generic;
     using System.Security.Claims;
-    
+
     /// <summary>
     /// An abstract action used to perform a type of transform.
     /// </summary>

@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 
 namespace Piraeus.Configuration
 {
@@ -39,7 +38,7 @@ namespace Piraeus.Configuration
 
         public LoggerType GetLoggerTypes()
         {
-            if(string.IsNullOrEmpty(LoggerTypes))
+            if (string.IsNullOrEmpty(LoggerTypes))
             {
                 return default(LoggerType);
             }

@@ -1,15 +1,15 @@
-﻿using System;
+﻿using SkunkLab.Protocols.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
 using System.Linq;
 using System.Web;
-using SkunkLab.Protocols.Utilities;
 
 namespace SkunkLab.Protocols.Coap
 {
     public class CoapUri : Uri
-    {        
+    {
         public static string Create(string hostname, string resource, bool encryptedChannel)
         {
             string scheme = encryptedChannel ? "coaps" : "coap";
@@ -94,7 +94,7 @@ namespace SkunkLab.Protocols.Coap
 
         }
 
-        
+
 
     }
 }

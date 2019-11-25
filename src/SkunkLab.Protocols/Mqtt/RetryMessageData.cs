@@ -29,6 +29,6 @@ namespace SkunkLab.Protocols.Mqtt
             double nextTimeoutDuration = Math.Pow(2.0, Convert.ToDouble(AttemptCount)) * ackTimeout.TotalMilliseconds;
             NextRetryTime.Add(TimeSpan.FromMilliseconds(nextTimeoutDuration));
         }
-        
+
     }
 }
