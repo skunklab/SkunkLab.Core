@@ -1,6 +1,6 @@
-function New-PiraeusDemo()  
+﻿function New-PiraeusVnetDemo()  
 {	
-    param ([string]$SubscriptionName, [string]$ResourceGroupName, [string]$Email, [string]$Dns, [string]$Location, [string]$StorageAcctName, [string]$FrontendVMSize, [string]$OrleansVMSize, [string]$AppID, [string]$Password)
+    param ([string]$SubscriptionName, [string]$VNetName, [string]$SubnetName, [string]$ResourceGroupName, [string]$Email, [string]$Dns, [string]$Location, [string]$StorageAcctName, [string]$AppID, [string]$Password)
     
     $apiKey1 = NewRandomKey(16)
 	$apiKey2 = NewRandomKey(16)
@@ -16,25 +16,6 @@ function New-PiraeusDemo()
     {
 		$storageAcctName = $StorageAcctName
     }
-    
-    if($FrontendVMSize.Length -eq 0)
-    {
-		$frontendVMSize = "Standard_D2s_v3"
-    }
-    else
-    {
-		$frontendVMSize = $FrontendVMSize
-    }
-    
-    if($OrleansVMSize.Length -eq 0)
-    {
-		$orleansVMSize = "Standard_D4s_v3"
-    }
-    else
-    {
-		$orleansVMSize = $OrleansVMSize
-    }
-    
 
 	$config = Get-Content -Raw -Path "./deploy.json" | ConvertFrom-Json	
 	$config.storageAcctName = $storageAcctName
@@ -53,10 +34,10 @@ function New-PiraeusDemo()
 	$config.issuer = "http://$Dns.$Location.cloudapp.azure.com/"
 	$config.audience = $config.issuer
 	$config.coapAuthority = "http://$Dns.$Location.cloudapp.azure.com"
-	$config.frontendVMSize = $frontendVMSize
-	$config.orleansVMSize  = $orleansVMSize
+	$config.frontendVMSize = "Standard_D2s_v3"
+	$config.orleansVMSize  = "Standard_D4s_v3"
 	$config.nodeCount = 1
-	$config.clusterName = "piraeuscluster"
+	$config.clusterName = "piraeusvnetcluster"
 	
 	$email = $config.email
 	$dnsName = $config.dnsName
@@ -134,7 +115,6 @@ function New-PiraeusDemo()
 	$filename = "./deploy-" + $dateTimeString + ".json"
 	$config | ConvertTo-Json -depth 100 | Out-File $filename
 	
-	$env:AZURE_HTTP_USER_AGENT='pid-332e88b9-31d3-5070-af65-de3780ad5c8b'
 	
 	#Set the subscription 
 	Write-Host "-- Step $step - Setting subscription  $subscriptionNameOrId" -ForegroundColor Green
@@ -155,7 +135,19 @@ function New-PiraeusDemo()
 		Write-Host "-- Step $step - Create resource group '$ResourceGroupName'" -ForegroundColor Green
 		az group create --name $resourceGroupName --location $location 
 		$step++
-	}	
+	}
+
+    az network vnet create --resource-group $ResourceGroupName --name $VNetName --address-prefixes 192.168.0.0/16 --subnet-name $SubnetName --subnet-prefix 192.168.1.0/24
+    
+
+
+	$VNET_ID=$(az network vnet show --resource-group $ResourceGroupName --name $VNetName --query id -o tsv)
+    $SUBNET_ID=$(az network vnet subnet show --resource-group $ResourceGroupName --vnet-name $VNetName --name $SubnetName --query id -o tsv)
+
+    az role assignment create --assignee $AppID --scope $VNET_ID --role Contributor
+
+    
+
 	
 	#Check if the Orleans storage account exists
 	$saLine= az storage account check-name --name $storageAcctName
@@ -217,8 +209,11 @@ function New-PiraeusDemo()
 	
 	
 	#create AKS cluster
-	Write-Host "-- Step $step - Create AKS cluster" -ForegroundColor Green	
-	az aks create --resource-group $resourceGroupName --name $clusterName --node-count $nodeCount --service-principal $appId --client-secret $pwd --node-vm-size $frontendVMSize 
+	Write-Host "-- Step $step - Create AKS cluster" -ForegroundColor Green
+
+    az aks create --resource-group $resourceGroupName --name $clusterName --node-count $nodeCount --network-plugin kubenet --service-cidr 10.0.0.0/16 --dns-service-ip 10.0.0.10 --pod-cidr 10.244.0.0/16 --docker-bridge-address 172.17.0.1/16 --vnet-subnet-id $SUBNET_ID --service-principal $AppID --client-secret $Password --node-vm-size $frontendVMSize 
+
+	
 	$step++
 
 	#get AKS credentials
@@ -290,21 +285,21 @@ function New-PiraeusDemo()
 	Write-Host "Got external IP = $IP" -ForegroundColor Yellow
  
 	# Get the resource-id of the public ip
-	$PUBLICIPID=$(az network public-ip list --query "[?ipAddress!=null]|[?contains(ipAddress, '$IP')].[id]" --output tsv)
-	Write-Host "PublicIPID = $PUBLICIPID" -ForegroundColor Yellow
-	$step++
+	#$PUBLICIPID=$(az network public-ip list --query "[?ipAddress!=null]|[?contains(ipAddress, '$IP')].[id]" --output tsv)
+	#Write-Host "PublicIPID = $PUBLICIPID" -ForegroundColor Yellow
+	#$step++
 
 	#update the azure network with the public IP ID
-	Write-Host "-- Step $step - Update Azure Network with Public IP ID" -ForegroundColor Green
-	if($subscriptionNameOrId.Length -ne 0)
-	{
-	  az network public-ip update --ids $PUBLICIPID --dns-name $dnsName --subscription $subscriptionNameOrId
-	}
-	else
-	{
-	  az network public-ip update --ids $PUBLICIPID --dns-name $dnsName
-	}
-	$step++
+	#Write-Host "-- Step $step - Update Azure Network with Public IP ID" -ForegroundColor Green
+	#if($subscriptionNameOrId.Length -ne 0)
+	#{
+	  #az network public-ip update --ids $PUBLICIPID --dns-name $dnsName --subscription $subscriptionNameOrId
+	#}
+	#else
+	#{
+	#  az network public-ip update --ids $PUBLICIPID --dns-name $dnsName
+	#}
+	#$step++
 	
 	
 	#update and apply certificate with DNS and location

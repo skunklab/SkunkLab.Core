@@ -1,6 +1,6 @@
-function New-PiraeusDemo()  
+function New-PiraeusDeploy()  
 {	
-    param ([string]$SubscriptionName, [string]$ResourceGroupName, [string]$Email, [string]$Dns, [string]$Location, [string]$StorageAcctName, [string]$AppID, [string]$Password)
+    param ([string]$SubscriptionName, [string]$ResourceGroupName, [string]$Email, [string]$Dns, [string]$Location, [string]$StorageAcctName, [string]$FrontendVMSize, [string]$OrleansVMSize, [string]$AppID, [string]$Password)
     
     $apiKey1 = NewRandomKey(16)
 	$apiKey2 = NewRandomKey(16)
@@ -16,6 +16,25 @@ function New-PiraeusDemo()
     {
 		$storageAcctName = $StorageAcctName
     }
+    
+    if($FrontendVMSize.Length -eq 0)
+    {
+		$frontendVMSize = "Standard_D2s_v3"
+    }
+    else
+    {
+		$frontendVMSize = $FrontendVMSize
+    }
+    
+    if($OrleansVMSize.Length -eq 0)
+    {
+		$orleansVMSize = "Standard_D4s_v3"
+    }
+    else
+    {
+		$orleansVMSize = $OrleansVMSize
+    }
+    
 
 	$config = Get-Content -Raw -Path "./deploy.json" | ConvertFrom-Json	
 	$config.storageAcctName = $storageAcctName
@@ -34,8 +53,8 @@ function New-PiraeusDemo()
 	$config.issuer = "http://$Dns.$Location.cloudapp.azure.com/"
 	$config.audience = $config.issuer
 	$config.coapAuthority = "http://$Dns.$Location.cloudapp.azure.com"
-	$config.frontendVMSize = "Standard_D2s_v3"
-	$config.orleansVMSize  = "Standard_D4s_v3"
+	$config.frontendVMSize = $frontendVMSize
+	$config.orleansVMSize  = $orleansVMSize
 	$config.nodeCount = 1
 	$config.clusterName = "piraeuscluster"
 	
@@ -90,6 +109,7 @@ function New-PiraeusDemo()
 	#if not create one and update the file
 	
 	
+	
 	if($config.appId -eq $null -or $config.appId.Length -eq 0)
 	{
 		#create the service principal
@@ -115,6 +135,7 @@ function New-PiraeusDemo()
 	$filename = "./deploy-" + $dateTimeString + ".json"
 	$config | ConvertTo-Json -depth 100 | Out-File $filename
 	
+	$env:AZURE_HTTP_USER_AGENT='pid-332e88b9-31d3-5070-af65-de3780ad5c8b'
 	
 	#Set the subscription 
 	Write-Host "-- Step $step - Setting subscription  $subscriptionNameOrId" -ForegroundColor Green
